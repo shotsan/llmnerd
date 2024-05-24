@@ -1,9 +1,9 @@
 ---
-title: My Site
+title: All about language models
 toc: false
 ---
 
-This is the landing page.
+In this high paced language model research, this website serves the objective of slow paced and clean learning environment.
 
 ## Explore
 
@@ -12,6 +12,4 @@ This is the landing page.
   {{< card link="about" title="About" icon="user" >}}
 {{< /cards >}}
 
-## Documentation
 
-For more information, visit [Hextra](https://imfing.github.io/hextra).
