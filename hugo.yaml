@@ -1,5 +1,5 @@
 # Hugo configuration file
-title: My Site
+title: llmnerd
 
 # import hextra as module
 module:
@@ -33,12 +33,12 @@ menu:
         type: search
     - name: GitHub
       weight: 5
-      url: "https://github.com/imfing/hextra-starter-template"
+      url: "https://github.com/llmnerd"
       params:
         icon: github
     - name: Twitter
       weight: 6
-      url: "https://twitter.com/"
+      url: "https://x.com/llmnerd"
       params:
         icon: x-twitter
 
