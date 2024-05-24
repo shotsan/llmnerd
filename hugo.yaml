@@ -53,7 +53,7 @@ params:
       dark: images/logo(1).png
       # width: 40
       # height: 20
-      # link: /
+      link: /
     width: wide
 
   page:
