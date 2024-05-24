@@ -4,26 +4,20 @@ toc: false
 layout: hextra-home
 ---
 
-In this high paced language model research, this website serves the objective of slow-paced and clean learning environment.
-
-
-
 
 <div class="hx-mt-6 hx-mb-6">
 {{< hextra/hero-headline >}}
-  In this high paced language model era,&nbsp;<br class="sm:hx-block hx-hidden" />this website serves the objective of slow-paced and clean learning environment.
+ Hello, LLM Nerds,&nbsp;<br class="sm:hx-block hx-hidden" />
 {{< /hextra/hero-headline >}}
 </div>
 
 <div class="hx-mb-12">
 {{< hextra/hero-subtitle >}}
-  Basics to latest researche&nbsp;<br class="sm:hx-block hx-hidden" />software to hardware, everything about llms at one place.
+  In this high paced language model research,&nbsp;<br class="sm:hx-block hx-hidden" /> this website serves the objective of slow-paced and clean learning environment.
 {{< /hextra/hero-subtitle >}}
 </div>
 
-<div class="hx-mb-6">
-{{< hextra/hero-button text="Get Started" link="docs" >}}
-</div>
+
 
 <div class="hx-mt-6"></div>
 
