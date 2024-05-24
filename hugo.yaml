@@ -89,7 +89,7 @@ params:
 
   editURL:
     enable: true
-    base: "https://github.com/imfing/hextra/edit/main/exampleSite/content"
+    base: "https://github.com/shotsan/llmnerd/edit/main/"
 
   blog:
     list:
