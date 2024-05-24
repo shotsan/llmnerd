@@ -24,21 +24,25 @@ menu:
     - name: Research 
       pageRef: /docs
       weight: 2
+
+     - name: Hardware 
+      pageRef: /docs
+      weight: 3
   
     - name: Contact ↗
       url: "https://github.com/llmnerd"
-      weight: 3
-    - name: Search
       weight: 4
+    - name: Search
+      weight: 5
       params:
         type: search
     - name: GitHub
-      weight: 5
+      weight: 6
       url: "https://github.com/llmnerd"
       params:
         icon: github
     - name: Twitter
-      weight: 6
+      weight: 7
       url: "https://x.com/llmnerd"
       params:
         icon: x-twitter
