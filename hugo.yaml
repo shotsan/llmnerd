@@ -18,8 +18,8 @@ markup:
 
 menu:
   main:
-    - name: Docs
-      pageRef: /docs
+    - name: Posts
+      pageRef: /posts
       weight: 1
     - name: About
       pageRef: /about
