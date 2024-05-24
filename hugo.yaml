@@ -24,11 +24,9 @@ menu:
     - name: Research 
       pageRef: /docs
       weight: 2
-
-     - name: Hardware 
+    - name: Hardware 
       pageRef: /docs
       weight: 3
-  
     - name: Contact ↗
       url: "https://github.com/llmnerd"
       weight: 4
