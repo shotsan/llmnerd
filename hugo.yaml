@@ -45,7 +45,10 @@ menu:
 params:
   navbar:
     displayTitle: true
-    displayLogo: false
+    displayLogo: true
+    logo:
+      path: images/logo.png
+      dark: images/logo.png
 
   footer:
     displayCopyright: true
