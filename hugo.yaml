@@ -49,7 +49,7 @@ params:
     displayTitle: true
     displayLogo: true
     logo:
-      path: images/logo.svg
+      path: images/logo(1).png
       dark: images/logo-dark.svg
       # width: 40
       # height: 20
