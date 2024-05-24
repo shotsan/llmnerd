@@ -49,8 +49,8 @@ params:
     displayTitle: true
     displayLogo: true
     logo:
-      path: images/logo(1).png
-      dark: images/logo(1).png
+      path: logo(1).png
+      dark: logo(1).png
       # width: 40
       # height: 20
       link: /
