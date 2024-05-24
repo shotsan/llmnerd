@@ -18,12 +18,13 @@ markup:
 
 menu:
   main:
-    - name: Posts
+    - name: Basics
       pageRef: /docs
       weight: 1
-    - name: About
-      pageRef: /about
+    - name: Research 
+      pageRef: /docs
       weight: 2
+  
     - name: Contact ↗
       url: "https://github.com/llmnerd"
       weight: 3
