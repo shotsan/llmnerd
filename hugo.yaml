@@ -47,7 +47,7 @@ params:
 
   navbar:
     displayTitle: true
-    displayLogo: false
+    displayLogo: true
     logo:
       path: images/logo(1).png
       dark: images/logo(1).png
