@@ -7,7 +7,7 @@ layout: hextra-home
 
 <div class="hx-mt-6 hx-mb-6">
 {{< hextra/hero-headline >}}
- Hello, LLM Nerds,&nbsp;<br class="sm:hx-block hx-hidden" />
+ Hello, LLM Nerds! &nbsp;<br class="sm:hx-block hx-hidden" />
 {{< /hextra/hero-headline >}}
 </div>
 
@@ -17,6 +17,9 @@ layout: hextra-home
 {{< /hextra/hero-subtitle >}}
 </div>
 
+<br>
+<br>
+<br>
 
 
 <div class="hx-mt-6"></div>
@@ -24,7 +27,7 @@ layout: hextra-home
 {{< hextra/feature-grid >}}
   {{< hextra/feature-card
     title="Basics"
-    subtitle="Simple and easy to use, yet powerful and feature-rich."
+    subtitle="From gradient, attention to training a small transformer"
     class="hx-aspect-auto md:hx-aspect-[1.1/1] max-md:hx-min-h-[340px]"
     image="images/hextra-doc.webp"
     imageClass="hx-top-[40%] hx-left-[24px] hx-w-[180%] sm:hx-w-[110%] dark:hx-opacity-80"
@@ -32,7 +35,7 @@ layout: hextra-home
   >}}
   {{< hextra/feature-card
     title="Latest Research"
-    subtitle="Compose with just Markdown. Enrich with Shortcode components."
+    subtitle="Slowing it down, one paper at a time."
     class="hx-aspect-auto md:hx-aspect-[1.1/1] max-lg:hx-min-h-[340px]"
     image="images/hextra-markdown.webp"
     imageClass="hx-top-[40%] hx-left-[36px] hx-w-[180%] sm:hx-w-[110%] dark:hx-opacity-80"
@@ -40,7 +43,7 @@ layout: hextra-home
   >}}
   {{< hextra/feature-card
     title="Awesome Git Repos"
-    subtitle="Built-in full text search with FlexSearch, no extra setup required."
+    subtitle="Any useful git repo, you got it here"
     class="hx-aspect-auto md:hx-aspect-[1.1/1] max-md:hx-min-h-[340px]"
     image="images/hextra-search.webp"
     imageClass="hx-top-[40%] hx-left-[36px] hx-w-[110%] sm:hx-w-[110%] dark:hx-opacity-80"
