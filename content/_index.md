@@ -17,10 +17,18 @@ layout: hextra-home
 {{< /hextra/hero-subtitle >}}
 </div>
 
-<br>
-<br>
-<br>
 
+
+<div class="hx-mb-6">
+<br>
+<br>
+<br>
+</div>
+
+
+<div class="hx-mb-6">
+
+</div>
 
 <div class="hx-mt-6"></div>
 
