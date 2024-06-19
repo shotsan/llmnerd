@@ -1,8 +1,8 @@
 ---
-title: Demo Page
+title: Lingo
 type: docs
 prev: /
-next: docs/folder/
+next: docs/token
 ---
 
 A simple demo page.
