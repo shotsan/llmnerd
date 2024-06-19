@@ -3,7 +3,7 @@ title: Lingo
 ---
 
 
-1. Token
+1. ![Token](/docs/token.md)
 2. Vocabulary
 3. Embedding
 4. Attention
