@@ -1,8 +1,5 @@
-# Template credits
+# Template credits- Hextra
 🐣 Minimal template for getting started with [Hextra](https://github.com/imfing/hextra)
-
-![hextra-template](https://github.com/imfing/hextra-starter-template/assets/5097752/c403b9a9-a76c-47a6-8466-513d772ef0b7)
-
 
 
 
