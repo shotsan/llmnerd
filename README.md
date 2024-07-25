@@ -3,7 +3,7 @@
 
 ![hextra-template](https://github.com/imfing/hextra-starter-template/assets/5097752/c403b9a9-a76c-47a6-8466-513d772ef0b7)
 
-[🌐 Demo ↗](https://imfing.github.io/hextra-starter-template/)
+
 
 
 ## Current Deployment
