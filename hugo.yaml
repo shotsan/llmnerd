@@ -52,7 +52,7 @@ params:
   description: All about language models.
 
   navbar:
-    displayTitle: true
+    displayTitle: false
     displayLogo: true
     logo:
       path: images/logo(1).png
