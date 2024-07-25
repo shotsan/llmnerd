@@ -1,6 +1,6 @@
 ---
-title: Guide
-weight: 2
+title: Seminal Papers
+weight: 1
 ---
 
 
