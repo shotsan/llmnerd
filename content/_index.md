@@ -14,6 +14,7 @@ layout: hextra-home
 <div class="hx-mb-12">
 {{< hextra/hero-subtitle >}}
   In this high paced language model research,&nbsp;<br class="sm:hx-block hx-hidden" /> this website serves the objective of slow-paced and clean learning environment.
+ 
 {{< /hextra/hero-subtitle >}}
 </div>
 
@@ -37,7 +38,7 @@ layout: hextra-home
     title="Basics"
     subtitle="From gradient, attention to training a small transformer"
     class="hx-aspect-auto md:hx-aspect-[1.1/1] max-md:hx-min-h-[340px]"
-  
+    link ="/"
     style="background: radial-gradient(ellipse at 50% 80%,rgba(194,97,254,0.15),hsla(0,0%,100%,0));"
   >}}
   {{< hextra/feature-card
