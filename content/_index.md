@@ -36,26 +36,54 @@ layout: hextra-home
 {{< hextra/feature-grid >}}
   {{< hextra/feature-card
     title="Basics"
-    subtitle="From gradient, attention to training a small transformer"
+subtitle="Gradients, Tokenization, Attention, Positional Encoding so on.."
     class="hx-aspect-auto md:hx-aspect-[1.1/1] max-md:hx-min-h-[340px]"
     
     style="background: radial-gradient(ellipse at 50% 80%,rgba(194,97,254,0.15),hsla(0,0%,100%,0));"
   >}}
+
+
+ {{< hextra/feature-card
+title="Datasets"
+subtitle="From training to fine-tuning and evaluations, datasets are everything"
+    class="hx-aspect-auto md:hx-aspect-[1.1/1] max-md:hx-min-h-[340px]"
+   
+style="background: radial-gradient(ellipse at 50% 80%,rgba(253,187,45,0.15),hsla(0,0%,100%,0));"
+  >}}  
+{{< /hextra/feature-grid >}}
+
   {{< hextra/feature-card
-    title="Latest Research"
-    subtitle="Slowing it down, one paper at a time."
+title="Pre-training"
+subtitle="The art of predicting the next word/token"
     class="hx-aspect-auto md:hx-aspect-[1.1/1] max-lg:hx-min-h-[340px]"
    
-    style="background: radial-gradient(ellipse at 50% 80%,rgba(142,53,74,0.15),hsla(0,0%,100%,0));"
+style="background: radial-gradient(ellipse at 50% 80%,rgba(131,58,180,0.15),hsla(0,0%,100%,0));"
   >}}
-  {{< hextra/feature-card
-    title="Awesome Git Repos"
-    subtitle="Any useful git repo, you got it here"
+
+ {{< hextra/feature-card
+title="Fine-tuning"
+subtitle="Bend it like it matters"
     class="hx-aspect-auto md:hx-aspect-[1.1/1] max-md:hx-min-h-[340px]"
    
     style="background: radial-gradient(ellipse at 50% 80%,rgba(221,210,59,0.15),hsla(0,0%,100%,0));"
   >}}
-  
-{{< /hextra/feature-grid >}}
+
+
+  {{< hextra/feature-card
+title="Preference Optimization"
+subtitle="Desire to listen in our way"
+    class="hx-aspect-auto md:hx-aspect-[1.1/1] max-lg:hx-min-h-[340px]"
+   
+    style="background: radial-gradient(ellipse at 50% 80%,rgba(142,53,74,0.15),hsla(0,0%,100%,0));"
+  >}}
+
+
+    {{< hextra/feature-card
+    title="Latest Research"
+    subtitle="Slowing it down, one paper at a time."
+    class="hx-aspect-auto md:hx-aspect-[1.1/1] max-lg:hx-min-h-[340px]"
+   
+style="background: radial-gradient(ellipse at 50% 80%,rgba(252,176,69,0.15),hsla(0,0%,100%,0));"
+  >}}
 
 
