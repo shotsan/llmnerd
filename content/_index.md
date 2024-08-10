@@ -62,6 +62,9 @@ style="background: radial-gradient(ellipse at 50% 80%,rgba(131,58,180,0.15),hsla
 
 
 {{< /hextra/feature-grid >}}
+
+<br>
+<br>
 {{< /hextra/feature-grid >}}
 
  {{< hextra/feature-card
