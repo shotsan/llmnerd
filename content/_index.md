@@ -78,12 +78,6 @@ subtitle="Desire to listen in our way"
   >}}
 
 
-    {{< hextra/feature-card
-    title="Latest Research"
-    subtitle="Slowing it down, one paper at a time."
-    class="hx-aspect-auto md:hx-aspect-[1.1/1] max-lg:hx-min-h-[340px]"
-   
-style="background: radial-gradient(ellipse at 50% 80%,rgba(252,176,69,0.15),hsla(0,0%,100%,0));"
-  >}}
+ 
 
 
