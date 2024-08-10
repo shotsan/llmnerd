@@ -50,7 +50,6 @@ subtitle="From training to fine-tuning and evaluations, datasets are everything"
    
 style="background: radial-gradient(ellipse at 50% 80%,rgba(253,187,45,0.15),hsla(0,0%,100%,0));"
   >}}  
-{{< /hextra/feature-grid >}}
 
   {{< hextra/feature-card
 title="Pre-training"
@@ -59,6 +58,11 @@ subtitle="The art of predicting the next word/token"
    
 style="background: radial-gradient(ellipse at 50% 80%,rgba(131,58,180,0.15),hsla(0,0%,100%,0));"
   >}}
+
+
+
+{{< /hextra/feature-grid >}}
+{{< /hextra/feature-grid >}}
 
  {{< hextra/feature-card
 title="Fine-tuning"
@@ -77,6 +81,14 @@ subtitle="Desire to listen in our way"
     style="background: radial-gradient(ellipse at 50% 80%,rgba(142,53,74,0.15),hsla(0,0%,100%,0));"
   >}}
 
+{{< hextra/feature-card
+    title="Latest Research"
+    subtitle="Slowing it down, one research idea at a time"
+    class="hx-aspect-auto md:hx-aspect-[1.1/1] max-lg:hx-min-h-[340px]"
+    style="background: radial-gradient(ellipse at 50% 80%,rgba(255,87,34,0.15),hsla(0,0%,100%,0));"
+  >}}
+
+{{< /hextra/feature-grid >}}
 
  
 
