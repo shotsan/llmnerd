@@ -2,6 +2,10 @@
 🐣 Minimal template for getting started with [Hextra](https://github.com/imfing/hextra)
 
 
+## Contents of webpage
+Main site contents are here
+[files](content)
+
 
 ## Current Deployment
 
