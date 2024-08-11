@@ -39,7 +39,7 @@ layout: hextra-home
 subtitle="Gradients, Tokenization, Attention, Positional Encoding so on.."
     class="hx-aspect-auto md:hx-aspect-[1.1/1] max-md:hx-min-h-[340px]"
     
-    style="background: radial-gradient(ellipse at 50% 80%,rgba(194,97,254,0.15),hsla(0,0%,100%,0));"
+    style="background: radial-gradient(ellipse at 50% 80%,rgba(194,97,254,0.4),hsla(0,0%,100%,0));"
   >}}
 
 
@@ -48,7 +48,7 @@ title="Datasets"
 subtitle="From training to fine-tuning and evaluations, datasets are everything"
     class="hx-aspect-auto md:hx-aspect-[1.1/1] max-md:hx-min-h-[340px]"
    
-style="background: radial-gradient(ellipse at 50% 80%,rgba(253,187,45,0.15),hsla(0,0%,100%,0));"
+style="background: radial-gradient(ellipse at 50% 80%,rgba(253,187,45,0.4),hsla(0,0%,100%,0));"
   >}}  
 
   {{< hextra/feature-card
@@ -56,7 +56,7 @@ title="Pre-training"
 subtitle="The art of predicting the next word/token"
     class="hx-aspect-auto md:hx-aspect-[1.1/1] max-lg:hx-min-h-[340px]"
    
-style="background: radial-gradient(ellipse at 50% 80%,rgba(131,58,180,0.15),hsla(0,0%,100%,0));"
+style="background: radial-gradient(ellipse at 50% 80%,rgba(131,58,180,0.4),hsla(0,0%,100%,0));"
   >}}
 
 
@@ -68,7 +68,7 @@ title="Fine-tuning"
 subtitle="Bend it like it matters"
     class="hx-aspect-auto md:hx-aspect-[1.1/1] max-md:hx-min-h-[340px]"
    
-    style="background: radial-gradient(ellipse at 50% 80%,rgba(221,210,59,0.15),hsla(0,0%,100%,0));"
+    style="background: radial-gradient(ellipse at 50% 80%,rgba(252, 192, 197,0.4),hsla(0,0%,100%,0));"
   >}}
 
 
@@ -77,14 +77,14 @@ title="Preference Optimization"
 subtitle="Desire to listen in our way"
     class="hx-aspect-auto md:hx-aspect-[1.1/1] max-lg:hx-min-h-[340px]"
    
-    style="background: radial-gradient(ellipse at 50% 80%,rgba(142,53,74,0.15),hsla(0,0%,100%,0));"
+    style="background: radial-gradient(ellipse at 50% 80%,rgba(160, 224, 228,0.4),hsla(0,0%,100%,0));"
   >}}
 
 {{< hextra/feature-card
     title="Latest Research"
     subtitle="Slowing it down, one research idea at a time"
     class="hx-aspect-auto md:hx-aspect-[1.1/1] max-lg:hx-min-h-[340px]"
-    style="background: radial-gradient(ellipse at 50% 80%,rgba(255,87,34,0.15),hsla(0,0%,100%,0));"
+    style="background: radial-gradient(ellipse at 50% 80%,rgba(242, 230, 214,0.4),hsla(0,0%,100%,0));"
   >}}
 
 {{< /hextra/feature-grid >}}
