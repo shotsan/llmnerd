@@ -1,8 +1,9 @@
 ---
 title: Token
 type: docs
-prev: docs/first-page
-next: docs/vocab
+prev: docs/_index.md
+math: true
+next: docs/token
 ---
 
 ### What is a token
@@ -12,7 +13,7 @@ For example, we may be think of English words as token, or chunks of words as to
 ### How to create tokens
 
 ### What to do with tokens
-We need to establish relationship between the tokens to develop a language model. Through embeddings we create relationships across tokens. Simply, an embedding is a vector, and using simple Euclidian or L^2 norm, we can 
+We need to establish relationship between the tokens to develop a language model. Through embeddings we create relationships across tokens. Simply, an embedding is a vector, and using simple Euclidian or $L^2$ norm, we can 
 establish distances or metric to measure how *related* two tokens are.
 
 ### Creating an Embedding
