@@ -35,60 +35,26 @@ layout: hextra-home
 
 {{< hextra/feature-grid >}}
   {{< hextra/feature-card
-    title="Basics"
-subtitle="Gradients, Tokenization, Attention, Positional Encoding so on.."
-    class="hx-aspect-auto md:hx-aspect-[1.1/1] max-md:hx-min-h-[340px]"
-    
+    link="/foundations"
+    title="Foundations"
+    subtitle="Core concepts: Tokenization, Attention, Positional Encoding, Embeddings"
+    class="hx-aspect-auto md:hx-aspect-[1.1/1] max-md:hx-min-h-[240px]"
     style="background: radial-gradient(ellipse at 50% 80%,rgba(194,97,254,0.4),hsla(0,0%,100%,0));"
   >}}
 
-
- {{< hextra/feature-card
-title="Datasets"
-subtitle="From training to fine-tuning and evaluations, datasets are everything"
-    class="hx-aspect-auto md:hx-aspect-[1.1/1] max-md:hx-min-h-[340px]"
-   
-style="background: radial-gradient(ellipse at 50% 80%,rgba(253,187,45,0.4),hsla(0,0%,100%,0));"
-  >}}  
+  {{< hextra/feature-card
+    link="/challenges"
+    title="Challenges"
+    subtitle="Training, Scaling, Alignment, Efficiency, and Evaluation"
+    class="hx-aspect-auto md:hx-aspect-[1.1/1] max-md:hx-min-h-[240px]"
+    style="background: radial-gradient(ellipse at 50% 80%,rgba(253,187,45,0.4),hsla(0,0%,100%,0));"
+  >}}
 
   {{< hextra/feature-card
-title="Pre-training"
-subtitle="The art of predicting the next word/token"
-    class="hx-aspect-auto md:hx-aspect-[1.1/1] max-lg:hx-min-h-[340px]"
-   
-style="background: radial-gradient(ellipse at 50% 80%,rgba(131,58,180,0.4),hsla(0,0%,100%,0));"
+    link="/future"
+    title="Future"
+    subtitle="Emerging research, new architectures, and open problems"
+    class="hx-aspect-auto md:hx-aspect-[1.1/1] max-md:hx-min-h-[240px]"
+    style="background: radial-gradient(ellipse at 50% 80%,rgba(131,58,180,0.4),hsla(0,0%,100%,0));"
   >}}
-
-
-
-
-
- {{< hextra/feature-card
-title="Fine-tuning"
-subtitle="Bend it like it matters"
-    class="hx-aspect-auto md:hx-aspect-[1.1/1] max-md:hx-min-h-[340px]"
-   
-    style="background: radial-gradient(ellipse at 50% 80%,rgba(252, 192, 197,0.4),hsla(0,0%,100%,0));"
-  >}}
-
-
-  {{< hextra/feature-card
-title="Preference Optimization"
-subtitle="Desire to listen in our way"
-    class="hx-aspect-auto md:hx-aspect-[1.1/1] max-lg:hx-min-h-[340px]"
-   
-    style="background: radial-gradient(ellipse at 50% 80%,rgba(160, 224, 228,0.4),hsla(0,0%,100%,0));"
-  >}}
-
-{{< hextra/feature-card
-    title="Latest Research"
-    subtitle="Slowing it down, one research idea at a time"
-    class="hx-aspect-auto md:hx-aspect-[1.1/1] max-lg:hx-min-h-[340px]"
-    style="background: radial-gradient(ellipse at 50% 80%,rgba(242, 230, 214,0.4),hsla(0,0%,100%,0));"
-  >}}
-
 {{< /hextra/feature-grid >}}
-
- 
-
-
