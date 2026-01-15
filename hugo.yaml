@@ -94,8 +94,7 @@ params:
       tokenize: forward
 
   editURL:
-    enable: true
-    base: "https://github.com/shotsan/llmnerd/edit/main/"
+    enable: false
 
   blog:
     list:
