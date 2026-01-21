@@ -11,18 +11,15 @@ Key questions and challenges that remain open in the field.
 
 ## Key Areas
 
-### Interpretability
-- Understanding model internals
-- Mechanistic interpretability
+### Model Evaluation
+- Model evaluation on large scale datasets
 
 ### Alignment
 - Value alignment techniques
 - Safety and control
 
 ### Scaling Laws
-- Optimal compute allocation
 - Data efficiency limits
 
 ### Robustness
-- Adversarial robustness
 - Out-of-distribution generalization

@@ -11,14 +11,9 @@ Research into improving higher-order cognitive abilities of language models.
 
 ## Key Areas
 
-### Chain-of-Thought
-- Step-by-step reasoning processes
-- Self-consistency methods
-
-### Mathematical Reasoning
-- Formal mathematics
-- Arithmetic capabilities
+### Memory
+- Short term
 
 ### Logical Reasoning
-- Deductive and inductive reasoning
-- Commonsense reasoning
+- Deductive reasoning
+
