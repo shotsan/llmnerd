@@ -47,6 +47,10 @@ menu:
       url: "https://x.com/llmnerd"
       params:
         icon: x-twitter
+    - name: Theme
+      weight: 9
+      params:
+        type: theme-toggle
 
 params:
   description: All about language models.
@@ -69,7 +73,7 @@ params:
   theme:
     # light | dark | system
     default: system
-    displayToggle: true
+    displayToggle: false
 
   footer:
     enable: true
