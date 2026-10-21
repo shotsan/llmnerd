@@ -1,0 +1,152 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 520" width="100%" height="auto">
+  <defs>
+    <linearGradient id="bgGrad2" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#0a0f1d"/>
+      <stop offset="100%" stop-color="#0f172a"/>
+    </linearGradient>
+
+    <linearGradient id="cardGrad2" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#1e293b" stop-opacity="0.85"/>
+      <stop offset="100%" stop-color="#0f172a" stop-opacity="0.95"/>
+    </linearGradient>
+
+    <filter id="shadow2" x="-10%" y="-10%" width="120%" height="120%">
+      <feDropShadow dx="0" dy="6" stdDeviation="8" flood-color="#000000" flood-opacity="0.5"/>
+    </filter>
+
+    <marker id="arrowCyan" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto">
+      <path d="M 0 0 L 8 4 L 0 8 Z" fill="#38bdf8"/>
+    </marker>
+    <marker id="arrowGold" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto">
+      <path d="M 0 0 L 8 4 L 0 8 Z" fill="#facc15"/>
+    </marker>
+    <marker id="arrowPurple" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto">
+      <path d="M 0 0 L 8 4 L 0 8 Z" fill="#c084fc"/>
+    </marker>
+    <marker id="arrowEmerald" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto">
+      <path d="M 0 0 L 8 4 L 0 8 Z" fill="#34d399"/>
+    </marker>
+  </defs>
+
+  <!-- Background -->
+  <rect width="1000" height="520" rx="16" fill="url(#bgGrad2)" stroke="#1e293b" stroke-width="1.5"/>
+
+  <!-- Manim Grid -->
+  <g opacity="0.10" stroke="#475569" stroke-width="0.8">
+    <line x1="100" y1="0" x2="100" y2="520" stroke-dasharray="4 4"/>
+    <line x1="300" y1="0" x2="300" y2="520" stroke-dasharray="4 4"/>
+    <line x1="500" y1="0" x2="500" y2="520" stroke-dasharray="4 4"/>
+    <line x1="700" y1="0" x2="700" y2="520" stroke-dasharray="4 4"/>
+    <line x1="900" y1="0" x2="900" y2="520" stroke-dasharray="4 4"/>
+    <line x1="0" y1="130" x2="1000" y2="130" stroke-dasharray="4 4"/>
+    <line x1="0" y1="260" x2="1000" y2="260" stroke-dasharray="4 4"/>
+    <line x1="0" y1="390" x2="1000" y2="390" stroke-dasharray="4 4"/>
+  </g>
+
+  <!-- Header -->
+  <text x="50" y="48" fill="#f8fafc" font-family="system-ui, -apple-system, sans-serif" font-size="20" font-weight="700" letter-spacing="0.5">TOKEN EMBEDDINGS &amp; CONTINUOUS VECTOR MANIFOLDS</text>
+  <text x="50" y="72" fill="#94a3b8" font-family="system-ui, -apple-system, sans-serif" font-size="13">One-hot index projection into dense semantic coordinate space ℝᵈ</text>
+  <rect x="800" y="32" width="150" height="28" rx="14" fill="#1e293b" stroke="#38bdf8" stroke-width="1.2"/>
+  <text x="875" y="50" fill="#38bdf8" font-family="ui-monospace, monospace" font-size="11" font-weight="600" text-anchor="middle">W_E ∈ ℝ^(V × d)</text>
+
+  <!-- LEFT PANEL: MATRIX LOOKUP -->
+  <g transform="translate(50, 100)">
+    <!-- Card Frame -->
+    <rect width="420" height="390" rx="12" fill="url(#cardGrad2)" stroke="#334155" stroke-width="1.2" filter="url(#shadow2)"/>
+    <text x="20" y="32" fill="#f8fafc" font-family="system-ui, -apple-system, sans-serif" font-size="14" font-weight="600">Discrete Token ID Indexing</text>
+    <text x="20" y="52" fill="#64748b" font-family="ui-monospace, monospace" font-size="11">Lookup row i from parameter matrix W_E</text>
+
+    <!-- Token ID Box -->
+    <g transform="translate(20, 80)">
+      <rect width="70" height="40" rx="8" fill="#0f172a" stroke="#facc15" stroke-width="1.5"/>
+      <text x="35" y="25" fill="#facc15" font-family="ui-monospace, monospace" font-size="14" font-weight="700" text-anchor="middle">id: 3</text>
+      <text x="35" y="55" fill="#94a3b8" font-family="ui-monospace, monospace" font-size="11" text-anchor="middle">"king"</text>
+    </g>
+
+    <!-- Arrow from ID to Matrix -->
+    <path d="M 100 100 L 140 100" stroke="#facc15" stroke-width="2" marker-end="url(#arrowGold)"/>
+
+    <!-- Embedding Matrix W_E -->
+    <g transform="translate(150, 70)">
+      <!-- Matrix Box -->
+      <rect width="240" height="280" rx="8" fill="#090d16" stroke="#475569" stroke-width="1"/>
+      <text x="120" y="-10" fill="#94a3b8" font-family="ui-monospace, monospace" font-size="11" text-anchor="middle">Hidden Dimension d (e.g. 4096)</text>
+      <text x="-45" y="140" fill="#94a3b8" font-family="ui-monospace, monospace" font-size="11" text-anchor="middle" transform="rotate(-90, -45, 140)">Vocab V (128k)</text>
+
+      <!-- Row 0 -->
+      <rect x="8" y="12" width="224" height="26" rx="4" fill="#1e293b" opacity="0.4"/>
+      <text x="20" y="29" fill="#64748b" font-family="ui-monospace, monospace" font-size="10">row 0 [ 0.02, -0.41, ... 0.18 ]</text>
+
+      <!-- Row 1 -->
+      <rect x="8" y="44" width="224" height="26" rx="4" fill="#1e293b" opacity="0.4"/>
+      <text x="20" y="61" fill="#64748b" font-family="ui-monospace, monospace" font-size="10">row 1 [ 0.84,  0.12, ... -0.05]</text>
+
+      <!-- Row 2 -->
+      <rect x="8" y="76" width="224" height="26" rx="4" fill="#1e293b" opacity="0.4"/>
+      <text x="20" y="93" fill="#64748b" font-family="ui-monospace, monospace" font-size="10">row 2 [-0.31,  0.77, ... 0.42 ]</text>
+
+      <!-- Row 3 (ACTIVE - HIGHLIGHTED) -->
+      <rect x="6" y="108" width="228" height="34" rx="6" fill="#1e1b4b" stroke="#38bdf8" stroke-width="1.8"/>
+      <text x="18" y="129" fill="#38bdf8" font-family="ui-monospace, monospace" font-size="11" font-weight="700">row 3 [ 0.92, -0.65, ... 0.81 ]</text>
+
+      <!-- Row 4 -->
+      <rect x="8" y="148" width="224" height="26" rx="4" fill="#1e293b" opacity="0.4"/>
+      <text x="20" y="165" fill="#64748b" font-family="ui-monospace, monospace" font-size="10">row 4 [ 0.15, -0.19, ... 0.33 ]</text>
+
+      <!-- Ellipsis -->
+      <text x="120" y="210" fill="#475569" font-family="ui-monospace, monospace" font-size="14" text-anchor="middle">⋮   ⋮   ⋮   ⋮</text>
+
+      <!-- Row V -->
+      <rect x="8" y="240" width="224" height="26" rx="4" fill="#1e293b" opacity="0.4"/>
+      <text x="20" y="257" fill="#64748b" font-family="ui-monospace, monospace" font-size="10">row V [-0.08,  0.49, ... -0.22]</text>
+    </g>
+  </g>
+
+  <!-- CONNECTOR BETWEEN PANELS -->
+  <path d="M 470 295 C 490 295, 490 295, 510 295" stroke="#38bdf8" stroke-width="2.5" stroke-dasharray="4 4" marker-end="url(#arrowCyan)"/>
+
+  <!-- RIGHT PANEL: GEOMETRIC VECTOR SPACE (MANIM STYLE) -->
+  <g transform="translate(530, 100)">
+    <rect width="420" height="390" rx="12" fill="url(#cardGrad2)" stroke="#334155" stroke-width="1.2" filter="url(#shadow2)"/>
+    <text x="20" y="32" fill="#f8fafc" font-family="system-ui, -apple-system, sans-serif" font-size="14" font-weight="600">Continuous Semantic Geometry</text>
+    <text x="20" y="52" fill="#64748b" font-family="ui-monospace, monospace" font-size="11">Vector analogies &amp; directional preservation</text>
+
+    <!-- 2D Projection Space -->
+    <g transform="translate(40, 70)">
+      <!-- Axes -->
+      <line x1="20" y1="260" x2="330" y2="260" stroke="#475569" stroke-width="1.5"/>
+      <line x1="20" y1="260" x2="20" y2="20" stroke="#475569" stroke-width="1.5"/>
+      <text x="335" y="265" fill="#64748b" font-family="ui-monospace, monospace" font-size="10">dim 1</text>
+      <text x="15" y="10" fill="#64748b" font-family="ui-monospace, monospace" font-size="10">dim 2</text>
+
+      <!-- Origin Point -->
+      <circle cx="20" cy="260" r="3" fill="#94a3b8"/>
+
+      <!-- Vector: "man" -->
+      <line x1="20" y1="260" x2="100" y2="190" stroke="#38bdf8" stroke-width="2.2" marker-end="url(#arrowCyan)"/>
+      <text x="80" y="180" fill="#38bdf8" font-family="ui-monospace, monospace" font-size="12" font-weight="700">man</text>
+
+      <!-- Vector: "king" -->
+      <line x1="20" y1="260" x2="150" y2="80" stroke="#facc15" stroke-width="2.2" marker-end="url(#arrowGold)"/>
+      <text x="145" y="70" fill="#facc15" font-family="ui-monospace, monospace" font-size="12" font-weight="700">king</text>
+
+      <!-- Vector: "woman" -->
+      <line x1="20" y1="260" x2="210" y2="220" stroke="#34d399" stroke-width="2.2" marker-end="url(#arrowEmerald)"/>
+      <text x="215" y="235" fill="#34d399" font-family="ui-monospace, monospace" font-size="12" font-weight="700">woman</text>
+
+      <!-- Vector: "queen" -->
+      <line x1="20" y1="260" x2="260" y2="110" stroke="#c084fc" stroke-width="2.2" marker-end="url(#arrowPurple)"/>
+      <text x="265" y="100" fill="#c084fc" font-family="ui-monospace, monospace" font-size="12" font-weight="700">queen</text>
+
+      <!-- Relation Vector: Royalty offset (man -> king) -->
+      <line x1="100" y1="190" x2="150" y2="80" stroke="#f43f5e" stroke-width="1.8" stroke-dasharray="3 3"/>
+      
+      <!-- Relation Vector: Royalty offset (woman -> queen) -->
+      <line x1="210" y1="220" x2="260" y2="110" stroke="#f43f5e" stroke-width="1.8" stroke-dasharray="3 3"/>
+
+      <!-- Callout badge -->
+      <rect x="70" y="280" width="220" height="24" rx="6" fill="#1e1b4b" stroke="#818cf8" stroke-width="1"/>
+      <text x="180" y="296" fill="#c7d2fe" font-family="ui-monospace, monospace" font-size="10" font-weight="600" text-anchor="middle">v(king) - v(man) + v(woman) ≈ v(queen)</text>
+    </g>
+  </g>
+</svg>

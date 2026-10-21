@@ -1,0 +1,154 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 520" width="100%" height="auto">
+  <defs>
+    <linearGradient id="bgGrad6" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#0a0f1d"/>
+      <stop offset="100%" stop-color="#0f172a"/>
+    </linearGradient>
+
+    <linearGradient id="cardGrad6" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#1e293b" stop-opacity="0.85"/>
+      <stop offset="100%" stop-color="#0f172a" stop-opacity="0.95"/>
+    </linearGradient>
+
+    <filter id="shadow6" x="-10%" y="-10%" width="120%" height="120%">
+      <feDropShadow dx="0" dy="6" stdDeviation="8" flood-color="#000000" flood-opacity="0.5"/>
+    </filter>
+
+    <marker id="arrowCyan6" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto">
+      <path d="M 0 0 L 8 4 L 0 8 Z" fill="#38bdf8"/>
+    </marker>
+    <marker id="arrowEmerald6" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto">
+      <path d="M 0 0 L 8 4 L 0 8 Z" fill="#34d399"/>
+    </marker>
+    <marker id="arrowGold6" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto">
+      <path d="M 0 0 L 8 4 L 0 8 Z" fill="#facc15"/>
+    </marker>
+  </defs>
+
+  <!-- Background -->
+  <rect width="1000" height="520" rx="16" fill="url(#bgGrad6)" stroke="#1e293b" stroke-width="1.5"/>
+
+  <!-- Subtle Manim Grid -->
+  <g opacity="0.08" stroke="#475569" stroke-width="0.8">
+    <line x1="100" y1="0" x2="100" y2="520" stroke-dasharray="4 4"/>
+    <line x1="300" y1="0" x2="300" y2="520" stroke-dasharray="4 4"/>
+    <line x1="500" y1="0" x2="500" y2="520" stroke-dasharray="4 4"/>
+    <line x1="700" y1="0" x2="700" y2="520" stroke-dasharray="4 4"/>
+    <line x1="900" y1="0" x2="900" y2="520" stroke-dasharray="4 4"/>
+  </g>
+
+  <!-- Header -->
+  <text x="50" y="48" fill="#f8fafc" font-family="system-ui, -apple-system, sans-serif" font-size="20" font-weight="700" letter-spacing="0.5">DEEPSEEK INNOVATIONS: MLA &amp; FINE-GRAINED MoE</text>
+  <text x="50" y="72" fill="#94a3b8" font-family="system-ui, -apple-system, sans-serif" font-size="13">Multi-Head Latent Attention (KV Cache Compression) and DeepSeekMoE with Shared Experts</text>
+  <rect x="760" y="32" width="190" height="28" rx="14" fill="#022c22" stroke="#34d399" stroke-width="1.2"/>
+  <text x="855" y="50" fill="#34d399" font-family="ui-monospace, monospace" font-size="11" font-weight="600" text-anchor="middle">DEEPSEEK V2 / V3</text>
+
+  <!-- LEFT: MULTI-HEAD LATENT ATTENTION (MLA) -->
+  <g transform="translate(50, 100)">
+    <rect width="425" height="390" rx="12" fill="url(#cardGrad6)" stroke="#334155" stroke-width="1.2" filter="url(#shadow6)"/>
+    <text x="24" y="32" fill="#f8fafc" font-family="system-ui, -apple-system, sans-serif" font-size="14" font-weight="600">Multi-Head Latent Attention (MLA)</text>
+    <text x="24" y="50" fill="#64748b" font-family="ui-monospace, monospace" font-size="11">Low-rank KV projection: 85% cache compression</text>
+
+    <!-- Hidden state input -->
+    <g transform="translate(24, 75)">
+      <rect width="140" height="34" rx="6" fill="#0f172a" stroke="#64748b" stroke-width="1.2"/>
+      <text x="70" y="22" fill="#e2e8f0" font-family="ui-monospace, monospace" font-size="12" text-anchor="middle">Hidden State h_t</text>
+
+      <!-- Down-projection arrow -->
+      <path d="M 140 17 L 180 17" stroke="#38bdf8" stroke-width="2" marker-end="url(#arrowCyan6)"/>
+
+      <!-- Down-projection matrix -->
+      <g transform="translate(190, 0)">
+        <rect width="180" height="34" rx="6" fill="#1e1b4b" stroke="#38bdf8" stroke-width="1.5"/>
+        <text x="90" y="21" fill="#38bdf8" font-family="ui-monospace, monospace" font-size="11" font-weight="600" text-anchor="middle">Down-Project W^(DKV)</text>
+      </g>
+    </g>
+
+    <!-- Compressed KV Latent Vector (THE CACHED OBJECT) -->
+    <g transform="translate(70, 140)">
+      <rect width="280" height="60" rx="10" fill="#022c22" stroke="#34d399" stroke-width="2" filter="url(#shadow6)"/>
+      <text x="140" y="26" fill="#34d399" font-family="ui-monospace, monospace" font-size="13" font-weight="700" text-anchor="middle">Compressed KV Latent c_t^(KV)</text>
+      <text x="140" y="46" fill="#a7f3d0" font-family="ui-monospace, monospace" font-size="10" text-anchor="middle">★ ONLY vector stored in KV Cache (dim 512)</text>
+    </g>
+
+    <!-- Arrows from Latent to Decompression -->
+    <path d="M 140 200 L 140 240 L 100 240 L 100 260" stroke="#34d399" stroke-width="1.8" marker-end="url(#arrowEmerald6)"/>
+    <path d="M 280 200 L 280 240 L 320 240 L 320 260" stroke="#34d399" stroke-width="1.8" marker-end="url(#arrowEmerald6)"/>
+
+    <!-- Up-projections (Decompression into heads) -->
+    <g transform="translate(30, 260)">
+      <!-- Key Up-projection -->
+      <g transform="translate(0, 0)">
+        <rect width="145" height="40" rx="6" fill="#0f172a" stroke="#facc15" stroke-width="1.2"/>
+        <text x="72" y="24" fill="#facc15" font-family="ui-monospace, monospace" font-size="10" font-weight="600" text-anchor="middle">Up-Project W^(UK)</text>
+        <text x="72" y="55" fill="#e2e8f0" font-family="ui-monospace, monospace" font-size="10" text-anchor="middle">Keys K_t^(C)</text>
+      </g>
+
+      <!-- Value Up-projection -->
+      <g transform="translate(220, 0)">
+        <rect width="145" height="40" rx="6" fill="#0f172a" stroke="#38bdf8" stroke-width="1.2"/>
+        <text x="72" y="24" fill="#38bdf8" font-family="ui-monospace, monospace" font-size="10" font-weight="600" text-anchor="middle">Up-Project W^(UV)</text>
+        <text x="72" y="55" fill="#e2e8f0" font-family="ui-monospace, monospace" font-size="10" text-anchor="middle">Values V_t^(C)</text>
+      </g>
+    </g>
+
+    <!-- Decoupled RoPE Key Badge -->
+    <g transform="translate(100, 340)">
+      <rect width="220" height="28" rx="6" fill="#1e293b" stroke="#f43f5e" stroke-width="1"/>
+      <text x="110" y="18" fill="#fda4af" font-family="ui-monospace, monospace" font-size="10" text-anchor="middle">+ Decoupled RoPE Key k_t^(R)</text>
+    </g>
+  </g>
+
+  <!-- RIGHT: DEEPSEEK MOE ARCHITECTURE -->
+  <g transform="translate(525, 100)">
+    <rect width="425" height="390" rx="12" fill="url(#cardGrad6)" stroke="#334155" stroke-width="1.2" filter="url(#shadow6)"/>
+    <text x="24" y="32" fill="#f8fafc" font-family="system-ui, -apple-system, sans-serif" font-size="14" font-weight="600">DeepSeekMoE: Fine-Grained &amp; Shared</text>
+    <text x="24" y="50" fill="#64748b" font-family="ui-monospace, monospace" font-size="11">Fine segmentation + dedicated common baseline</text>
+
+    <!-- Token Representation Input -->
+    <g transform="translate(130, 75)">
+      <rect width="165" height="32" rx="6" fill="#0f172a" stroke="#64748b" stroke-width="1.2"/>
+      <text x="82" y="21" fill="#e2e8f0" font-family="ui-monospace, monospace" font-size="11" text-anchor="middle">Input Token Vector u_t</text>
+    </g>
+
+    <!-- Forking path -->
+    <path d="M 212 107 L 212 135 L 115 135 L 115 155" stroke="#64748b" stroke-width="1.5" marker-end="url(#arrowCyan6)"/>
+    <path d="M 212 107 L 212 135 L 310 135 L 310 155" stroke="#64748b" stroke-width="1.5" marker-end="url(#arrowGold6)"/>
+
+    <!-- SHARED EXPERTS (ALWAYS ACTIVE) -->
+    <g transform="translate(30, 160)">
+      <rect width="170" height="150" rx="8" fill="#1e1b4b" stroke="#818cf8" stroke-width="1.8"/>
+      <text x="85" y="26" fill="#818cf8" font-family="ui-monospace, monospace" font-size="11" font-weight="700" text-anchor="middle">SHARED EXPERTS</text>
+      <text x="85" y="44" fill="#cbd5e1" font-family="system-ui, -apple-system, sans-serif" font-size="10" text-anchor="middle">Always activated</text>
+
+      <!-- Sub-expert boxes -->
+      <rect x="20" y="58" width="130" height="30" rx="4" fill="#312e81" stroke="#a5b4fc" stroke-width="1"/>
+      <text x="85" y="78" fill="#e0e7ff" font-family="ui-monospace, monospace" font-size="10" text-anchor="middle">Shared Expert 1</text>
+
+      <rect x="20" y="98" width="130" height="30" rx="4" fill="#312e81" stroke="#a5b4fc" stroke-width="1"/>
+      <text x="85" y="118" fill="#e0e7ff" font-family="ui-monospace, monospace" font-size="10" text-anchor="middle">Shared Expert 2</text>
+    </g>
+
+    <!-- ROUTED EXPERTS (TOP-K) -->
+    <g transform="translate(225, 160)">
+      <rect width="170" height="150" rx="8" fill="#022c22" stroke="#34d399" stroke-width="1.8"/>
+      <text x="85" y="26" fill="#34d399" font-family="ui-monospace, monospace" font-size="11" font-weight="700" text-anchor="middle">ROUTED EXPERTS</text>
+      <text x="85" y="44" fill="#a7f3d0" font-family="system-ui, -apple-system, sans-serif" font-size="10" text-anchor="middle">Top-k of 64+ experts</text>
+
+      <!-- Selected experts -->
+      <rect x="20" y="58" width="130" height="24" rx="4" fill="#064e3b" stroke="#34d399" stroke-width="1.5"/>
+      <text x="85" y="74" fill="#a7f3d0" font-family="ui-monospace, monospace" font-size="9" text-anchor="middle">✓ Expert #14</text>
+
+      <rect x="20" y="88" width="130" height="24" rx="4" fill="#064e3b" stroke="#34d399" stroke-width="1.5"/>
+      <text x="85" y="104" fill="#a7f3d0" font-family="ui-monospace, monospace" font-size="9" text-anchor="middle">✓ Expert #39</text>
+
+      <text x="85" y="132" fill="#6ee7b7" font-family="ui-monospace, monospace" font-size="9" text-anchor="middle">... 62 others inactive</text>
+    </g>
+
+    <!-- Aggregator at bottom -->
+    <g transform="translate(50, 335)">
+      <rect width="325" height="35" rx="8" fill="#0f172a" stroke="#facc15" stroke-width="1.2"/>
+      <text x="162" y="22" fill="#fde047" font-family="ui-monospace, monospace" font-size="11" font-weight="600" text-anchor="middle">Sum(Shared) + Σ g_i Expert_i(u)</text>
+    </g>
+  </g>
+</svg>
