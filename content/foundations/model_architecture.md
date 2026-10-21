@@ -211,40 +211,11 @@ $$
 
 ## Seminal Papers & References
 
-{{< hextra/feature-grid >}}
-{{< hextra/feature-card
-  title="Attention Is All You Need"
-  subtitle="Vaswani et al. (NeurIPS 2017) • The foundation: introduced the Transformer encoder-decoder."
-  link="https://arxiv.org/abs/1706.03762"
->}}
-
-{{< hextra/feature-card
-  title="BERT: Pre-training of Deep Bidirectional Transformers"
-  subtitle="Devlin et al. (NAACL 2019) • Established bidirectional masked language modeling for representation learning."
-  link="https://arxiv.org/abs/1810.04805"
->}}
-
-{{< hextra/feature-card
-  title="Switch Transformers: Scaling to Trillion Parameter Models"
-  subtitle="Fedus, Zoph, Shazeer (JMLR 2022) • Pioneered sparse routing MoE scaling laws in language models."
-  link="https://arxiv.org/abs/2101.03961"
->}}
-
-{{< hextra/feature-card
-  title="Mixtral of Experts"
-  subtitle="Jiang et al. (Mistral AI 2024) • Open-weights sparse 8x7B MoE matching top dense models at a fraction of active compute."
-  link="https://arxiv.org/abs/2401.04088"
->}}
-
-{{< hextra/feature-card
-  title="DeepSeek-V2 & V3 Technical Reports"
-  subtitle="DeepSeek-AI (2024) • Formulated Multi-Head Latent Attention (MLA) and fine-grained DeepSeekMoE architectures."
-  link="https://arxiv.org/abs/2405.04434"
->}}
-
-{{< hextra/feature-card
-  title="Diffusion-LM Improves Controllable Text Generation"
-  subtitle="Li et al. (NeurIPS 2022) • Pioneered continuous diffusion for controllable non-autoregressive text generation."
-  link="https://arxiv.org/abs/2205.14217"
->}}
-{{< /hextra/feature-grid >}}
+{{< cards >}}
+  {{< card link="https://arxiv.org/abs/1706.03762" title="Attention Is All You Need" subtitle="Vaswani et al. (NeurIPS 2017) • The foundation: introduced the Transformer encoder-decoder." >}}
+  {{< card link="https://arxiv.org/abs/1810.04805" title="BERT: Pre-training of Deep Bidirectional Transformers" subtitle="Devlin et al. (NAACL 2019) • Established bidirectional masked language modeling for representation learning." >}}
+  {{< card link="https://arxiv.org/abs/2101.03961" title="Switch Transformers: Scaling to Trillion Parameter Models" subtitle="Fedus, Zoph, Shazeer (JMLR 2022) • Pioneered sparse routing MoE scaling laws in language models." >}}
+  {{< card link="https://arxiv.org/abs/2401.04088" title="Mixtral of Experts" subtitle="Jiang et al. (Mistral AI 2024) • Open-weights sparse 8x7B MoE matching top dense models at a fraction of active compute." >}}
+  {{< card link="https://arxiv.org/abs/2405.04434" title="DeepSeek-V2 & V3 Technical Reports" subtitle="DeepSeek-AI (2024) • Formulated Multi-Head Latent Attention (MLA) and fine-grained DeepSeekMoE architectures." >}}
+  {{< card link="https://arxiv.org/abs/2205.14217" title="Diffusion-LM Improves Controllable Text Generation" subtitle="Li et al. (NeurIPS 2022) • Pioneered continuous diffusion for controllable non-autoregressive text generation." >}}
+{{< /cards >}}

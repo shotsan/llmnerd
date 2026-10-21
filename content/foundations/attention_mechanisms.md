@@ -206,28 +206,9 @@ For a context of $N=64{,}000$, materializing the $N \times N$ matrix requires re
 
 ## Seminal Papers & References
 
-{{< hextra/feature-grid >}}
-{{< hextra/feature-card
-  title="Attention Is All You Need"
-  subtitle="Vaswani et al. (NeurIPS 2017) • Formulated Scaled Dot-Product and Multi-Head Attention, eliminating recurrence."
-  link="https://arxiv.org/abs/1706.03762"
->}}
-
-{{< hextra/feature-card
-  title="Fast Transformer Decoding: One Write-Head is All You Need"
-  subtitle="Shazeer (2019) • Introduced Multi-Query Attention (MQA) to relieve the inference memory-bandwidth bottleneck."
-  link="https://arxiv.org/abs/1911.02150"
->}}
-
-{{< hextra/feature-card
-  title="GQA: Training Generalized Multi-Query Transformer Models"
-  subtitle="Ainslie et al. (EMNLP 2023) • Unified MHA and MQA into Grouped-Query Attention, now standard in modern LLMs."
-  link="https://arxiv.org/abs/2305.13245"
->}}
-
-{{< hextra/feature-card
-  title="FlashAttention: Fast and Memory-Efficient Exact Attention with IO-Awareness"
-  subtitle="Dao et al. (NeurIPS 2022) • Pioneered exact tiled SRAM attention, revolutionizing long-context training throughput."
-  link="https://arxiv.org/abs/2205.14135"
->}}
-{{< /hextra/feature-grid >}}
+{{< cards >}}
+  {{< card link="https://arxiv.org/abs/1706.03762" title="Attention Is All You Need" subtitle="Vaswani et al. (NeurIPS 2017) • Formulated Scaled Dot-Product and Multi-Head Attention, eliminating recurrence." >}}
+  {{< card link="https://arxiv.org/abs/1911.02150" title="Fast Transformer Decoding: One Write-Head is All You Need" subtitle="Shazeer (2019) • Introduced Multi-Query Attention (MQA) to relieve the inference memory-bandwidth bottleneck." >}}
+  {{< card link="https://arxiv.org/abs/2305.13245" title="GQA: Training Generalized Multi-Query Transformer Models" subtitle="Ainslie et al. (EMNLP 2023) • Unified MHA and MQA into Grouped-Query Attention, now standard in modern LLMs." >}}
+  {{< card link="https://arxiv.org/abs/2205.14135" title="FlashAttention: Fast and Memory-Efficient Exact Attention with IO-Awareness" subtitle="Dao et al. (NeurIPS 2022) • Pioneered exact tiled SRAM attention, revolutionizing long-context training throughput." >}}
+{{< /cards >}}

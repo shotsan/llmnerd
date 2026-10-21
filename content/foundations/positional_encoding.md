@@ -172,28 +172,9 @@ To extend context windows without re-training from scratch:
 
 ## Seminal Papers & References
 
-{{< hextra/feature-grid >}}
-{{< hextra/feature-card
-  title="Attention Is All You Need"
-  subtitle="Vaswani et al. (NeurIPS 2017) • Introduced the Transformer and Sinusoidal Positional Encoding."
-  link="https://arxiv.org/abs/1706.03762"
->}}
-
-{{< hextra/feature-card
-  title="RoFormer: Enhanced Transformer with Rotary Position Embedding"
-  subtitle="Su et al. (2021) • Formulated RoPE, combining the advantages of absolute and relative positional information."
-  link="https://arxiv.org/abs/2104.09864"
->}}
-
-{{< hextra/feature-card
-  title="Train Short, Test Long: Attention with Linear Biases (ALiBi)"
-  subtitle="Press, Smith, Lewis (ICLR 2022) • Introduced static linear attention distance penalties for zero-shot context length extrapolation."
-  link="https://arxiv.org/abs/2108.12409"
->}}
-
-{{< hextra/feature-card
-  title="YaRN: Efficient Context Window Extension of Large Language Models"
-  subtitle="Peng et al. (ICLR 2024) • State-of-the-art RoPE frequency interpolation extending LLMs to 128k+ tokens with minimal fine-tuning."
-  link="https://arxiv.org/abs/2309.00071"
->}}
-{{< /hextra/feature-grid >}}
+{{< cards >}}
+  {{< card link="https://arxiv.org/abs/1706.03762" title="Attention Is All You Need" subtitle="Vaswani et al. (NeurIPS 2017) • Introduced the Transformer and Sinusoidal Positional Encoding." >}}
+  {{< card link="https://arxiv.org/abs/2104.09864" title="RoFormer: Enhanced Transformer with Rotary Position Embedding" subtitle="Su et al. (2021) • Formulated RoPE, combining the advantages of absolute and relative positional information." >}}
+  {{< card link="https://arxiv.org/abs/2108.12409" title="Train Short, Test Long: Attention with Linear Biases (ALiBi)" subtitle="Press, Smith, Lewis (ICLR 2022) • Introduced static linear attention distance penalties for zero-shot context length extrapolation." >}}
+  {{< card link="https://arxiv.org/abs/2309.00071" title="YaRN: Efficient Context Window Extension of Large Language Models" subtitle="Peng et al. (ICLR 2024) • State-of-the-art RoPE frequency interpolation extending LLMs to 128k+ tokens with minimal fine-tuning." >}}
+{{< /cards >}}

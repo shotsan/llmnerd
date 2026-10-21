@@ -158,22 +158,8 @@ By removing the requirement to compute the mean $\mu$, RMSNorm reduces GPU memor
 
 ## Seminal Papers & References
 
-{{< hextra/feature-grid >}}
-{{< hextra/feature-card
-  title="Distributed Representations of Words and Phrases and their Compositionality"
-  subtitle="Mikolov et al. (NeurIPS 2013) • Demonstrated linear vector analogies (King - Man + Woman ≈ Queen) in continuous spaces."
-  link="https://arxiv.org/abs/1310.4546"
->}}
-
-{{< hextra/feature-card
-  title="Using the Output Embedding to Improve Language Models"
-  subtitle="Press & Wolf (EACL 2017) • Formulated Weight Tying, binding input and output embedding matrices."
-  link="https://arxiv.org/abs/1608.05859"
->}}
-
-{{< hextra/feature-card
-  title="Root Mean Square Layer Normalization"
-  subtitle="Zhang & Sennrich (NeurIPS 2019) • Established RMSNorm as a computationally efficient replacement for LayerNorm."
-  link="https://arxiv.org/abs/1910.07467"
->}}
-{{< /hextra/feature-grid >}}
+{{< cards >}}
+  {{< card link="https://arxiv.org/abs/1310.4546" title="Distributed Representations of Words and Phrases and their Compositionality" subtitle="Mikolov et al. (NeurIPS 2013) • Demonstrated linear vector analogies (King - Man + Woman ≈ Queen) in continuous spaces." >}}
+  {{< card link="https://arxiv.org/abs/1608.05859" title="Using the Output Embedding to Improve Language Models" subtitle="Press & Wolf (EACL 2017) • Formulated Weight Tying, binding input and output embedding matrices." >}}
+  {{< card link="https://arxiv.org/abs/1910.07467" title="Root Mean Square Layer Normalization" subtitle="Zhang & Sennrich (NeurIPS 2019) • Established RMSNorm as a computationally efficient replacement for LayerNorm." >}}
+{{< /cards >}}

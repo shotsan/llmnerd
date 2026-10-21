@@ -167,22 +167,8 @@ This discrepancy means non-English prompts consume 3x to 4x more tokens for the 
 
 ## Seminal Papers & References
 
-{{< hextra/feature-grid >}}
-{{< hextra/feature-card
-  title="Neural Machine Translation of Rare Words with Subword Units"
-  subtitle="Sennrich, Haddow, Birch (ACL 2016) • Introduced BPE to NLP, solving the open-vocabulary translation problem."
-  link="https://arxiv.org/abs/1508.07909"
->}}
-
-{{< hextra/feature-card
-  title="SentencePiece: A Simple and Language Independent Subword Tokenizer"
-  subtitle="Kudo & Richardson (EMNLP 2018) • Direct raw text tokenization without language-specific pre-tokenizers."
-  link="https://arxiv.org/abs/1808.06226"
->}}
-
-{{< hextra/feature-card
-  title="Language Models are Unsupervised Multitask Learners (GPT-2)"
-  subtitle="Radford et al. (OpenAI 2019) • Introduced Byte-level BPE, guaranteeing 100% token coverage over all UTF-8 strings."
-  link="https://cdn.openai.com/better-language-models/language_models_are_unsupervised_multitask_learners.pdf"
->}}
-{{< /hextra/feature-grid >}}
+{{< cards >}}
+  {{< card link="https://arxiv.org/abs/1508.07909" title="Neural Machine Translation of Rare Words with Subword Units" subtitle="Sennrich, Haddow, Birch (ACL 2016) • Introduced BPE to NLP, solving the open-vocabulary translation problem." >}}
+  {{< card link="https://arxiv.org/abs/1808.06226" title="SentencePiece: A Simple and Language Independent Subword Tokenizer" subtitle="Kudo & Richardson (EMNLP 2018) • Direct raw text tokenization without language-specific pre-tokenizers." >}}
+  {{< card link="https://cdn.openai.com/better-language-models/language_models_are_unsupervised_multitask_learners.pdf" title="Language Models are Unsupervised Multitask Learners (GPT-2)" subtitle="Radford et al. (OpenAI 2019) • Introduced Byte-level BPE, guaranteeing 100% token coverage over all UTF-8 strings." >}}
+{{< /cards >}}
