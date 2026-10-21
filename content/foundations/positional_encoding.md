@@ -24,9 +24,22 @@ produce identical sets of contextual representations. Because syntax, grammar, c
 
 ## Architectural Comparison: Absolute vs. Rotary Encodings
 
-The following vector schematic contrasts the two dominant paradigms for breaking permutation symmetry: the harmonic sinusoidal waves of the original Transformer versus the 2D complex-plane rotations of modern Rotary Position Embeddings (RoPE):
+The two primary paradigms for breaking permutation symmetry operate either by direct vector addition or coordinate rotation:
 
-![Positional Encoding: Absolute vs. Rotary](/images/foundations/positional_encoding_rope.svg)
+```
+1. Absolute Sinusoidal Addition (Vaswani et al. 2017):
+   Token Vector x_m ────► ⨁ ◄──── Positional Vector PE_m
+                          │
+                          ▼
+                     Input x̃_m = x_m + PE_m   (Fixed frequency harmonics)
+
+2. Rotary Position Embedding - RoPE (Su et al. 2021):
+   Query Vector q_m ────► [ Rotate by angle mθ ] ────► q̃_m = R_(θ,m) q_m
+   Key Vector   k_n ────► [ Rotate by angle nθ ] ────► k̃_n = R_(θ,n) k_n
+                          │
+                          ▼
+   Inner Product: ⟨q̃_m, k̃_n⟩ = q_m^T R_(θ, n-m) k_n  (Relative distance angle (n-m)θ)
+```
 
 ---
 

@@ -22,9 +22,18 @@ The simplest representation is a **one-hot vector** $e_i \in \{0, 1\}^V$, where 
 
 ## The Embedding Lookup & Semantic Geometry
 
-The diagram below shows the lookup from a discrete token ID into the embedding parameter matrix $\mathbf{W}_E$, projecting the token into a continuous vector space where semantic analogies are preserved as linear translations:
+The embedding layer performs a direct row-slice lookup from a parameter matrix $\mathbf{W}_E \in \mathbb{R}^{V \times d}$, mapping discrete integer IDs to continuous coordinates:
 
-![Token Embeddings and Semantic Geometry](/images/foundations/embedding_lookup.svg)
+```
+Discrete Token ID          Weight Matrix W_E ∈ ℝ^(V × d)            Dense Vector in ℝ^d
+     id: 1 ("cat") ───►  ┌──────────────────────────────┐
+                         │ row 0: [ 0.05, -0.12,  0.08] │
+     Lookup row 1  ───►  │ row 1: [ 0.80,  0.10, -0.50] │ ──► e_cat = [0.80, 0.10, -0.50]
+                         │ row 2: [ 0.15,  0.90,  0.20] │
+                         │ row 3: [ 0.78,  0.12, -0.48] │
+                         │ row 4: [ 0.10, -0.05,  0.85] │
+                         └──────────────────────────────┘
+```
 
 ---
 

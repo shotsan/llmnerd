@@ -22,9 +22,20 @@ This unbroken recurrence chain created an architectural impasse on modern comput
 
 ## Scaled Dot-Product & Multi-Head Pipeline
 
-The following vector schematic illustrates the tensor operations powering scaled dot-product attention, including dimensional scaling, causal triangular masking, softmax distribution, and value projection:
+Scaled dot-product attention processes queries, keys, and values through the following tensor pipeline:
 
-![Scaled Dot-Product & Multi-Head Attention](/images/foundations/scaled_dot_product_attention.svg)
+```
+Queries (Q) ──┐
+              ├──► [ Matrix Multiply: Q Kᵀ ] ──► [ Scale: 1 / √d_k ] ──► [ Causal Mask ]
+Keys    (K) ──┘                                                               │
+                                                                              ▼
+                                                                        [ Softmax ]
+                                                                              │
+                                       Values (V) ──► [ Matrix Multiply: A V ] ◄──
+                                                              │
+                                                              ▼
+                                                        Output Tensor O
+```
 
 ---
 

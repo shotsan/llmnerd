@@ -13,9 +13,30 @@ Rather than remaining a static template, the Transformer evolved through distinc
 
 ## The Architectural Evolution of Language Models
 
-The following lineage diagram maps the historical divergence and convergence of model architectures from the original 2017 Transformer to modern dense decoders, sparse mixture of experts, latent attention, and diffusion paradigms:
+The structural evolution of language models across computational epochs:
 
-![The Architectural Evolution of Language Models](/images/foundations/model_architecture_evolution.svg)
+```
+                      [ Original Transformer (2017) ]
+                           (Encoder-Decoder Stack)
+                                      │
+            ┌─────────────────────────┼─────────────────────────┐
+            ▼                         ▼                         ▼
+   [ BERT / RoBERTa (2018) ]    [ T5 / BART (2019) ]      [ GPT-1/2/3 (2018-2020) ]
+       (Encoder-Only)           (Encoder-Decoder)              (Decoder-Only)
+   Bidirectional Masked LM     Text-to-Text Universal       Causal Next-Token Prediction
+                                                                │
+                                                                ▼ (Scaling Laws Epoch)
+                                                    [ Modern Decoder Standard (2022-2024) ]
+                                                        (LLaMA, Mistral, Gemma, Qwen)
+                                                      Pre-RMSNorm • RoPE • SwiGLU • GQA
+                                                                │
+            ┌───────────────────────────────────────────────────┼─────────────────────────────────┐
+            ▼                                                   ▼                                 ▼
+   [ Mixture of Experts (MoE) ]                        [ DeepSeek MLA + MoE ]            [ Text Diffusion ]
+       (Switch, Mixtral)                                   (DeepSeek V2/V3)               (Diffusion-LM, Plaid)
+   Sparse Top-k Expert Routing                         Low-Rank Latent KV Cache          Non-Autoregressive
+   Decouple Parameters from FLOPs                     Fine-Grained + Shared Experts       Parallel Denoising
+```
 
 ---
 
@@ -137,7 +158,14 @@ Input Token x ────► [ Gating Router ] ───► Select Top-2 Expert
 
 DeepSeek-V2 and V3 introduced two breakthroughs that redefine memory and parameter efficiency at scale:
 
-![DeepSeek MLA and MoE Innovations](/images/foundations/deepseek_mla_moe.svg)
+```
+Multi-Head Latent Attention (MLA):
+   Hidden State h_t ──► [ Down-Projection: W^(DKV) ] ──► Compressed Latent c_t^(KV)  (Cached in VRAM)
+                                                                 │
+                                         ┌───────────────────────┴───────────────────────┐
+                                         ▼                                               ▼
+                         [ Up-Project: W^(UK) ] ──► Keys                 [ Up-Project: W^(UV) ] ──► Values
+```
 
 ### Multi-Head Latent Attention (MLA)
 Standard Grouped-Query Attention (GQA) reduces KV-cache by having multiple query heads share key-value heads. DeepSeek took this to the theoretical limit by introducing **low-rank joint compression**:

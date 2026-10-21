@@ -18,9 +18,19 @@ Subword tokenization resolves this dilemma. By treating words not as atomic enti
 
 ## The Tokenization Pipeline
 
-The following vector schematic illustrates how raw UTF-8 text streams are decomposed, merged iteratively via statistical co-occurrence, and mapped into discrete integer index tensors:
+The pipeline transforms raw UTF-8 text streams into discrete integer index tensors through statistical subword chunking:
 
-![The Tokenization Pipeline](/images/foundations/tokenization_pipeline.svg)
+```
+Raw Input:         " understanding "
+                        │
+Byte/Char Split:   [' ', 'u', 'n', 'd', 'e', 'r', 's', 't', 'a', 'n', 'd', 'i', 'n', 'g', ' ']
+                        │
+                        ▼ (Iterative pair-frequency statistical merges)
+Subword Merges:    [" under", "stand", "ing"]
+                        │
+                        ▼ (Vocabulary index lookup table)
+Token IDs:         [2104, 3812, 278]  ──► [ Ready for Embedding Lookup ]
+```
 
 ---
 
