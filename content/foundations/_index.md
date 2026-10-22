@@ -1,14 +1,10 @@
 ---
-title: Foundations
+title: Language Model Foundations
+linkTitle: Foundations
+breadcrumbs: false
 toc: false
 type: docs
 ---
-
-<div class="hx-mt-4 hx-mb-4">
-{{< hextra/hero-headline >}}
-  Language Model Foundations
-{{< /hextra/hero-headline >}}
-</div>
 
 <div class="hx-mb-10">
 {{< hextra/hero-subtitle >}}
