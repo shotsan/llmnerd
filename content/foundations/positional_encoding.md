@@ -183,9 +183,9 @@ graph LR
 
 ---
 
-## Systems Implementation & Context Extrapolation
+## Implementation & Context Extrapolation
 
-### Comparative Taxonomy of Sequence Positional Inductive Biases
+### Sequence Positional Inductive Biases
 
 | Architecture Paradigm | Examples | Mechanism | Extrapolation to Unseen Lengths |
 | :--- | :--- | :--- | :--- |

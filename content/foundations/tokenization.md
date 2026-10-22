@@ -126,7 +126,7 @@ Despite `"lowest"` never appearing in the training corpus, the tokenizer cleanly
 
 ---
 
-## Production Engineering: Boundary Pathologies & Compression Rates
+## Boundary Pathologies & Compression Rates
 
 ### Byte-Level Fallback & The Zero-OOV Guarantee
 Early BPE models (like Sennrich et al. 2015) operated over Unicode characters. If an input contained an unencountered emoji, rare mathematical symbol, or character from an unsupported script, the tokenizer was forced to emit the destructive unknown token `[UNK]`.
@@ -142,7 +142,7 @@ UTF-8 Hex:  0xE2 0x9C 0xA8
 Fallback:   Byte(226), Byte(156), Byte(168) -> Always representable!
 ```
 
-### Algorithmic Taxonomy: BPE vs. WordPiece vs. SentencePiece
+### BPE vs. WordPiece vs. SentencePiece
 
 | Dimension | Byte-Pair Encoding (BPE) | WordPiece | SentencePiece / Unigram |
 | :--- | :--- | :--- | :--- |
