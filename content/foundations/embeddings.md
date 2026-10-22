@@ -24,6 +24,15 @@ The simplest representation is a **one-hot vector** $e_i \in \{0, 1\}^V$, where 
 
 The embedding layer performs a direct row-slice lookup from a parameter matrix $\mathbf{W}_E \in \mathbb{R}^{V \times d}$, mapping discrete integer IDs to continuous coordinates:
 
+```mermaid
+flowchart LR
+    ID["Token ID Index<br><code>id = 1 ('cat')</code>"] --> Slice["Row Lookup<br><code>W_E[1] ∈ ℝ^(1 × d)</code>"]
+    Slice --> Vec["Continuous Embedding Vector<br><code>e_cat = [0.80, 0.10, -0.50]</code>"]
+    Vec --> Scale["Scale Factor<br><code>× √d_model</code>"]
+    Scale --> Add["Add Positional Encoding<br><code>x̃ = (√d) · e_cat + PE_pos</code>"]
+    Add --> Norm["RMSNorm Layer<br>Stabilized Hidden State h_0"]
+```
+
 ```
 Discrete Token ID          Weight Matrix W_E ∈ ℝ^(V × d)            Dense Vector in ℝ^d
      id: 1 ("cat") ───►  ┌──────────────────────────────┐

@@ -24,17 +24,17 @@ This unbroken recurrence chain created an architectural impasse on modern comput
 
 Scaled dot-product attention processes queries, keys, and values through the following tensor pipeline:
 
-```
-Queries (Q) ──┐
-              ├──► [ Matrix Multiply: Q Kᵀ ] ──► [ Scale: 1 / √d_k ] ──► [ Causal Mask ]
-Keys    (K) ──┘                                                               │
-                                                                              ▼
-                                                                        [ Softmax ]
-                                                                              │
-                                       Values (V) ──► [ Matrix Multiply: A V ] ◄──
-                                                              │
-                                                              ▼
-                                                        Output Tensor O
+```mermaid
+flowchart TD
+    Q["Queries (Q)<br><code>T × d_k</code>"] --> Dot["Matrix Multiply<br><code>Q · Kᵀ (T × T)</code>"]
+    K["Keys (K)<br><code>T × d_k</code>"] --> Dot
+    Dot --> Scale["Scale Factor<br><code>1 / √d_k</code>"]
+    Scale --> Mask["Causal Mask<br>Set upper-triangle to -∞"]
+    Mask --> Softmax["Row-wise Softmax<br>Attention Weights A (Σ = 1.0)"]
+    Softmax --> MatMulV["Matrix Multiply: A · V"]
+    V["Values (V)<br><code>T × d_v</code>"] --> MatMulV
+    MatMulV --> Head["Concatenate Heads & Project W_O"]
+    Head --> Out["Contextualized Output Tensor O"]
 ```
 
 ---

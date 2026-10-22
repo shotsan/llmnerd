@@ -20,16 +20,13 @@ Subword tokenization resolves this dilemma. By treating words not as atomic enti
 
 The pipeline transforms raw UTF-8 text streams into discrete integer index tensors through statistical subword chunking:
 
-```
-Raw Input:         " understanding "
-                        │
-Byte/Char Split:   [' ', 'u', 'n', 'd', 'e', 'r', 's', 't', 'a', 'n', 'd', 'i', 'n', 'g', ' ']
-                        │
-                        ▼ (Iterative pair-frequency statistical merges)
-Subword Merges:    [" under", "stand", "ing"]
-                        │
-                        ▼ (Vocabulary index lookup table)
-Token IDs:         [2104, 3812, 278]  ──► [ Ready for Embedding Lookup ]
+```mermaid
+flowchart TD
+    A["Raw Text String<br><code>&quot; understanding &quot;</code>"] --> B["Byte / Character Split<br><code>[' ', 'u', 'n', 'd', 'e', 'r', 's', 't', 'a', 'n', 'd', 'i', 'n', 'g', ' ']</code>"]
+    B --> C["Statistical Merge Engine<br>Iterative greedy pair frequencies"]
+    C --> D["Subword Tokens<br><code>[&quot; under&quot;, &quot;stand&quot;, &quot;ing&quot;]</code>"]
+    D --> E["Vocabulary Lookup Table<br><code>Token IDs: [2104, 3812, 278]</code>"]
+    E --> F["Input Tensor for Embedding Lookup"]
 ```
 
 ---

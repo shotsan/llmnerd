@@ -26,19 +26,21 @@ produce identical sets of contextual representations. Because syntax, grammar, c
 
 The two primary paradigms for breaking permutation symmetry operate either by direct vector addition or coordinate rotation:
 
-```
-1. Absolute Sinusoidal Addition (Vaswani et al. 2017):
-   Token Vector x_m ────► ⨁ ◄──── Positional Vector PE_m
-                          │
-                          ▼
-                     Input x̃_m = x_m + PE_m   (Fixed frequency harmonics)
+```mermaid
+flowchart TD
+    subgraph Absolute["1. Absolute Sinusoidal Addition (Vaswani et al. 2017)"]
+        X["Token Vector x_m"] --> Add["⨁ Additive Vector Sum"]
+        PE["Harmonic Vector PE_m<br><code>sin / cos frequencies</code>"] --> Add
+        Add --> Out1["Modulated Input: x̃_m = x_m + PE_m"]
+    end
 
-2. Rotary Position Embedding - RoPE (Su et al. 2021):
-   Query Vector q_m ────► [ Rotate by angle mθ ] ────► q̃_m = R_(θ,m) q_m
-   Key Vector   k_n ────► [ Rotate by angle nθ ] ────► k̃_n = R_(θ,n) k_n
-                          │
-                          ▼
-   Inner Product: ⟨q̃_m, k̃_n⟩ = q_m^T R_(θ, n-m) k_n  (Relative distance angle (n-m)θ)
+    subgraph Rotary["2. Rotary Position Embedding - RoPE (Su et al. 2021)"]
+        Q["Query Vector q_m"] --> RotQ["Rotate by mθ<br><code>R_(θ,m) · q_m</code>"]
+        K["Key Vector k_n"] --> RotK["Rotate by nθ<br><code>R_(θ,n) · k_n</code>"]
+        RotQ --> Dot["Inner Product Kernel<br><code>⟨q̃_m, k̃_n⟩</code>"]
+        RotK --> Dot
+        Dot --> Out2["Relative Distance Dependent:<br><code>q_mᵀ · R_(θ, n-m) · k_n</code>"]
+    end
 ```
 
 ---

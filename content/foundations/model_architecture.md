@@ -15,27 +15,19 @@ Rather than remaining a static template, the Transformer evolved through distinc
 
 The structural evolution of language models across computational epochs:
 
-```
-                      [ Original Transformer (2017) ]
-                           (Encoder-Decoder Stack)
-                                      │
-            ┌─────────────────────────┼─────────────────────────┐
-            ▼                         ▼                         ▼
-   [ BERT / RoBERTa (2018) ]    [ T5 / BART (2019) ]      [ GPT-1/2/3 (2018-2020) ]
-       (Encoder-Only)           (Encoder-Decoder)              (Decoder-Only)
-   Bidirectional Masked LM     Text-to-Text Universal       Causal Next-Token Prediction
-                                                                │
-                                                                ▼ (Scaling Laws Epoch)
-                                                    [ Modern Decoder Standard (2022-2024) ]
-                                                        (LLaMA, Mistral, Gemma, Qwen)
-                                                      Pre-RMSNorm • RoPE • SwiGLU • GQA
-                                                                │
-            ┌───────────────────────────────────────────────────┼─────────────────────────────────┐
-            ▼                                                   ▼                                 ▼
-   [ Mixture of Experts (MoE) ]                        [ DeepSeek MLA + MoE ]            [ Text Diffusion ]
-       (Switch, Mixtral)                                   (DeepSeek V2/V3)               (Diffusion-LM, Plaid)
-   Sparse Top-k Expert Routing                         Low-Rank Latent KV Cache          Non-Autoregressive
-   Decouple Parameters from FLOPs                     Fine-Grained + Shared Experts       Parallel Denoising
+```mermaid
+flowchart TD
+    Trans["Original Transformer (2017)<br>Dual-Stack Encoder-Decoder"]
+    
+    Trans -->|"Encoder Branch"| BERT["BERT / RoBERTa (2018)<br>Bidirectional Masked LM<br>NLU & Semantic Search"]
+    Trans -->|"Unified Seq2Seq"| T5["T5 / BART (2019)<br>Text-to-Text Universal Paradigm<br>Span Corruption"]
+    Trans -->|"Causal Decoder"| GPT["GPT-1 / 2 / 3 (2018-2020)<br>Causal Next-Token Prediction<br>Empirical Scaling Laws"]
+
+    GPT -->|"Pre-LN & Modernization"| Modern["Modern Decoder Standard (2022-2024)<br>LLaMA, Mistral, Gemma, Qwen<br>Pre-RMSNorm • RoPE • SwiGLU • GQA"]
+
+    Modern -->|"Sparse Capacity"| MoE["Mixture of Experts (MoE)<br>Switch Transformer, Mixtral 8x7B<br>Sparse Top-k Expert Routing"]
+    Modern -->|"Latent KV Compression"| DeepSeek["DeepSeek-V2 / V3 Architecture<br>Multi-Head Latent Attention (MLA)<br>DeepSeekMoE + Shared Experts"]
+    Modern -->|"Non-Autoregressive"| Diffusion["Diffusion Text Models<br>Diffusion-LM, Plaid<br>Parallel Iterative Denoising"]
 ```
 
 ---
@@ -158,13 +150,15 @@ Input Token x ────► [ Gating Router ] ───► Select Top-2 Expert
 
 DeepSeek-V2 and V3 introduced two breakthroughs that redefine memory and parameter efficiency at scale:
 
-```
-Multi-Head Latent Attention (MLA):
-   Hidden State h_t ──► [ Down-Projection: W^(DKV) ] ──► Compressed Latent c_t^(KV)  (Cached in VRAM)
-                                                                 │
-                                         ┌───────────────────────┴───────────────────────┐
-                                         ▼                                               ▼
-                         [ Up-Project: W^(UK) ] ──► Keys                 [ Up-Project: W^(UV) ] ──► Values
+```mermaid
+flowchart LR
+    H["Hidden State h_t"] --> Down["Down-Projection: W^(DKV)"]
+    Down --> Latent["Compressed Latent c_t^(KV)<br><b>★ ONLY Vector Stored in KV-Cache</b>"]
+    Latent --> UpK["Up-Project Keys: W^(UK)"]
+    Latent --> UpV["Up-Project Values: W^(UV)"]
+    UpK --> Attn["Attention Computation Engine"]
+    UpV --> Attn
+    RoPE["Decoupled RoPE Key k_t^(R)"] --> Attn
 ```
 
 ### Multi-Head Latent Attention (MLA)
