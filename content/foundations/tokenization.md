@@ -22,12 +22,26 @@ Subword tokenization resolves this dilemma. By treating words not as atomic enti
 The pipeline transforms raw UTF-8 text streams into discrete integer index tensors through statistical subword chunking:
 
 ```mermaid
-flowchart TD
-    A["Raw Text String<br/><b>' understanding '</b>"] --> B["Byte / Character Split<br/><b>Initial symbol sequence</b>"]
-    B --> C["Statistical Merge Engine<br/><b>Iterative greedy pair frequencies</b>"]
-    C --> D["Subword Tokens<br/><b>[' under', 'stand', 'ing']</b>"]
-    D --> E["Vocabulary Lookup Table<br/><b>Token IDs: [2104, 3812, 278]</b>"]
-    E --> F["Input Tensor for Embedding Lookup"]
+flowchart LR
+    subgraph S1["1. Character & Byte Ingestion"]
+        direction TB
+        A["<b>Raw Text Input</b><br/><code>&quot;understanding&quot;</code>"]
+        --> B["<b>Pre-Tokenization</b><br/>Whitespace & byte split"]
+    end
+
+    subgraph S2["2. Subword Segmentation"]
+        direction TB
+        C["<b>BPE Merge Engine</b><br/>Greedy pair frequency rules"]
+        --> D["<b>Subword Sequence</b><br/><code>[&quot; under&quot;,&nbsp;&quot;stand&quot;,&nbsp;&quot;ing&quot;]</code>"]
+    end
+
+    subgraph S3["3. Numerical Vectorization"]
+        direction TB
+        E["<b>Vocabulary Lookup</b><br/><code>[2104,&nbsp;3812,&nbsp;278]</code>"]
+        --> F["<b>Model Input Tensor</b><br/>Embedding coordinate lookup"]
+    end
+
+    S1 --> S2 --> S3
 ```
 
 ---

@@ -1,0 +1,4 @@
+{{- $customCss := resources.Get "css/custom.css" -}}
+{{- if and $customCss (not hugo.IsProduction) -}}
+  <link rel="stylesheet" href="{{ $customCss.RelPermalink }}">
+{{- end -}}
