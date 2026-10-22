@@ -101,17 +101,31 @@ $$
 #### The Geometric Intuition:
 Notice that across dimension $i=0$, the coordinates oscillate rapidly with wavelength $2\pi \approx 6.28$ tokens. At dimension $i=1$, the wavelength expands to $200\pi \approx 628$ tokens. This forms a continuous analog to the binary bits of an integer counter: low dimensions provide high-resolution local distinction between adjacent tokens, while high dimensions track global position across long documents.
 
-<div class="hx-my-6 hx-p-4 hx-rounded-lg hx-border hx-border-gray-200 hx-dark:border-neutral-800 hx-bg-slate-50/50 hx-dark:bg-neutral-900/50">
-  <div class="hx-text-sm hx-font-semibold hx-text-gray-800 hx-dark:text-neutral-200 hx-mb-1">
-    Interactive Chart: Sinusoidal Frequency Harmonics Across Dimensions
-  </div>
-  <div class="hx-text-xs hx-text-gray-500 hx-dark:text-neutral-400 hx-mb-4">
-    Evaluating \(\sin(pos / 10000^{2i/d})\) over token positions \(pos \in [0, 50]\). Lower dimensions oscillate rapidly for local syntax; higher dimensions oscillate slowly for global document position.
-  </div>
-  <div style="position: relative; height: 320px; width: 100%;">
-    <canvas id="sinusoidalChart"></canvas>
-  </div>
-</div>
+```mermaid
+graph TD
+    subgraph PosInput["Token Sequence Position Input"]
+        Pos["Position index: pos ∈ {0, 1, ..., N-1}"]
+    end
+
+    subgraph Spectrum["Multi-Scale Frequency Decomposition: θ_i = 10000^(-2i/d)"]
+        direction TB
+        Dim0["Dim i=0 (λ ≈ 6.28 tokens): sin(pos), cos(pos)<br/><b>Local Syntactic Distinction</b> (Fine-grained word order)"]
+        Dim1["Dim i=1 (λ ≈ 628 tokens): sin(pos/100), cos(pos/100)<br/><b>Phrase & Clause Boundaries</b> (Mid-range context)"]
+        Dim2["Dim i=2 (λ ≈ 62,831 tokens): sin(pos/10000), cos(pos/10000)<br/><b>Document-Level Progression</b> (Coarse global position)"]
+    end
+
+    Pos --> Dim0
+    Pos --> Dim1
+    Pos --> Dim2
+
+    subgraph Assembly["Vector Injection"]
+        Dim0 --> Concat["Concatenate Channels into PE(pos) ∈ ℝ^d"]
+        Dim1 --> Concat
+        Dim2 --> Concat
+        Word["Word Embedding: x_pos"] --> Add["Elementwise Addition: z_pos = x_pos + PE(pos)"]
+        Concat --> Add
+    end
+```
 
 ---
 
@@ -144,227 +158,27 @@ $$
 \langle \mathbf{R}_{\theta, m} \mathbf{q}, \, \mathbf{R}_{\theta, n} \mathbf{k} \rangle = \mathbf{q}^T \mathbf{R}_{\theta, n-m} \mathbf{k}
 $$
 
-The inner product depends **strictly on the relative displacement $(n - m)$**, completely independent of absolute token indices. Whether two words appear at positions $(1, 3)$ or positions $(501, 503)$, their attention score is mathematically identical.
+The inner product depends **strictly on the relative displacement `(n - m)`**, completely independent of absolute token indices. Whether two words appear at positions `(1, 3)` or positions `(501, 503)`, their attention score is mathematically identical.
 
-<div class="hx-my-6 hx-p-4 hx-rounded-lg hx-border hx-border-gray-200 hx-dark:border-neutral-800 hx-bg-slate-50/50 hx-dark:bg-neutral-900/50">
-  <div class="hx-text-sm hx-font-semibold hx-text-gray-800 hx-dark:text-neutral-200 hx-mb-1">
-    Interactive Chart: Rotary Position Embedding (RoPE) 2D Complex Rotation
-  </div>
-  <div class="hx-text-xs hx-text-gray-500 hx-dark:text-neutral-400 hx-mb-4">
-    Rotating Query \(\mathbf{q}\) at position \(m=2\) (\(60^\circ\)) and Key \(\mathbf{k}\) at position \(n=5\) (\(150^\circ\)) on the complex unit circle. The inner product depends exclusively on the relative angle \((n - m)\theta = 90^\circ\).
-  </div>
-  <div style="position: relative; height: 360px; width: 100%;">
-    <canvas id="ropeChart"></canvas>
-  </div>
-</div>
+```mermaid
+graph LR
+    subgraph TokenM["Query Token m (Position m)"]
+        Qm["Query Vector q ∈ ℝ^d"] --> SplitM["Partition into d/2 2D pairs<br/>[q₀, q₁], [q₂, q₃], ..."]
+        SplitM --> RotM["2D Complex Plane Rotation<br/>R_{m·θ_i} · [q_{2i}, q_{2i+1}]"]
+        RotM --> RotatedQ["Rotated Query Vector: R_m · q"]
+    end
 
-<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.2/dist/chart.umd.min.js"></script>
-<script>
-document.addEventListener("DOMContentLoaded", function() {
-  function isDark() {
-    return document.documentElement.classList.contains("dark");
-  }
+    subgraph TokenN["Key Token n (Position n)"]
+        Kn["Key Vector k ∈ ℝ^d"] --> SplitN["Partition into d/2 2D pairs<br/>[k₀, k₁], [k₂, k₃], ..."]
+        SplitN --> RotN["2D Complex Plane Rotation<br/>R_{n·θ_i} · [k_{2i}, k_{2i+1}]"]
+        RotN --> RotatedK["Rotated Key Vector: R_n · k"]
+    end
 
-  function getThemeColors() {
-    const dark = isDark();
-    return {
-      grid: dark ? "rgba(255, 255, 255, 0.08)" : "rgba(0, 0, 0, 0.06)",
-      text: dark ? "#94a3b8" : "#64748b",
-      circle: dark ? "rgba(148, 163, 184, 0.2)" : "rgba(100, 116, 139, 0.25)"
-    };
-  }
+    RotatedQ --> AttnDot["Attention Dot Product: ⟨R_m · q, R_n · k⟩"]
+    RotatedK --> AttnDot
 
-  // 1. Sinusoidal Chart
-  const sinCtx = document.getElementById("sinusoidalChart");
-  let sinChart = null;
-  let ropeChart = null;
-
-  if (sinCtx) {
-    const positions = Array.from({ length: 51 }, (_, i) => i);
-    const colors = getThemeColors();
-
-    sinChart = new Chart(sinCtx, {
-      type: "line",
-      data: {
-        labels: positions,
-        datasets: [
-          {
-            label: "dim 0 (i=0, λ=1.00)",
-            data: positions.map(p => Math.sin(p / 1)),
-            borderColor: "#38bdf8",
-            backgroundColor: "transparent",
-            borderWidth: 2,
-            pointRadius: 0,
-            tension: 0.3
-          },
-          {
-            label: "dim 2 (i=1, λ=10.0)",
-            data: positions.map(p => Math.sin(p / 10)),
-            borderColor: "#facc15",
-            backgroundColor: "transparent",
-            borderWidth: 2,
-            pointRadius: 0,
-            tension: 0.3
-          },
-          {
-            label: "dim 4 (i=2, λ=100.0)",
-            data: positions.map(p => Math.sin(p / 100)),
-            borderColor: "#c084fc",
-            backgroundColor: "transparent",
-            borderWidth: 2,
-            pointRadius: 0,
-            tension: 0.3
-          },
-          {
-            label: "dim 6 (i=3, λ=1000.0)",
-            data: positions.map(p => Math.sin(p / 1000)),
-            borderColor: "#34d399",
-            backgroundColor: "transparent",
-            borderWidth: 2,
-            pointRadius: 0,
-            tension: 0.3
-          }
-        ]
-      },
-      options: {
-        responsive: true,
-        maintainAspectRatio: false,
-        plugins: {
-          legend: {
-            position: "top",
-            labels: { color: colors.text, font: { family: "ui-monospace, monospace", size: 11 } }
-          },
-          tooltip: {
-            mode: "index",
-            intersect: false
-          }
-        },
-        scales: {
-          x: {
-            title: { display: true, text: "Token Position (pos)", color: colors.text },
-            grid: { color: colors.grid },
-            ticks: { color: colors.text, maxTicksLimit: 11 }
-          },
-          y: {
-            title: { display: true, text: "PE Value", color: colors.text },
-            grid: { color: colors.grid },
-            ticks: { color: colors.text },
-            min: -1.1,
-            max: 1.1
-          }
-        }
-      }
-    });
-  }
-
-  // 2. RoPE Chart
-  const ropeCtx = document.getElementById("ropeChart");
-  if (ropeCtx) {
-    const colors = getThemeColors();
-    const circlePoints = [];
-    for (let deg = 0; deg <= 360; deg += 3) {
-      const rad = (deg * Math.PI) / 180;
-      circlePoints.push({ x: Math.cos(rad), y: Math.sin(rad) });
-    }
-
-    const arcPoints = [];
-    for (let deg = 60; deg <= 150; deg += 2) {
-      const rad = (deg * Math.PI) / 180;
-      arcPoints.push({ x: 0.45 * Math.cos(rad), y: 0.45 * Math.sin(rad) });
-    }
-
-    ropeChart = new Chart(ropeCtx, {
-      type: "scatter",
-      data: {
-        datasets: [
-          {
-            label: "Unit Circle (‖x‖=1)",
-            data: circlePoints,
-            showLine: true,
-            borderColor: colors.circle,
-            borderDash: [4, 4],
-            borderWidth: 1.5,
-            pointRadius: 0
-          },
-          {
-            label: "Relative Separation: (n-m)θ = 90°",
-            data: arcPoints,
-            showLine: true,
-            borderColor: "#f43f5e",
-            borderDash: [2, 2],
-            borderWidth: 2,
-            pointRadius: 0
-          },
-          {
-            label: "Query R_m q (pos m=2, 60°)",
-            data: [{ x: 0, y: 0 }, { x: Math.cos(Math.PI / 3), y: Math.sin(Math.PI / 3) }],
-            showLine: true,
-            borderColor: "#38bdf8",
-            borderWidth: 3,
-            pointBackgroundColor: "#38bdf8",
-            pointRadius: [0, 6]
-          },
-          {
-            label: "Key R_n k (pos n=5, 150°)",
-            data: [{ x: 0, y: 0 }, { x: Math.cos((5 * Math.PI) / 6), y: Math.sin((5 * Math.PI) / 6) }],
-            showLine: true,
-            borderColor: "#facc15",
-            borderWidth: 3,
-            pointBackgroundColor: "#facc15",
-            pointRadius: [0, 6]
-          }
-        ]
-      },
-      options: {
-        responsive: true,
-        maintainAspectRatio: false,
-        plugins: {
-          legend: {
-            position: "top",
-            labels: { color: colors.text, font: { family: "ui-monospace, monospace", size: 11 } }
-          }
-        },
-        scales: {
-          x: {
-            title: { display: true, text: "Real Dimension Axis (Re)", color: colors.text },
-            grid: { color: colors.grid },
-            ticks: { color: colors.text },
-            min: -1.3,
-            max: 1.3
-          },
-          y: {
-            title: { display: true, text: "Imaginary Dimension Axis (Im)", color: colors.text },
-            grid: { color: colors.grid },
-            ticks: { color: colors.text },
-            min: -1.3,
-            max: 1.3
-          }
-        }
-      }
-    });
-  }
-
-  // Handle theme toggle
-  new MutationObserver(() => {
-    const newColors = getThemeColors();
-    [sinChart, ropeChart].forEach(c => {
-      if (c) {
-        c.options.scales.x.grid.color = newColors.grid;
-        c.options.scales.x.ticks.color = newColors.text;
-        c.options.scales.x.title.color = newColors.text;
-        c.options.scales.y.grid.color = newColors.grid;
-        c.options.scales.y.ticks.color = newColors.text;
-        c.options.scales.y.title.color = newColors.text;
-        c.options.plugins.legend.labels.color = newColors.text;
-        if (c === ropeChart && c.data.datasets[0]) {
-          c.data.datasets[0].borderColor = newColors.circle;
-        }
-        c.update();
-      }
-    });
-  }).observe(document.documentElement, { attributes: true, attributeFilter: ["class"] });
-});
-</script>
+    AttnDot --> RelativeScore["Inner Product Simplification:<br/>qᵀ (R_m)ᵀ R_n k = qᵀ R_{(n - m)θ} k<br/><b>Strict Relative Angle: (n - m)θ</b>"]
+```
 
 ---
 
