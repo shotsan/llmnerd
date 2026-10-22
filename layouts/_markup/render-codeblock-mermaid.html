@@ -1,0 +1,6 @@
+<div class="hextra-mermaid-wrapper not-prose">
+  <pre class="mermaid">
+    {{ .Inner | htmlEscape | safeHTML }}
+  </pre>
+</div>
+{{- .Page.Store.Set "hasMermaid" true -}}

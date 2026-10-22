@@ -17,17 +17,17 @@ The structural evolution of language models across computational epochs:
 
 ```mermaid
 flowchart TD
-    Trans["Original Transformer (2017)<br>Dual-Stack Encoder-Decoder"]
+    Trans["Original Transformer (2017)<br/><b>Dual-Stack Encoder-Decoder</b>"]
     
-    Trans -->|"Encoder Branch"| BERT["BERT / RoBERTa (2018)<br>Bidirectional Masked LM<br>NLU & Semantic Search"]
-    Trans -->|"Unified Seq2Seq"| T5["T5 / BART (2019)<br>Text-to-Text Universal Paradigm<br>Span Corruption"]
-    Trans -->|"Causal Decoder"| GPT["GPT-1 / 2 / 3 (2018-2020)<br>Causal Next-Token Prediction<br>Empirical Scaling Laws"]
+    Trans -->|"Encoder Branch"| BERT["BERT / RoBERTa (2018)<br/><b>Bidirectional Masked LM</b><br/>NLU & Semantic Search"]
+    Trans -->|"Unified Seq2Seq"| T5["T5 / BART (2019)<br/><b>Text-to-Text Universal Paradigm</b><br/>Span Corruption"]
+    Trans -->|"Causal Decoder"| GPT["GPT-1 / 2 / 3 (2018-2020)<br/><b>Causal Autoregressive LM</b><br/>Empirical Scaling Laws"]
 
-    GPT -->|"Pre-LN & Modernization"| Modern["Modern Decoder Standard (2022-2024)<br>LLaMA, Mistral, Gemma, Qwen<br>Pre-RMSNorm • RoPE • SwiGLU • GQA"]
+    GPT -->|"Pre-LN & Modernization"| Modern["Modern Decoder Standard (2022-2024)<br/><b>LLaMA, Mistral, Gemma, Qwen</b><br/>Pre-RMSNorm • RoPE • SwiGLU • GQA"]
 
-    Modern -->|"Sparse Capacity"| MoE["Mixture of Experts (MoE)<br>Switch Transformer, Mixtral 8x7B<br>Sparse Top-k Expert Routing"]
-    Modern -->|"Latent KV Compression"| DeepSeek["DeepSeek-V2 / V3 Architecture<br>Multi-Head Latent Attention (MLA)<br>DeepSeekMoE + Shared Experts"]
-    Modern -->|"Non-Autoregressive"| Diffusion["Diffusion Text Models<br>Diffusion-LM, Plaid<br>Parallel Iterative Denoising"]
+    Modern -->|"Sparse Capacity"| MoE["Mixture of Experts (MoE)<br/><b>Switch, Mixtral 8x7B</b><br/>Sparse Top-k Expert Routing"]
+    Modern -->|"Latent KV Compression"| DeepSeek["DeepSeek-V2 / V3 Architecture<br/><b>Multi-Head Latent Attention (MLA)</b><br/>DeepSeekMoE + Shared Experts"]
+    Modern -->|"Non-Autoregressive"| Diffusion["Diffusion Text Models<br/><b>Diffusion-LM, Plaid</b><br/>Parallel Iterative Denoising"]
 ```
 
 ---
@@ -153,7 +153,7 @@ DeepSeek-V2 and V3 introduced two breakthroughs that redefine memory and paramet
 ```mermaid
 flowchart LR
     H["Hidden State h_t"] --> Down["Down-Projection: W^(DKV)"]
-    Down --> Latent["Compressed Latent c_t^(KV)<br><b>★ ONLY Vector Stored in KV-Cache</b>"]
+    Down --> Latent["Compressed Latent c_t^(KV)<br/><b>★ ONLY Vector Stored in KV-Cache</b>"]
     Latent --> UpK["Up-Project Keys: W^(UK)"]
     Latent --> UpV["Up-Project Values: W^(UV)"]
     UpK --> Attn["Attention Computation Engine"]

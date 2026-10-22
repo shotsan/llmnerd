@@ -1,0 +1,158 @@
+{{- /* Mermaid */ -}}
+
+{{- $mermaidBase := "" -}}
+{{- $useDefaultCdn := true -}}
+{{- with site.Params.mermaid.base -}}
+  {{- $mermaidBase = . -}}
+  {{- $useDefaultCdn = false -}}
+{{- end -}}
+
+{{- $mermaidJsAsset := "" -}}
+{{- with site.Params.mermaid.js -}}
+  {{- $mermaidJsAsset = . -}}
+{{- end -}}
+
+{{- /* If only js is set without base, use local asset loading */ -}}
+{{- if and $useDefaultCdn (ne $mermaidJsAsset "") -}}
+  {{- $useDefaultCdn = false -}}
+{{- end -}}
+
+{{- /* Set default CDN base if needed */ -}}
+{{- if $useDefaultCdn -}}
+  {{- $mermaidBase = "https://cdn.jsdelivr.net/npm/mermaid@latest/dist" -}}
+{{- end -}}
+
+{{- $isRemoteBase := or (strings.HasPrefix $mermaidBase "http://") (strings.HasPrefix $mermaidBase "https://") -}}
+{{- $minSuffix := cond hugo.IsProduction ".min" "" -}}
+
+{{- /* JS retrieval: get raw JS from either local asset or remote, then process */ -}}
+{{- if $isRemoteBase -}}
+  {{- $jsPath := cond (ne $mermaidJsAsset "") $mermaidJsAsset (printf "mermaid%s.js" $minSuffix) -}}
+  {{- $mermaidJsUrl := printf "%s/%s" $mermaidBase $jsPath -}}
+  {{- with try (resources.GetRemote $mermaidJsUrl) -}}
+    {{- with .Err -}}
+      {{- errorf "Could not retrieve Mermaid js file from %s. Reason: %s." $mermaidJsUrl . -}}
+    {{- else with .Value -}}
+      {{- with resources.Copy (printf "js/mermaid%s.js" $minSuffix) . -}}
+        {{- $mermaidJs := . | fingerprint -}}
+        <script defer src="{{ $mermaidJs.RelPermalink }}" integrity="{{ $mermaidJs.Data.Integrity }}" crossorigin="anonymous"></script>
+      {{- end -}}
+    {{- end -}}
+  {{- end -}}
+{{- else if $mermaidJsAsset -}}
+  {{- with resources.Get $mermaidJsAsset -}}
+    {{- $mermaidJs := . | fingerprint -}}
+    <script defer src="{{ $mermaidJs.RelPermalink }}" integrity="{{ $mermaidJs.Data.Integrity }}" crossorigin="anonymous"></script>
+  {{- else -}}
+    {{- errorf "Mermaid js asset not found at %q" $mermaidJsAsset -}}
+  {{- end -}}
+{{- end -}}
+
+<script>
+  function setupMermaid() {
+    function getMermaidConfig() {
+      const isDark = document.documentElement.classList.contains("dark");
+      return {
+        startOnLoad: false,
+        securityLevel: "loose",
+        fontFamily: 'ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif',
+        theme: isDark ? "dark" : "base",
+        themeVariables: isDark ? {
+          darkMode: true,
+          background: "transparent",
+          mainBkg: "#1e293b",
+          nodeBorder: "#38bdf8",
+          primaryColor: "#1e293b",
+          primaryBorderColor: "#38bdf8",
+          primaryTextColor: "#f1f5f9",
+          secondaryColor: "#0f172a",
+          secondaryBorderColor: "#64748b",
+          secondaryTextColor: "#cbd5e1",
+          tertiaryColor: "#1e1b4b",
+          tertiaryBorderColor: "#a855f7",
+          tertiaryTextColor: "#f1f5f9",
+          lineColor: "#60a5fa",
+          textColor: "#f1f5f9",
+          fontSize: "13px",
+          clusterBkg: "#0f172a75",
+          clusterBorder: "#334155",
+          titleColor: "#93c5fd",
+          edgeLabelBackground: "#1e293b"
+        } : {
+          darkMode: false,
+          background: "transparent",
+          mainBkg: "#ffffff",
+          nodeBorder: "#0284c7",
+          primaryColor: "#f0f9ff",
+          primaryBorderColor: "#0284c7",
+          primaryTextColor: "#0f172a",
+          secondaryColor: "#f8fafc",
+          secondaryBorderColor: "#64748b",
+          secondaryTextColor: "#1e293b",
+          tertiaryColor: "#faf5ff",
+          tertiaryBorderColor: "#9333ea",
+          tertiaryTextColor: "#0f172a",
+          lineColor: "#0284c7",
+          textColor: "#0f172a",
+          fontSize: "13px",
+          clusterBkg: "#f8fafc95",
+          clusterBorder: "#cbd5e1",
+          titleColor: "#0369a1",
+          edgeLabelBackground: "#ffffff"
+        },
+        flowchart: {
+          curve: "basis",
+          padding: 18,
+          nodeSpacing: 45,
+          rankSpacing: 45,
+          htmlLabels: true
+        }
+      };
+    }
+
+    const elements = document.querySelectorAll(".mermaid");
+    if (!elements.length) return;
+
+    elements.forEach((el) => {
+      if (!el.dataset.original) {
+        el.dataset.original = el.innerHTML;
+      }
+    });
+
+    function renderDiagrams() {
+      if (typeof mermaid === "undefined") {
+        setTimeout(renderDiagrams, 50);
+        return;
+      }
+      mermaid.initialize(getMermaidConfig());
+      mermaid.init();
+    }
+
+    renderDiagrams();
+
+    let timeout;
+    new MutationObserver(() => {
+      clearTimeout(timeout);
+      timeout = setTimeout(() => {
+        if (typeof mermaid === "undefined") return;
+        document.querySelectorAll(".mermaid").forEach((el) => {
+          if (el.dataset.original) {
+            el.innerHTML = el.dataset.original;
+            el.removeAttribute("data-processed");
+          }
+        });
+        mermaid.initialize(getMermaidConfig());
+        mermaid.init();
+      }, 150);
+    }).observe(document.documentElement, {
+      attributes: true,
+      attributeFilter: ["class"],
+    });
+  }
+
+  if (document.readyState === "loading") {
+    document.addEventListener("DOMContentLoaded", setupMermaid);
+  } else {
+    setupMermaid();
+  }
+</script>

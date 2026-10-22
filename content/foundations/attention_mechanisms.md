@@ -26,13 +26,13 @@ Scaled dot-product attention processes queries, keys, and values through the fol
 
 ```mermaid
 flowchart TD
-    Q["Queries (Q)<br><code>T × d_k</code>"] --> Dot["Matrix Multiply<br><code>Q · Kᵀ (T × T)</code>"]
-    K["Keys (K)<br><code>T × d_k</code>"] --> Dot
-    Dot --> Scale["Scale Factor<br><code>1 / √d_k</code>"]
-    Scale --> Mask["Causal Mask<br>Set upper-triangle to -∞"]
-    Mask --> Softmax["Row-wise Softmax<br>Attention Weights A (Σ = 1.0)"]
-    Softmax --> MatMulV["Matrix Multiply: A · V"]
-    V["Values (V)<br><code>T × d_v</code>"] --> MatMulV
+    Q["Queries (Q)<br/><b>T × d_k</b>"] --> Dot["Matrix Multiply<br/><b>Q · Kᵀ (T × T)</b>"]
+    K["Keys (K)<br/><b>T × d_k</b>"] --> Dot
+    Dot --> Scale["Scale Factor<br/><b>1 / √d_k</b>"]
+    Scale --> Mask["Causal Mask<br/><b>Upper-triangle = -∞</b>"]
+    Mask --> Softmax["Row-wise Softmax<br/><b>Attention Weights A</b>"]
+    Softmax --> MatMulV["Matrix Multiply<br/><b>A · V</b>"]
+    V["Values (V)<br/><b>T × d_v</b>"] --> MatMulV
     MatMulV --> Head["Concatenate Heads & Project W_O"]
     Head --> Out["Contextualized Output Tensor O"]
 ```

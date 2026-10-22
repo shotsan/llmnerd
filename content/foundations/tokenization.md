@@ -22,10 +22,10 @@ The pipeline transforms raw UTF-8 text streams into discrete integer index tenso
 
 ```mermaid
 flowchart TD
-    A["Raw Text String<br><code>&quot; understanding &quot;</code>"] --> B["Byte / Character Split<br><code>[' ', 'u', 'n', 'd', 'e', 'r', 's', 't', 'a', 'n', 'd', 'i', 'n', 'g', ' ']</code>"]
-    B --> C["Statistical Merge Engine<br>Iterative greedy pair frequencies"]
-    C --> D["Subword Tokens<br><code>[&quot; under&quot;, &quot;stand&quot;, &quot;ing&quot;]</code>"]
-    D --> E["Vocabulary Lookup Table<br><code>Token IDs: [2104, 3812, 278]</code>"]
+    A["Raw Text String<br/><b>' understanding '</b>"] --> B["Byte / Character Split<br/><b>Initial symbol sequence</b>"]
+    B --> C["Statistical Merge Engine<br/><b>Iterative greedy pair frequencies</b>"]
+    C --> D["Subword Tokens<br/><b>[' under', 'stand', 'ing']</b>"]
+    D --> E["Vocabulary Lookup Table<br/><b>Token IDs: [2104, 3812, 278]</b>"]
     E --> F["Input Tensor for Embedding Lookup"]
 ```
 

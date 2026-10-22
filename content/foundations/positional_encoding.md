@@ -30,16 +30,16 @@ The two primary paradigms for breaking permutation symmetry operate either by di
 flowchart TD
     subgraph Absolute["1. Absolute Sinusoidal Addition (Vaswani et al. 2017)"]
         X["Token Vector x_m"] --> Add["⨁ Additive Vector Sum"]
-        PE["Harmonic Vector PE_m<br><code>sin / cos frequencies</code>"] --> Add
+        PE["Harmonic Vector PE_m<br/><b>sin / cos frequencies</b>"] --> Add
         Add --> Out1["Modulated Input: x̃_m = x_m + PE_m"]
     end
 
     subgraph Rotary["2. Rotary Position Embedding - RoPE (Su et al. 2021)"]
-        Q["Query Vector q_m"] --> RotQ["Rotate by mθ<br><code>R_(θ,m) · q_m</code>"]
-        K["Key Vector k_n"] --> RotK["Rotate by nθ<br><code>R_(θ,n) · k_n</code>"]
-        RotQ --> Dot["Inner Product Kernel<br><code>⟨q̃_m, k̃_n⟩</code>"]
+        Q["Query Vector q_m"] --> RotQ["Rotate by mθ<br/><b>R_(θ,m) · q_m</b>"]
+        K["Key Vector k_n"] --> RotK["Rotate by nθ<br/><b>R_(θ,n) · k_n</b>"]
+        RotQ --> Dot["Inner Product Kernel<br/><b>⟨q̃_m, k̃_n⟩</b>"]
         RotK --> Dot
-        Dot --> Out2["Relative Distance Dependent:<br><code>q_mᵀ · R_(θ, n-m) · k_n</code>"]
+        Dot --> Out2["Relative Distance Dependent:<br/><b>q_mᵀ · R_(θ, n-m) · k_n</b>"]
     end
 ```
 
@@ -107,11 +107,11 @@ graph TD
         Pos["Position index: pos ∈ {0, 1, ..., N-1}"]
     end
 
-    subgraph Spectrum["Multi-Scale Frequency Decomposition: θ_i = 10000^(-2i/d)"]
+    subgraph Spectrum["Multi-Scale Frequency Spectrum: θ_i = 10000^(-2i/d)"]
         direction TB
-        Dim0["Dim i=0 (λ ≈ 6.28 tokens): sin(pos), cos(pos)<br/><b>Local Syntactic Distinction</b> (Fine-grained word order)"]
-        Dim1["Dim i=1 (λ ≈ 628 tokens): sin(pos/100), cos(pos/100)<br/><b>Phrase & Clause Boundaries</b> (Mid-range context)"]
-        Dim2["Dim i=2 (λ ≈ 62,831 tokens): sin(pos/10000), cos(pos/10000)<br/><b>Document-Level Progression</b> (Coarse global position)"]
+        Dim0["Dimension Pair 0 (i = 0, λ ≈ 6.28 tokens)<br/><b>Local Syntactic Distinction</b><br/>sin(pos), cos(pos)"]
+        Dim1["Dimension Pair 2 (i = 1, λ ≈ 628 tokens)<br/><b>Phrase & Clause Boundaries</b><br/>sin(pos/100), cos(pos/100)"]
+        Dim2["Dimension Pair 4 (i = 2, λ ≈ 62,831 tokens)<br/><b>Document-Level Progression</b><br/>sin(pos/10000), cos(pos/10000)"]
     end
 
     Pos --> Dim0
@@ -119,10 +119,10 @@ graph TD
     Pos --> Dim2
 
     subgraph Assembly["Vector Injection"]
-        Dim0 --> Concat["Concatenate Channels into PE(pos) ∈ ℝ^d"]
+        Dim0 --> Concat["Concatenate Channels<br/>PE(pos) ∈ ℝ^d"]
         Dim1 --> Concat
         Dim2 --> Concat
-        Word["Word Embedding: x_pos"] --> Add["Elementwise Addition: z_pos = x_pos + PE(pos)"]
+        Word["Word Embedding: x_pos"] --> Add["Elementwise Addition<br/>z_pos = x_pos + PE(pos)"]
         Concat --> Add
     end
 ```
@@ -163,21 +163,21 @@ The inner product depends **strictly on the relative displacement `(n - m)`**, c
 ```mermaid
 graph LR
     subgraph TokenM["Query Token m (Position m)"]
-        Qm["Query Vector q ∈ ℝ^d"] --> SplitM["Partition into d/2 2D pairs<br/>[q₀, q₁], [q₂, q₃], ..."]
-        SplitM --> RotM["2D Complex Plane Rotation<br/>R_{m·θ_i} · [q_{2i}, q_{2i+1}]"]
-        RotM --> RotatedQ["Rotated Query Vector: R_m · q"]
+        Qm["Query Vector q ∈ ℝ^d"] --> SplitM["Partition into 2D Subspaces<br/>[q₀, q₁], [q₂, q₃], ..."]
+        SplitM --> RotM["2D Complex Plane Rotation<br/>R(mθ_i) · [q_{2i}, q_{2i+1}]"]
+        RotM --> RotatedQ["Rotated Query: R_m · q"]
     end
 
     subgraph TokenN["Key Token n (Position n)"]
-        Kn["Key Vector k ∈ ℝ^d"] --> SplitN["Partition into d/2 2D pairs<br/>[k₀, k₁], [k₂, k₃], ..."]
-        SplitN --> RotN["2D Complex Plane Rotation<br/>R_{n·θ_i} · [k_{2i}, k_{2i+1}]"]
-        RotN --> RotatedK["Rotated Key Vector: R_n · k"]
+        Kn["Key Vector k ∈ ℝ^d"] --> SplitN["Partition into 2D Subspaces<br/>[k₀, k₁], [k₂, k₃], ..."]
+        SplitN --> RotN["2D Complex Plane Rotation<br/>R(nθ_i) · [k_{2i}, k_{2i+1}]"]
+        RotN --> RotatedK["Rotated Key: R_n · k"]
     end
 
-    RotatedQ --> AttnDot["Attention Dot Product: ⟨R_m · q, R_n · k⟩"]
+    RotatedQ --> AttnDot["Attention Dot Product<br/>⟨R_m · q, R_n · k⟩"]
     RotatedK --> AttnDot
 
-    AttnDot --> RelativeScore["Inner Product Simplification:<br/>qᵀ (R_m)ᵀ R_n k = qᵀ R_{(n - m)θ} k<br/><b>Strict Relative Angle: (n - m)θ</b>"]
+    AttnDot --> RelativeScore["Inner Product Simplification<br/>qᵀ (R_m)ᵀ R_n k = qᵀ R_{(n-m)θ} k<br/><b>Strict Relative Angle: (n - m)θ</b>"]
 ```
 
 ---

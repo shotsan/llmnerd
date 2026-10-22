@@ -26,11 +26,11 @@ The embedding layer performs a direct row-slice lookup from a parameter matrix $
 
 ```mermaid
 flowchart LR
-    ID["Token ID Index<br><code>id = 1 ('cat')</code>"] --> Slice["Row Lookup<br><code>W_E[1] ∈ ℝ^(1 × d)</code>"]
-    Slice --> Vec["Continuous Embedding Vector<br><code>e_cat = [0.80, 0.10, -0.50]</code>"]
-    Vec --> Scale["Scale Factor<br><code>× √d_model</code>"]
-    Scale --> Add["Add Positional Encoding<br><code>x̃ = (√d) · e_cat + PE_pos</code>"]
-    Add --> Norm["RMSNorm Layer<br>Stabilized Hidden State h_0"]
+    ID["Token ID Index<br/><b>id = 1 ('cat')</b>"] --> Slice["Row Lookup<br/><b>W_E[1] ∈ ℝ^(1 × d)</b>"]
+    Slice --> Vec["Continuous Embedding<br/><b>e_cat = [0.80, 0.10, -0.50]</b>"]
+    Vec --> Scale["Scale Factor<br/><b>× √d_model</b>"]
+    Scale --> Add["Add Positional Encoding<br/><b>x̃ = (√d) · e_cat + PE</b>"]
+    Add --> Norm["RMSNorm Layer<br/><b>Hidden State h₀</b>"]
 ```
 
 ```

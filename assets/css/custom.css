@@ -3,3 +3,78 @@ html, body {
   overflow-x: hidden;
   max-width: 100%;
 }
+
+/* ==========================================================================
+   Mermaid Diagrams Modern Engineering Style
+   ========================================================================== */
+
+.hextra-mermaid-wrapper {
+  margin: 1.75rem 0;
+  padding: 1.5rem;
+  border-radius: 0.75rem;
+  border: 1px solid rgba(226, 232, 240, 0.9);
+  background: linear-gradient(180deg, rgba(248, 250, 252, 0.8) 0%, rgba(241, 245, 249, 0.5) 100%);
+  overflow-x: auto;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.04), 0 1px 2px -1px rgba(0, 0, 0, 0.04);
+  transition: all 0.2s ease;
+}
+
+html.dark .hextra-mermaid-wrapper {
+  border-color: rgba(38, 38, 38, 0.9);
+  background: linear-gradient(180deg, rgba(23, 23, 23, 0.8) 0%, rgba(15, 15, 15, 0.6) 100%);
+  box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.3), inset 0 1px 0 0 rgba(255, 255, 255, 0.05);
+}
+
+.hextra-mermaid-wrapper:hover {
+  border-color: rgba(203, 213, 225, 1);
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.06), 0 2px 4px -2px rgba(0, 0, 0, 0.06);
+}
+
+html.dark .hextra-mermaid-wrapper:hover {
+  border-color: rgba(64, 64, 64, 1);
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.4);
+}
+
+.mermaid {
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  background: transparent !important;
+}
+
+.mermaid svg {
+  max-width: 100% !important;
+  height: auto !important;
+  font-family: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif !important;
+  user-select: none;
+}
+
+/* Modern node corners and clean crisp borders */
+.mermaid .node rect,
+.mermaid .node polygon {
+  rx: 8px !important;
+  ry: 8px !important;
+  stroke-width: 1.5px !important;
+}
+
+/* Cluster Subgraph styling */
+.mermaid .cluster rect {
+  rx: 10px !important;
+  ry: 10px !important;
+  stroke-width: 1.25px !important;
+}
+
+/* Smooth edge paths */
+.mermaid .edgePath path.path {
+  stroke-width: 1.75px !important;
+}
+
+/* Edge labels */
+.mermaid .edgeLabel {
+  font-size: 12px !important;
+  font-weight: 500 !important;
+  border-radius: 4px;
+}
