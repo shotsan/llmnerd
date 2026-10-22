@@ -5,15 +5,15 @@ html, body {
 }
 
 /* ==========================================================================
-   Mermaid Diagrams Modern Engineering Style
+   Mermaid Diagrams Modern Engineering Style & Typography
    ========================================================================== */
 
 .hextra-mermaid-wrapper {
-  margin: 1.75rem 0;
-  padding: 1.5rem;
-  border-radius: 0.75rem;
+  margin: 2rem 0;
+  padding: 1.5rem 1.25rem;
+  border-radius: 0.875rem;
   border: 1px solid rgba(226, 232, 240, 0.9);
-  background: linear-gradient(180deg, rgba(248, 250, 252, 0.8) 0%, rgba(241, 245, 249, 0.5) 100%);
+  background: linear-gradient(180deg, rgba(248, 250, 252, 0.85) 0%, rgba(241, 245, 249, 0.55) 100%);
   overflow-x: auto;
   display: flex;
   justify-content: center;
@@ -24,7 +24,7 @@ html, body {
 
 html.dark .hextra-mermaid-wrapper {
   border-color: rgba(38, 38, 38, 0.9);
-  background: linear-gradient(180deg, rgba(23, 23, 23, 0.8) 0%, rgba(15, 15, 15, 0.6) 100%);
+  background: linear-gradient(180deg, rgba(23, 23, 23, 0.85) 0%, rgba(15, 15, 15, 0.65) 100%);
   box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.3), inset 0 1px 0 0 rgba(255, 255, 255, 0.05);
 }
 
@@ -48,9 +48,87 @@ html.dark .hextra-mermaid-wrapper:hover {
 .mermaid svg {
   max-width: 100% !important;
   height: auto !important;
-  font-family: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif !important;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Inter", "Helvetica Neue", Arial, sans-serif !important;
   user-select: none;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }
+
+/* ==========================================================================
+   Mermaid Font Sizing & Typography Polish
+   ========================================================================== */
+
+/* Universal text inside Mermaid */
+.mermaid text,
+.mermaid tspan {
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Inter", "Helvetica Neue", Arial, sans-serif !important;
+}
+
+/* Node labels (Primary text) */
+.mermaid .node .nodeLabel,
+.mermaid .node foreignObject div,
+.mermaid .node text {
+  font-size: 14.5px !important;
+  line-height: 1.5 !important;
+  font-weight: 500 !important;
+  letter-spacing: -0.01em !important;
+  text-align: center;
+}
+
+/* Node bold titles & headers */
+.mermaid .node b,
+.mermaid .node strong,
+.mermaid .node foreignObject b,
+.mermaid .node foreignObject strong {
+  font-weight: 700 !important;
+  font-size: 14.5px !important;
+  letter-spacing: -0.015em !important;
+  color: inherit;
+}
+
+/* Subgraph cluster titles */
+.mermaid .cluster .cluster-label,
+.mermaid .cluster foreignObject span,
+.mermaid .cluster foreignObject div,
+.mermaid .cluster text {
+  font-size: 13.5px !important;
+  font-weight: 700 !important;
+  letter-spacing: 0.03em !important;
+  text-transform: uppercase !important;
+}
+
+/* Edge connector labels */
+.mermaid .edgeLabel,
+.mermaid .edgeLabel foreignObject,
+.mermaid .edgeLabel span,
+.mermaid .edgeLabel text {
+  font-size: 13px !important;
+  font-weight: 600 !important;
+  letter-spacing: -0.005em !important;
+  line-height: 1.35 !important;
+}
+
+html:not(.dark) .mermaid .edgeLabel span {
+  background-color: #ffffff !important;
+  border: 1px solid rgba(203, 213, 225, 0.9) !important;
+  color: #1e293b !important;
+  padding: 3px 8px !important;
+  border-radius: 6px !important;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05) !important;
+}
+
+html.dark .mermaid .edgeLabel span {
+  background-color: #0f172a !important;
+  border: 1px solid rgba(51, 65, 85, 0.9) !important;
+  color: #f1f5f9 !important;
+  padding: 3px 8px !important;
+  border-radius: 6px !important;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.4) !important;
+}
+
+/* ==========================================================================
+   Shapes & Geometry
+   ========================================================================== */
 
 /* Modern node corners and clean crisp borders */
 .mermaid .node rect,
@@ -62,19 +140,12 @@ html.dark .hextra-mermaid-wrapper:hover {
 
 /* Cluster Subgraph styling */
 .mermaid .cluster rect {
-  rx: 10px !important;
-  ry: 10px !important;
+  rx: 12px !important;
+  ry: 12px !important;
   stroke-width: 1.25px !important;
 }
 
 /* Smooth edge paths */
 .mermaid .edgePath path.path {
   stroke-width: 1.75px !important;
-}
-
-/* Edge labels */
-.mermaid .edgeLabel {
-  font-size: 12px !important;
-  font-weight: 500 !important;
-  border-radius: 4px;
 }
