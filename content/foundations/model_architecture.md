@@ -11,7 +11,7 @@ Rather than remaining a static template, the Transformer evolved through distinc
 
 ---
 
-## The Architectural Evolution of Language Models
+## Architectural Lineage & Structural Paradigms
 
 The structural evolution of language models across computational epochs:
 
@@ -32,7 +32,7 @@ flowchart TD
 
 ---
 
-## 1. The Original Transformer (2017): Conquering Sequential Processing
+## 1. Canonical Encoder-Decoder Architecture (Vaswani et al. 2017)
 
 Prior to 2017, sequence-to-sequence translation relied on recurrent networks that processed words one step at a time. The original Transformer (Vaswani et al. 2017) broke this bottleneck by introducing a dual-stack **Encoder-Decoder** architecture built purely on self-attention and cross-attention.
 
@@ -53,7 +53,7 @@ Source Sequence (e.g. French)          Target Sequence (e.g. English)
                            └───────────────┘
 ```
 
-### The Cross-Attention Bridge
+### Asymmetric Cross-Attention Conditioning
 * The **Encoder** consumes the complete source sentence using unmasked bidirectional attention, computing contextual representations $H_{\text{enc}} \in \mathbb{R}^{S \times d}$.
 * The **Decoder** generates the target sentence autoregressively. Each decoder layer contains two distinct attention operations:
   1. **Causal Masked Self-Attention**: Allows target tokens to attend only to earlier generated target tokens.
@@ -66,27 +66,27 @@ This cross-attention bridge allows the generating decoder to condition each new 
 
 ---
 
-## 2. The Branching Era (2018–2020): BERT vs. GPT vs. T5
+## 2. Structural Specialization: Masked, Causal, and Unified Sequence Models
 
 Between 2018 and 2020, researchers discovered that the two halves of the original Transformer could be decoupled to optimize for fundamentally different objectives:
 
-### A. Encoder-Only: BERT (Devlin et al. 2018)
+### Bidirectional Masked Encoders (BERT, RoBERTa)
 By discarding the decoder and training solely on **Masked Language Modeling (MLM)** (randomly masking 15% of tokens and training the model to predict them from surrounding bidirectional context), BERT achieved state-of-the-art results in natural language understanding, classification, and semantic search.
 * **The Structural Limit**: Because every layer attends bidirectionally to the entire sequence simultaneously, an encoder cannot generate open-ended text autoregressively without performing an entirely new forward pass for every single token from scratch.
 
-### B. Decoder-Only: GPT Series (Radford et al. 2018–2020)
+### Autoregressive Causal Decoders (GPT Series)
 By discarding the encoder and training purely on **causal autoregressive next-token prediction** ($p(x_t \mid x_{<t})$), the GPT series demonstrated that simple causal prediction at massive scale absorbs world knowledge, reasoning abilities, and task adaptation without requiring task-specific heads. Empirical scaling laws (Kaplan et al. 2020, Chinchilla 2022) proved that causal decoders maximize compute efficiency during self-supervised pre-training.
 
-### C. Unified Encoder-Decoder: T5 (Raffel et al. 2019)
+### Unified Sequence-to-Sequence Modeling (T5, BART)
 The Text-to-Text Transfer Transformer (T5) unified all NLP tasks (translation, summarization, question answering, classification) under a single sequence-to-sequence format: *"input text $\to$ output text"*. While architecturally elegant, maintaining dual encoder-decoder parameter weights proved less parameter-efficient than monolithic decoders for conversational and code-generation workloads.
 
 ---
 
-## 3. The Modern Decoder-Only Standard (2022–2024)
+## 3. The Modern Dense Decoder Standard (LLaMA, Mistral, Gemma)
 
 Modern foundation models (LLaMA 1/2/3, Mistral, Gemma, Qwen) converge on a refined autoregressive decoder block engineered for training stability at depth and inference throughput:
 
-### Pre-LayerNorm vs. Post-LayerNorm
+### Pre-RMSNorm Residual Stabilization vs. Post-LN Vanishing Gradients
 The original Transformer placed normalization **after** the residual addition (Post-LN):
 $$
 x_{l+1} = \text{LayerNorm}(x_l + \text{SubLayer}(x_l))
@@ -99,7 +99,7 @@ x_{l+1} = x_l + \text{SubLayer}(\text{RMSNorm}(x_l))
 $$
 Pre-normalization preserves an unobstructed residual stream (a "gradient highway") where the identity mapping allows gradients to backpropagate unimpeded from layer $L$ to layer $1$, enabling 100+ layer models to train stably.
 
-### SwiGLU Gated Feed-Forward Networks
+### SwiGLU Gated Activation Multi-Layer Perceptrons
 Traditional transformers used a two-layer MLP with ReLU or GELU activations:
 $$
 \text{FFN}(x) = \text{GELU}(x W_1 + b_1) W_2 + b_2
@@ -113,7 +113,7 @@ where $\odot$ denotes element-wise multiplication. By using a dynamic multiplica
 
 ---
 
-## 4. Mixture of Experts (MoE): Decoupling Parameters from FLOPs
+## 4. Sparse Mixture of Experts (MoE): Decoupling Capacity from FLOP Budgets
 
 In a standard dense Transformer, every parameter is activated for every token. Scaling model capacity to hundreds of billions of parameters linearly multiplies the floating-point operations (FLOPs) and compute budget per token.
 
@@ -140,13 +140,13 @@ Input Token x ────► [ Gating Router ] ───► Select Top-2 Expert
                      Output Tensor y
 ```
 
-### Engineering Challenges in MoE:
+### MoE Distributed Systems Challenges: All-to-All Routing & Load Balancing
 1. **Router Collapse & Load Imbalance**: Without intervention, the router tends to send all tokens to a handful of slightly favored experts, starving others and degenerating into a smaller dense model. Models use auxiliary load-balancing losses to enforce uniform distribution.
 2. **VRAM Footprint**: While compute per token corresponds to an active parameter count (e.g., 13B FLOPs), all 47B parameters must reside in GPU memory simultaneously, requiring multi-GPU expert parallelism.
 
 ---
 
-## 5. DeepSeek Innovations: Multi-Head Latent Attention (MLA) & DeepSeekMoE
+## 5. Modern Efficiency Breakthroughs: Low-Rank KV Compression & Fine-Grained MoE
 
 DeepSeek-V2 and V3 introduced two breakthroughs that redefine memory and parameter efficiency at scale:
 
@@ -161,7 +161,7 @@ flowchart LR
     RoPE["Decoupled RoPE Key k_t^(R)"] --> Attn
 ```
 
-### Multi-Head Latent Attention (MLA)
+### Multi-Head Latent Attention (MLA): Low-Rank Joint KV Compression
 Standard Grouped-Query Attention (GQA) reduces KV-cache by having multiple query heads share key-value heads. DeepSeek took this to the theoretical limit by introducing **low-rank joint compression**:
 
 1. **Down-Projection to Compressed Latent**:
@@ -174,7 +174,7 @@ Standard Grouped-Query Attention (GQA) reduces KV-cache by having multiple query
 3. **On-the-Fly Up-Projection**:
    During attention computation, the compact vector $c_t^{KV}$ is decompressed into multi-head keys and values via up-projection matrices $W^{UK}$ and $W^{UV}$, with a decoupled RoPE vector handling positional rotations.
 
-### DeepSeekMoE: Fine-Grained & Dedicated Shared Experts
+### DeepSeekMoE: Dedicated Shared Experts & Auxiliary-Loss-Free Routing
 Traditional MoEs (like Mixtral) use a small number of coarse experts (e.g. 8 experts, routing top-2). DeepSeekMoE divides the capacity into much finer-grained units (e.g., 64 routed experts, activating top-8) and adds **dedicated shared experts**:
 
 * **Shared Experts**: Fixed experts that are **always active** for every token, capturing common, baseline syntactic and linguistic structures.
@@ -183,13 +183,13 @@ Traditional MoEs (like Mixtral) use a small number of coarse experts (e.g. 8 exp
 
 ---
 
-## 6. Continuous & Diffusion-Style Language Models
+## 6. Non-Autoregressive Paradigms: Continuous & Discrete Text Diffusion
 
 While causal autoregression dominates production models, it suffers from intrinsic architectural constraints:
 1. **Sequential Latency**: Generating an $N$-token response requires $N$ sequential forward passes through all layers.
 2. **Exposure Bias & Lack of Lookahead**: The model commits to tokens strictly left-to-right. It cannot revise earlier tokens based on downstream reasoning or draft a global outline before filling in technical details.
 
-### The Diffusion Text Paradigm
+### Parallel Iterative Denoising & Score-Based Text Generation
 Text diffusion models (such as Diffusion-LM and Plaid) treat text generation as an iterative **denoising process** across continuous latent spaces or discrete token embeddings:
 
 $$

@@ -20,7 +20,7 @@ This unbroken recurrence chain created an architectural impasse on modern comput
 
 ---
 
-## Scaled Dot-Product & Multi-Head Pipeline
+## Tensor Execution Pipeline: Scaled Dot-Product & Multi-Head Attention
 
 Scaled dot-product attention processes queries, keys, and values through the following tensor pipeline:
 
@@ -39,7 +39,7 @@ flowchart TD
 
 ---
 
-## Step-by-Step Toy Walkthrough: Attention Arithmetic
+## Tensor State Trace: Forward Pass Arithmetic
 
 To trace the arithmetic mechanics, let us calculate the forward pass for an autoregressive sequence of 3 tokens ($T=3$) with a head dimension of $d_k = 2$:
 
@@ -47,7 +47,7 @@ $$
 \text{Tokens: } [t_1: \text{"The"}, \quad t_2: \text{"cat"}, \quad t_3: \text{"sat"}]
 $$
 
-### Step 1: Input Projections ($\mathbf{Q}, \mathbf{K}, \mathbf{V}$)
+### 1. Linear Projection to Subspace Coordinates ($\mathbf{Q}, \mathbf{K}, \mathbf{V}$)
 Assume the linear projection layers produce the following explicit matrices $\mathbf{Q}, \mathbf{K}, \mathbf{V} \in \mathbb{R}^{3 \times 2}$:
 
 $$
@@ -56,7 +56,7 @@ $$
 \mathbf{V} = \begin{bmatrix} 2.0 & 0.0 \\ 0.0 & 4.0 \\ 1.0 & 2.0 \end{bmatrix}
 $$
 
-### Step 2: Unscaled Score Matrix ($\mathbf{S} = \mathbf{Q}\mathbf{K}^T$)
+### 2. Pairwise Compatibility Scoring ($\mathbf{S} = \mathbf{Q}\mathbf{K}^T$)
 We compute the pairwise dot product between every query and key:
 
 $$
@@ -75,7 +75,7 @@ $$
 \end{bmatrix}
 $$
 
-### Step 3: Scaling by $\sqrt{d_k}$
+### 3. Variance Stabilization via Softmax Temperature ($\sqrt{d_k}$)
 The head dimension is $d_k = 2$, so $\sqrt{d_k} = \sqrt{2} \approx \mathbf{1.414}$.
 Dividing each element of $\mathbf{S}$ by $1.414$:
 
@@ -90,7 +90,7 @@ $$
 > **Why divide by $\sqrt{d_k}$?**  
 > If components of $\mathbf{q}$ and $\mathbf{k}$ are independent random variables with zero mean and unit variance, their dot product has a mean of 0 and a variance of $d_k$. As $d_k$ grows large (e.g., $d_k = 128$), the dot products grow proportionally in magnitude, pushing the subsequent softmax into saturated regions with vanishing gradients. Dividing by $\sqrt{d_k}$ resets the variance back to 1.0.
 
-### Step 4: Causal Triangular Masking
+### 4. Autoregressive Causal Masking
 In an autoregressive decoder, token $t$ is forbidden from attending to future tokens $t' > t$. We set the upper triangle (where column index $>$ row index) to $-\infty$:
 
 $$
@@ -101,7 +101,7 @@ $$
 \end{bmatrix}
 $$
 
-### Step 5: Row-Wise Softmax ($\mathbf{A} = \text{softmax}(\mathbf{S}_{\text{masked}})$)
+### 5. Probability Distribution Normalization ($\mathbf{A} = \text{softmax}(\mathbf{S}_{\text{masked}})$)
 Softmax is applied independently across each row. Recall that $e^{-\infty} = 0$:
 
 * **Row 1** (`"The"`):
@@ -122,7 +122,7 @@ $$
 \end{bmatrix}
 $$
 
-### Step 6: Output Computation ($\mathbf{O} = \mathbf{A} \mathbf{V}$)
+### 6. Value Tensor Aggregation & Contextual Projection ($\mathbf{O} = \mathbf{A} \mathbf{V}$)
 We multiply the attention probabilities by the Value matrix $\mathbf{V}$:
 
 $$
@@ -154,9 +154,9 @@ Token 3 (`"sat"`) has now integrated information from both `"The"` (40.1%), `"ca
 
 ---
 
-## A Bit Deeper: Systems & Mechanics
+## Systems Architecture: GPU Memory Hierarchy & Kernel Optimization
 
-### The Memory-Bandwidth Wall & KV-Caching
+### Memory Bandwidth Bounds & KV-Cache Dynamics
 During training, all tokens are known simultaneously, allowing parallel matrix multiplications. But during **autoregressive inference**, tokens are generated one by one.
 
 To generate token $t+1$, the model does not recompute attention for past tokens from scratch. It maintains a **KV-Cache** storing the Key and Value vectors of all previous tokens:
@@ -167,7 +167,7 @@ $$
 
 For a 70B model with 80 layers and 64 heads ($d=128$) at a 128k context length, the KV-cache for a single user exceeds **80 GB of VRAM**. Generating each token requires streaming this entire 80 GB from high-bandwidth GPU memory (HBM) into on-chip cache (SRAM) just to multiply by a single Query vector. Generation becomes entirely **memory-bandwidth bound**.
 
-### Attention Architectures: MHA vs. MQA vs. GQA
+### Memory-Traffic Architectures: MHA vs. MQA vs. GQA
 
 ```
 Multi-Head Attention (MHA):
@@ -188,7 +188,7 @@ Grouped-Query Attention (GQA - Ainslie et al. 2023; Llama 2/3, Mistral):
 
 By assigning groups of Query heads to share a single Key-Value head, **Grouped-Query Attention (GQA)** delivers up to an $8\times$ reduction in memory bandwidth and KV-cache footprints during generation with virtually zero loss in model capability.
 
-### Hardware-Aware FlashAttention (Dao et al. 2022)
+### SRAM Tiling & Online Softmax: FlashAttention (Dao et al.)
 Standard PyTorch implementations compute attention in sequential stages:
 1. Load $Q, K$ from slow GPU High Bandwidth Memory (HBM) to on-chip SRAM.
 2. Compute $S = QK^T$ and write $S \in \mathbb{R}^{N \times N}$ back to HBM.

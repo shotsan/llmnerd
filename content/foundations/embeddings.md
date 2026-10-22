@@ -20,7 +20,7 @@ The simplest representation is a **one-hot vector** $e_i \in \{0, 1\}^V$, where 
 
 ---
 
-## The Embedding Lookup & Semantic Geometry
+## Formal Mapping: Discrete Symbols to Continuous Manifolds
 
 The embedding layer performs a direct row-slice lookup from a parameter matrix $\mathbf{W}_E \in \mathbb{R}^{V \times d}$, mapping discrete integer IDs to continuous coordinates:
 
@@ -46,11 +46,11 @@ Discrete Token ID          Weight Matrix W_E ∈ ℝ^(V × d)            Dense V
 
 ---
 
-## Step-by-Step Toy Walkthrough: Embedding Arithmetic
+## Numerical Demonstration: Vector Allocation & Distance Metrics
 
 To understand how embedding parameters are indexed and how semantic proximity is quantified, let us construct a miniature embedding space with vocabulary size $V=5$ and hidden dimension $d=3$.
 
-### Step 1: The Embedding Matrix $\mathbf{W}_E$
+### 1. Parameter Matrix Structure & Memory Layout
 Let the vocabulary be:
 $$
 \mathcal{V} = \{ 0: \text{"the"}, \quad 1: \text{"cat"}, \quad 2: \text{"sat"}, \quad 3: \text{"dog"}, \quad 4: \text{"mat"} \}
@@ -75,7 +75,7 @@ $$
 \end{matrix}
 $$
 
-### Step 2: Index Lookup Operation
+### 2. Memory Slice Retrieval (Gather Kernel)
 When the token sequence `["cat", "dog"]` (indices `[1, 3]`) enters the model, the lookup operation retrieves the corresponding rows:
 
 $$
@@ -91,7 +91,7 @@ e_1^T \mathbf{W}_E = \mathbf{e}_{\text{cat}}
 $$
 In production frameworks (PyTorch, JAX), this is implemented as an $\mathcal{O}(1)$ direct memory pointer lookup rather than an expensive matrix multiplication.
 
-### Step 3: Measuring Semantic Alignment
+### 3. Metric Tensor Evaluation: Dot Product vs. Cosine Affinity
 To quantify how closely related `"cat"` and `"dog"` are in this learned space, we calculate their **dot product** and **cosine similarity**:
 
 1. **Dot Product**:
@@ -119,9 +119,9 @@ The cosine similarity approaches $1.0$, proving that the vectors point in virtua
 
 ---
 
-## A Bit Deeper: Systems & Mechanics
+## Systems Architecture: Memory Optimization & Normalization
 
-### Weight Tying (Tied Output Projections)
+### Dual Projection Weight Tying (Input-Output Matrix Sharing)
 In an autoregressive language model, an embedding lookup occurs at the very start (converting token IDs to hidden states), and an inverse projection occurs at the very end: the final hidden state $h_L \in \mathbb{R}^d$ is projected onto the vocabulary via a language model head $\mathbf{W}_{\text{head}} \in \mathbb{R}^{d \times V}$ to compute unnormalized log-probabilities (logits):
 
 $$
@@ -133,21 +133,21 @@ $$
 \mathbf{W}_{\text{head}} = \mathbf{W}_E^T
 $$
 
-#### Engineering Significance:
+#### Parameter Footprint Reduction & Regularization Dynamics
 1. **Parameter Savings**: In a model with hidden size $d=4096$ and vocabulary $V=128{,}000$, a single embedding matrix contains $4096 \times 128{,}000 \approx \mathbf{524\text{ million}}$ parameters (over 1 GB of VRAM in float16). Tying weights eliminates an entire 524M-parameter matrix.
 2. **Representational Duality**: It forces the geometric space where tokens are read into the model to be identical to the space where tokens are predicted, serving as a powerful regularizer against overfitting on rare tokens.
 
-### Embedding Scaling by $\sqrt{d_{\text{model}}}$
+### Variance Preservation via $\sqrt{d_{\text{model}}}$ Scaling
 In the original Transformer architecture (Vaswani et al. 2017), the raw lookup vectors are multiplied by $\sqrt{d_{\text{model}}}$ before adding positional encodings:
 
 $$
 \mathbf{x}_i = \sqrt{d_{\text{model}}} \cdot \mathbf{W}_E[t_i] + \mathbf{PE}_i
 $$
 
-#### Why Scale?
+#### Preventing Semantic Signal Attenuation
 When embedding weights are initialized using standard Gaussian initialization (mean 0, variance $1/d_{\text{model}}$), the expected norm of an embedding vector is $\mathcal{O}(1)$. However, positional encoding values (sinusoids) also have magnitudes on the order of $\mathcal{O}(1)$. Adding them without scaling would cause the positional signal to overpower the semantic information. Scaling by $\sqrt{d_{\text{model}}}$ elevates the semantic signal variance to $\mathcal{O}(\sqrt{d_{\text{model}}})$, ensuring the model retains semantic dominance while using positional values as coordinate modulations.
 
-### Normalization Dynamics: LayerNorm vs. RMSNorm
+### Activation Normalization: LayerNorm vs. Root Mean Square (RMSNorm)
 Embeddings entering deep transformer stacks must be normalized to prevent exploding or vanishing activations across dozens of layers.
 
 ```

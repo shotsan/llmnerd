@@ -16,7 +16,7 @@ Subword tokenization resolves this dilemma. By treating words not as atomic enti
 
 ---
 
-## The Tokenization Pipeline
+## End-to-End Pipeline: From Byte Streams to Integer Tensors
 
 The pipeline transforms raw UTF-8 text streams into discrete integer index tensors through statistical subword chunking:
 
@@ -31,7 +31,7 @@ flowchart TD
 
 ---
 
-## Step-by-Step Toy Walkthrough: Byte-Pair Encoding (BPE)
+## Algorithmic Mechanics: Byte-Pair Encoding (BPE) Construction
 
 To see the mechanics in action, consider building a BPE tokenizer from scratch on a miniature training corpus consisting of four words with their respective frequencies:
 
@@ -39,7 +39,7 @@ $$
 \mathcal{D} = \{ \text{"low": 5}, \quad \text{"lower": 2}, \quad \text{"newest": 6}, \quad \text{"widest": 3} \}
 $$
 
-### Step 1: Base Vocabulary Initialization
+### 1. Base Character Vocabulary Initialization
 We append a special end-of-word suffix `</w>` to each word to preserve word boundary information across merges. We split each word into individual character symbols:
 
 * `l o w </w>` (frequency: 5)
@@ -52,7 +52,7 @@ $$
 V_0 = \{ \text{'d'}, \text{'e'}, \text{'i'}, \text{'l'}, \text{'n'}, \text{'o'}, \text{'r'}, \text{'s'}, \text{'t'}, \text{'w'}, \text{'</w>'} \} \quad (|V_0| = 11)
 $$
 
-### Step 2: Iteration 1 — Pair Counting & Selection
+### 2. Frequency Aggregation & Greedy Pair Extraction
 We scan the corpus and count all adjacent pairs of symbols:
 
 | Adjacent Symbol Pair | Occurrences Across Corpus | Total Frequency |
@@ -74,7 +74,7 @@ Both `('e', 's')` and `('s', 't')` share the top frequency of 9. Breaking ties d
   * `n e w es t </w>` (6)
   * `w i d es t </w>` (3)
 
-### Step 3: Iteration 2 — Merging the Next Most Frequent Pair
+### 3. Progressive Subword Assembly
 Re-evaluating adjacent pair frequencies in the updated corpus:
 * `('es', 't')`: appears $6 + 3 = \mathbf{9}$ times.
 * `('l', 'o')`: appears $5 + 2 = 7$ times.
@@ -87,7 +87,7 @@ The top pair is `('es', 't')`.
   * `n e w est </w>` (6)
   * `w i d est </w>` (3)
 
-### Step 4: Iteration 3 — Merging Root Stems
+### 4. Root Stem Consolidation & Dictionary Growth
 Next, `('l', 'o')` and `('o', 'w')` both occur 7 times:
 * **Merge Rule 3**: `('l', 'o')` $\to$ `'lo'`
 * **Merge Rule 4**: `('lo', 'w')` $\to$ `'low'`
@@ -97,7 +97,7 @@ Next, `('l', 'o')` and `('o', 'w')` both occur 7 times:
   * `n e w est </w>` (6)
   * `w i d est </w>` (3)
 
-### Step 5: Tokenizing an Unseen Word
+### 5. Deterministic Greedy Inference on Unseen Inputs
 Suppose the model receives the previously unseen word **`"lowest"`**.
 1. Split into base characters: `['l', 'o', 'w', 'e', 's', 't', '</w>']`
 2. Check merge rule book in chronological training order:
@@ -111,7 +111,7 @@ Despite `"lowest"` never appearing in the training corpus, the tokenizer cleanly
 
 ---
 
-## A Bit Deeper: Systems & Mechanics
+## Production Engineering: Boundary Pathologies & Compression Rates
 
 ### Byte-Level Fallback & The Zero-OOV Guarantee
 Early BPE models (like Sennrich et al. 2015) operated over Unicode characters. If an input contained an unencountered emoji, rare mathematical symbol, or character from an unsupported script, the tokenizer was forced to emit the destructive unknown token `[UNK]`.
@@ -127,7 +127,7 @@ UTF-8 Hex:  0xE2 0x9C 0xA8
 Fallback:   Byte(226), Byte(156), Byte(168) -> Always representable!
 ```
 
-### Algorithmic Comparison: BPE vs. WordPiece vs. SentencePiece
+### Algorithmic Taxonomy: BPE vs. WordPiece vs. SentencePiece
 
 | Dimension | Byte-Pair Encoding (BPE) | WordPiece | SentencePiece / Unigram |
 | :--- | :--- | :--- | :--- |
@@ -136,16 +136,16 @@ Fallback:   Byte(226), Byte(156), Byte(168) -> Always representable!
 | **Boundary Handling** | Often regex-based pre-tokenization (`gpt-4o`, `cl100k_base`) | Explicit prefix marking (e.g. `##ing`) | Treats whitespace as regular character (`_` or ` `) |
 | **Deterministic?** | Yes, greedy top-down priority merge | Yes, greedy longest-match-first | Probabilistic (enables subword regularization during training) |
 
-### Pathologies and Engineering Pitfalls
+### Tokenizer Failure Modes & Diagnostic Benchmarks
 
-#### 1. Whitespace Sensitivity
+#### 1. Leading Whitespace Sensitivity & Coordinate Drift
 Because whitespace characters are explicitly incorporated into tokens (represented as `Ġ` in GPT tokenizers or ` ` in SentencePiece), leading spaces fundamentally alter token identity:
 * `" Apple"` $\to$ Token ID `1923`
 * `"Apple"` $\to$ Token ID `9756`
 
 Prompts with inconsistent spacing create representational drift in the early embedding layers because the model treats `" Apple"` and `"Apple"` as distinct coordinate vectors.
 
-#### 2. Arithmetic & Digit Fragmentation
+#### 2. Arithmetic Degradation via Arbitrary Digit Splitting
 Standard BPE trains on raw text where numbers appear unpredictably. Without regex intervention, numbers are tokenized into inconsistent chunk sizes:
 * `1234` might tokenize as `["12", "34"]`
 * `12345` might tokenize as `["123", "45"]`
@@ -153,7 +153,7 @@ Standard BPE trains on raw text where numbers appear unpredictably. Without rege
 
 This erratic splitting forces the transformer attention layers to simultaneously infer decimal place value alignment and numerical operations. Frontier models (e.g., Llama 3 and GPT-4) enforce strict regex rules before BPE to split every individual digit into its own token (`split_digits: true`), dramatically stabilizing mathematical reasoning.
 
-#### 3. Multilingual Fertility Disparity
+#### 3. Cross-Lingual Fertility Imbalance & Compute Inequity
 Tokenizer vocabularies trained predominantly on English corpora allocate the vast majority of their subword entries to English words and morphemes.
 * In English, **fertility** (the ratio of tokens generated per character) is roughly **0.25 to 0.30** (~4 characters per token).
 * In non-Latin scripts (Hindi, Thai, Telugu, Arabic, Japanese), words frequently split into single bytes or tiny character fragments, pushing fertility to **0.80 to 1.20** tokens per character.

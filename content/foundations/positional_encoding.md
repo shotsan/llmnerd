@@ -22,7 +22,7 @@ produce identical sets of contextual representations. Because syntax, grammar, c
 
 ---
 
-## Architectural Comparison: Absolute vs. Rotary Encodings
+## Coordinate Frame Formulation: Additive vs. Rotary
 
 The two primary paradigms for breaking permutation symmetry operate either by direct vector addition or coordinate rotation:
 
@@ -45,9 +45,9 @@ flowchart TD
 
 ---
 
-## Step-by-Step Toy Walkthrough
+## Mathematical Derivation & Vector Construction
 
-### Part A: Absolute Sinusoidal Encodings (Vaswani et al. 2017)
+### Absolute Harmonic Encodings (Vaswani et al.)
 The original Transformer encodes sequence position by adding deterministic trigonometric waves of varying frequencies directly to the token embeddings:
 
 $$
@@ -59,7 +59,7 @@ $$
 
 where $pos$ is the token index ($0, 1, 2, \dots$), $i$ is the dimension index ($0 \le i < d/2$), and $d$ is the model dimension.
 
-#### Concrete Evaluation ($d=4$)
+#### Numerical Evaluation at Fixed Hidden Dimension ($d = 4$)
 Let $d=4$, yielding two frequency channels:
 * For $i=0$: $\lambda_0 = 10000^{0/4} = 10000^0 = \mathbf{1}$
 * For $i=1$: $\lambda_1 = 10000^{2/4} = 10000^{0.5} = \sqrt{10000} = \mathbf{100}$
@@ -98,7 +98,7 @@ $$
 \mathbf{PE}_1 = \begin{bmatrix} 0.8415, & 0.5403, & 0.0100, & 0.99995 \end{bmatrix}
 $$
 
-#### The Geometric Intuition:
+#### Multi-Scale Frequency Decomposition & Geometric Progression
 Notice that across dimension $i=0$, the coordinates oscillate rapidly with wavelength $2\pi \approx 6.28$ tokens. At dimension $i=1$, the wavelength expands to $200\pi \approx 628$ tokens. This forms a continuous analog to the binary bits of an integer counter: low dimensions provide high-resolution local distinction between adjacent tokens, while high dimensions track global position across long documents.
 
 ```mermaid
@@ -129,7 +129,7 @@ graph TD
 
 ---
 
-### Part B: Rotary Position Embedding (RoPE - Su et al. 2021)
+### Rotary Position Embedding (RoPE) & Complex Plane Coordinates
 While sinusoidal encodings add vectors ($\mathbf{x} + \mathbf{PE}$), modern frontier models (LLaMA, Mistral, Gemma, Qwen) use **Rotary Position Embeddings (RoPE)**. RoPE does not add static position vectors; instead, it **rotates** the Query and Key vectors in 2D complex coordinate planes.
 
 For a 2D vector $\mathbf{x} = [x_1, x_2]^T$ at position $m$, RoPE applies the orthogonal rotation matrix $\mathbf{R}_{\theta, m}$:
@@ -141,7 +141,7 @@ $$
 \end{bmatrix}
 $$
 
-#### The Relative Distance Invariance Property
+#### Orthogonal Invariance & Relative Displacement Proof
 Suppose token $m$ emits Query $\mathbf{q}$ and token $n$ emits Key $\mathbf{k}$. When the model computes their attention dot product:
 
 $$
@@ -182,9 +182,9 @@ graph LR
 
 ---
 
-## A Bit Deeper: Systems & Mechanics
+## Systems Implementation & Context Extrapolation
 
-### Taxonomy of Positional Methods
+### Comparative Taxonomy of Sequence Positional Inductive Biases
 
 | Architecture Paradigm | Examples | Mechanism | Extrapolation to Unseen Lengths |
 | :--- | :--- | :--- | :--- |
@@ -193,7 +193,7 @@ graph LR
 | **Relative Bias** | T5, ALiBi | Injects scalar distance penalty directly into attention logits ($QK^T / \sqrt{d} - m \cdot \|i - j\|$) | **Excellent** (ALiBi trains on 2k, tests on 8k+ without fine-tuning) |
 | **Rotary (RoPE)** | LLaMA 1/2/3, Mistral, Gemma | Multiplies Q and K by block-diagonal 2D rotation matrices | **Very High** with base-frequency $\theta$ scaling and YaRN |
 
-### ALiBi: Attention with Linear Biases (Press et al. 2021)
+### Attention with Linear Biases (ALiBi): Direct Logit Distance Penalties
 ALiBi demonstrated that explicit positional embeddings are unnecessary. Instead, it subtracts a static, non-learned linear penalty proportional to the token distance directly from the pre-softmax attention score:
 
 $$
@@ -207,7 +207,7 @@ $$
 
 where $m$ is a head-specific geometric slope (e.g. $2^{-8/H}$). By biasing the model to favor recent tokens, ALiBi allows models trained on 2,048 tokens to extrapolate seamlessly to 8,192 tokens without any degradation in perplexity.
 
-### Scaling Context Windows: RoPE Interpolation & YaRN
+### Context Window Expansion: Frequency Interpolation & YaRN
 When an LLM trained with RoPE on an 8,192-token window is asked to process 128,000 tokens, the rotation angles $m\theta$ enter unobserved geometric territory, causing catastrophic attention collapse.
 
 To extend context windows without re-training from scratch:
