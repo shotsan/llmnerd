@@ -3,6 +3,7 @@ title: Attention Mechanisms
 toc: true
 type: docs
 math: true
+weight: 4
 ---
 
 Before the emergence of attention, deep sequence modeling was constrained by the sequential processing paradigm of Recurrent Neural Networks (RNNs, LSTMs, and GRUs). In an RNN, computing the hidden state $h_t$ at time step $t$ strictly required the prior state $h_{t-1}$:

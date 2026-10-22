@@ -3,6 +3,7 @@ title: Model Architecture
 toc: true
 type: docs
 math: true
+weight: 5
 ---
 
 The architectural history of large language models is an empirical search for the Pareto frontier balancing three engineering tensions: **representation capacity**, **parallel training throughput**, and **inference generation latency**.

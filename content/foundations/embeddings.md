@@ -3,6 +3,7 @@ title: Embeddings
 toc: true
 type: docs
 math: true
+weight: 2
 ---
 
 After tokenization decomposes raw text into discrete integers, neural networks face a geometric challenge: how can arbitrary discrete indices be represented in a space where mathematical operations like addition, dot products, and gradient propagation carry semantic meaning?

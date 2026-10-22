@@ -3,6 +3,7 @@ title: Positional Encoding
 toc: true
 type: docs
 math: true
+weight: 3
 ---
 
 The core mathematical operation of the Transformer architecture is self-attention. While self-attention allows every token to interact directly with every other token in a single computational step, it possesses a fundamental mathematical property: **permutation equivariance**.

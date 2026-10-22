@@ -3,6 +3,7 @@ title: Tokenization
 toc: true
 type: docs
 math: true
+weight: 1
 ---
 
 Human natural language exists as discrete, variable-length symbolic sequences governed by morphology, syntax, and cultural convention. Deep neural networks, conversely, are differentiable mathematical engines that operate exclusively on continuous numerical vectors within dense coordinate spaces. The bridge between these two irreconcilable representations is **tokenization**.
