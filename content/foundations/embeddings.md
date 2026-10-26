@@ -43,17 +43,6 @@ flowchart LR
     ID --> Slice --> Vec
 ```
 
-```
-Discrete Token ID          Weight Matrix W_E ∈ ℝ^(V × d)            Dense Vector in ℝ^d
-     id: 1 ("cat") ───►  ┌──────────────────────────────┐
-                         │ row 0: [ 0.05, -0.12,  0.08] │
-     Lookup row 1  ───►  │ row 1: [ 0.80,  0.10, -0.50] │ ──► e_cat = [0.80, 0.10, -0.50]
-                         │ row 2: [ 0.15,  0.90,  0.20] │
-                         │ row 3: [ 0.78,  0.12, -0.48] │
-                         │ row 4: [ 0.10, -0.05,  0.85] │
-                         └──────────────────────────────┘
-```
-
 ---
 
 ## Vector Geometry & Memory Layout
@@ -106,7 +95,7 @@ How close are `"cat"` and `"dog"` in this continuous coordinate space?
 
 1. **Dot Product (Projection Alignment)**:
    $$
-   \mathbf{e}_{\text{cat}} \cdot \mathbf{e}_{\text{dog}} = (0.80)(0.78) + (0.10)(0.12) + (-0.50)(-0.48) = 0.624 + 0.012 + 0.240 = \mathbf{0.876}
+   \mathbf{e}_{\text{cat}} \cdot \mathbf{e}_{\text{dog}} = (0.80)(0.78) + (0.10)(0.12) + (-0.50)(-0.48) = \mathbf{0.876}
    $$
 
 2. **Vector Magnitudes (Euclidean Norms)**:
@@ -123,6 +112,12 @@ How close are `"cat"` and `"dog"` in this continuous coordinate space?
    $$
 
 A cosine similarity of $\approx 0.9996$ indicates that both coordinate vectors point in nearly identical directions, reflecting their shared linguistic status as animals. In contrast, calculating `"cat"` against the grammatical function word `"the"` yields $\cos(\theta) \approx -0.11$, demonstrating functional orthogonality.
+
+---
+
+## Interactive Embedding Space Animator
+
+{{< visual/embedding-interactive >}}
 
 ---
 

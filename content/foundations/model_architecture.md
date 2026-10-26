@@ -201,17 +201,7 @@ In standard dense models, every parameter is activated for every token. Scaling 
   y = \sum_{i \in \text{TopK}} g(x)_i E_i(x)
   $$
 
-```
-Input Token x ────► [ Gating Router ] ───► Select Top-2 Experts
-                          │
-         ┌────────────────┴────────────────┐
-         ▼                                 ▼
-   [ Expert #2 ]                     [ Expert #7 ]
-         │                                 │
-         └───────────────► ⨁ ◄─────────────┘
-                           │
-                     Output Tensor y
-```
+{{< visual/architecture-interactive >}}
 
 This delivers the representational capacity of a large model with the inference speed and FLOP budget of a much smaller active network.
 

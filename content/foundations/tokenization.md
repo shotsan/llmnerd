@@ -32,7 +32,7 @@ flowchart LR
     subgraph S2["Subword Segmentation"]
         direction TB
         C["<b>BPE Merge Engine</b><br/>Greedy pair frequency rules"]
-        --> D["<b>Subword Sequence</b><br/><code>[&quot; under&quot;,&nbsp;&quot;stand&quot;,&nbsp;&quot;ing&quot;]</code>"]
+        --> D["<b>Subword Sequence</b><br/><code>[&quot;under&quot;,&nbsp;&quot;stand&quot;,&nbsp;&quot;ing&quot;]</code>"]
     end
 
     subgraph S3["Numerical Vectorization"]

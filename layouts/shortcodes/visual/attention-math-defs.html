@@ -1,0 +1,148 @@
+{{- $m := dict "output" "html" "displayMode" false -}}
+{{- $.Page.Store.Set "hasMath" true -}}
+
+<div class="llm-math-grid not-prose">
+  <!-- 1. Input Sequence X -->
+  <div class="llm-math-card">
+    <div class="llm-math-header">
+      <span class="llm-math-symbol">{{ transform.ToMath `\mathbf{X}` $m }}</span>
+      <span class="llm-math-shape">{{ transform.ToMath `\mathbb{R}^{T \times d_{\text{model}}}` $m }}</span>
+    </div>
+    <div class="llm-math-body">
+      <span class="llm-math-role">Input Sequence Matrix</span>
+      Sequence of {{ transform.ToMath `T` $m }} input tokens, where each row {{ transform.ToMath `\mathbf{x}_i \in \mathbb{R}^{d_{\text{model}}}` $m }} is the continuous embedding vector for token {{ transform.ToMath `i` $m }}.
+    </div>
+  </div>
+
+  <!-- 2. Projection Weights W_Q, W_K -->
+  <div class="llm-math-card">
+    <div class="llm-math-header">
+      <span class="llm-math-symbol">{{ transform.ToMath `\mathbf{W}_Q,\; \mathbf{W}_K` $m }}</span>
+      <span class="llm-math-shape">{{ transform.ToMath `\mathbb{R}^{d_{\text{model}} \times d_k}` $m }}</span>
+    </div>
+    <div class="llm-math-body">
+      <span class="llm-math-role">Query &amp; Key Projection Weights</span>
+      Learned parameter matrices that project token embeddings from {{ transform.ToMath `d_{\text{model}}` $m }} into a shared {{ transform.ToMath `d_k` $m }}-dimensional matching subspace.
+    </div>
+  </div>
+
+  <!-- 3. Value Projection Weight W_V -->
+  <div class="llm-math-card">
+    <div class="llm-math-header">
+      <span class="llm-math-symbol">{{ transform.ToMath `\mathbf{W}_V` $m }}</span>
+      <span class="llm-math-shape">{{ transform.ToMath `\mathbb{R}^{d_{\text{model}} \times d_v}` $m }}</span>
+    </div>
+    <div class="llm-math-body">
+      <span class="llm-math-role">Value Projection Weight</span>
+      Learned linear matrix projecting token representations into the {{ transform.ToMath `d_v` $m }}-dimensional content subspace (typically {{ transform.ToMath `d_v = d_k` $m }}).
+    </div>
+  </div>
+
+  <!-- 4. Queries Q -->
+  <div class="llm-math-card">
+    <div class="llm-math-header">
+      <span class="llm-math-symbol">{{ transform.ToMath `\mathbf{Q} = \mathbf{X}\mathbf{W}_Q` $m }}</span>
+      <span class="llm-math-shape">{{ transform.ToMath `\mathbb{R}^{T \times d_k}` $m }}</span>
+    </div>
+    <div class="llm-math-body">
+      <span class="llm-math-role">Query Matrix (Search Requests)</span>
+      Row {{ transform.ToMath `\mathbf{q}_i \in \mathbb{R}^{d_k}` $m }} encodes what contextual features token {{ transform.ToMath `i` $m }} is actively looking for across the sequence.
+    </div>
+  </div>
+
+  <!-- 5. Keys K -->
+  <div class="llm-math-card">
+    <div class="llm-math-header">
+      <span class="llm-math-symbol">{{ transform.ToMath `\mathbf{K} = \mathbf{X}\mathbf{W}_K` $m }}</span>
+      <span class="llm-math-shape">{{ transform.ToMath `\mathbb{R}^{T \times d_k}` $m }}</span>
+    </div>
+    <div class="llm-math-body">
+      <span class="llm-math-role">Key Matrix (Index Descriptors)</span>
+      Row {{ transform.ToMath `\mathbf{k}_j \in \mathbb{R}^{d_k}` $m }} acts as the searchable label advertising what syntactic or semantic attributes token {{ transform.ToMath `j` $m }} contains.
+    </div>
+  </div>
+
+  <!-- 6. Values V -->
+  <div class="llm-math-card">
+    <div class="llm-math-header">
+      <span class="llm-math-symbol">{{ transform.ToMath `\mathbf{V} = \mathbf{X}\mathbf{W}_V` $m }}</span>
+      <span class="llm-math-shape">{{ transform.ToMath `\mathbb{R}^{T \times d_v}` $m }}</span>
+    </div>
+    <div class="llm-math-body">
+      <span class="llm-math-role">Value Matrix (Content Payload)</span>
+      Row {{ transform.ToMath `\mathbf{v}_j \in \mathbb{R}^{d_v}` $m }} holds the actual information payload contributed by token {{ transform.ToMath `j` $m }} once addressed.
+    </div>
+  </div>
+
+  <!-- 7. Raw Scores S -->
+  <div class="llm-math-card">
+    <div class="llm-math-header">
+      <span class="llm-math-symbol">{{ transform.ToMath `\mathbf{S} = \mathbf{Q}\mathbf{K}^T` $m }}</span>
+      <span class="llm-math-shape">{{ transform.ToMath `\mathbb{R}^{T \times T}` $m }}</span>
+    </div>
+    <div class="llm-math-body">
+      <span class="llm-math-role">Pairwise Compatibility Matrix</span>
+      All-pairs dot-product matrix where entry {{ transform.ToMath `S_{ij} = \mathbf{q}_i \cdot \mathbf{k}_j` $m }} measures raw alignment between query token {{ transform.ToMath `i` $m }} and key token {{ transform.ToMath `j` $m }}.
+    </div>
+  </div>
+
+  <!-- 8. Scaling Factor sqrt(d_k) -->
+  <div class="llm-math-card">
+    <div class="llm-math-header">
+      <span class="llm-math-symbol">{{ transform.ToMath `1 / \sqrt{d_k}` $m }}</span>
+      <span class="llm-math-shape">Scalar ({{ transform.ToMath `\mathbb{R}^+` $m }})</span>
+    </div>
+    <div class="llm-math-body">
+      <span class="llm-math-role">Variance Stabilization Factor</span>
+      Because {{ transform.ToMath `\operatorname{Var}(\mathbf{q}_i \cdot \mathbf{k}_j) = d_k` $m }}, dividing by {{ transform.ToMath `\sqrt{d_k}` $m }} normalizes variance back to {{ transform.ToMath `1` $m }}, preventing softmax saturation and vanishing gradients.
+    </div>
+  </div>
+
+  <!-- 9. Causal Mask M -->
+  <div class="llm-math-card">
+    <div class="llm-math-header">
+      <span class="llm-math-symbol">{{ transform.ToMath `\mathbf{M}` $m }}</span>
+      <span class="llm-math-shape">{{ transform.ToMath `\{0, -\infty\}^{T \times T}` $m }}</span>
+    </div>
+    <div class="llm-math-body">
+      <span class="llm-math-role">Autoregressive Causal Mask</span>
+      Upper-triangular matrix with {{ transform.ToMath `M_{ij} = 0` $m }} for past/present tokens ({{ transform.ToMath `j \le i` $m }}) and {{ transform.ToMath `M_{ij} = -\infty` $m }} for future tokens ({{ transform.ToMath `j > i` $m }}), blocking causal leakage.
+    </div>
+  </div>
+
+  <!-- 10. Attention Weights A -->
+  <div class="llm-math-card">
+    <div class="llm-math-header">
+      <span class="llm-math-symbol">{{ transform.ToMath `\mathbf{A} = \operatorname{softmax}(\hat{\mathbf{S}})` $m }}</span>
+      <span class="llm-math-shape">{{ transform.ToMath `[0, 1]^{T \times T}` $m }}</span>
+    </div>
+    <div class="llm-math-body">
+      <span class="llm-math-role">Normalized Attention Matrix</span>
+      Row-stochastic probability matrix where each row sums to {{ transform.ToMath `\sum_{j=1}^T A_{ij} = 1` $m }}, defining how token {{ transform.ToMath `i` $m }} distributes its focus across visible tokens.
+    </div>
+  </div>
+
+  <!-- 11. Contextual Output O -->
+  <div class="llm-math-card">
+    <div class="llm-math-header">
+      <span class="llm-math-symbol">{{ transform.ToMath `\mathbf{O} = \mathbf{A}\mathbf{V}` $m }}</span>
+      <span class="llm-math-shape">{{ transform.ToMath `\mathbb{R}^{T \times d_v}` $m }}</span>
+    </div>
+    <div class="llm-math-body">
+      <span class="llm-math-role">Contextualized Head Output</span>
+      Weighted combination of value rows: each token's new representation {{ transform.ToMath `\mathbf{o}_i = \sum_{j \le i} A_{ij}\mathbf{v}_j` $m }} fuses context from across the entire window.
+    </div>
+  </div>
+
+  <!-- 12. Multi-Head Output W_O -->
+  <div class="llm-math-card">
+    <div class="llm-math-header">
+      <span class="llm-math-symbol">{{ transform.ToMath `\mathbf{W}_O` $m }}</span>
+      <span class="llm-math-shape">{{ transform.ToMath `\mathbb{R}^{(h \cdot d_v) \times d_{\text{model}}}` $m }}</span>
+    </div>
+    <div class="llm-math-body">
+      <span class="llm-math-role">Multi-Head Output Projection</span>
+      Fuses the concatenated outputs of all {{ transform.ToMath `h` $m }} parallel attention heads back into the unified {{ transform.ToMath `d_{\text{model}}` $m }} residual stream.
+    </div>
+  </div>
+</div>

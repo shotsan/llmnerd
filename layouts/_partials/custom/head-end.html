@@ -1,4 +1,9 @@
 {{- $customCss := resources.Get "css/custom.css" -}}
-{{- if and $customCss (not hugo.IsProduction) -}}
-  <link rel="stylesheet" href="{{ $customCss.RelPermalink }}">
+{{- if $customCss -}}
+  {{- if hugo.IsProduction -}}
+    {{- $styles := $customCss | minify | fingerprint -}}
+    <link rel="stylesheet" href="{{ $styles.RelPermalink }}" integrity="{{ $styles.Data.Integrity }}" />
+  {{- else -}}
+    <link rel="stylesheet" href="{{ $customCss.RelPermalink }}" />
+  {{- end -}}
 {{- end -}}

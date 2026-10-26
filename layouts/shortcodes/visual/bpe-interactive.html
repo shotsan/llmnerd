@@ -1,66 +1,82 @@
-<div class="interactive-bpe-widget my-8 p-6 rounded-2xl border border-slate-200 dark:border-neutral-800 bg-white/70 dark:bg-neutral-900/80 shadow-md backdrop-blur-sm not-prose font-sans">
-  <div class="flex flex-col md:flex-row md:items-center justify-between pb-4 mb-4 border-b border-slate-200 dark:border-neutral-800 gap-3">
+<div class="llm-motion-player not-prose" id="bpe-motion-root">
+  <!-- Header -->
+  <div class="llm-motion-header">
     <div>
-      <div class="flex items-center gap-2">
-        <span class="px-2.5 py-0.5 text-xs font-bold rounded-full bg-emerald-100 dark:bg-emerald-950/70 text-emerald-700 dark:text-emerald-300 uppercase tracking-wider">Subword Compression Lab</span>
-        <h3 class="text-lg font-bold text-slate-800 dark:text-slate-100 m-0">Byte-Pair Encoding (BPE) Step-by-Step Simulator</h3>
+      <div class="llm-blueprint-title-wrap">
+        <span class="llm-badge llm-badge-emerald">Motion Canvas &amp; Experiment</span>
+        <h3 class="llm-blueprint-title">Byte-Pair Encoding (BPE) Subword Merge Animator</h3>
       </div>
-      <p class="text-xs text-slate-500 dark:text-slate-400 mt-1 mb-0">Step through the greedy merge loop to watch character pairs consolidate into reusable subword tokens.</p>
+      <p class="llm-motion-goal">
+        <strong>Learning Goal:</strong> Watch greedy pair merges compress a training corpus step-by-step and generalize compositionally to segment the unseen word <code>"lowest"</code>.
+      </p>
     </div>
 
-    <!-- Controls -->
-    <div class="flex items-center gap-2.5">
-      <button id="bpe-step-btn" class="px-3.5 py-1.5 text-xs font-bold rounded-lg bg-blue-600 hover:bg-blue-700 text-white shadow-xs transition-colors flex items-center gap-1.5 cursor-pointer">
-        <span>Merge Next Pair</span>
-        <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M14 5l7 7m0 0l-7 7m7-7H3"/></svg>
-      </button>
-      <button id="bpe-reset-btn" class="px-3 py-1.5 text-xs font-semibold rounded-lg bg-slate-100 dark:bg-neutral-800 text-slate-600 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-neutral-700 transition-colors cursor-pointer">
-        Reset
-      </button>
+    <div class="llm-param-bar">
+      <div class="llm-param-item">
+        <span class="llm-param-label">Vocabulary |V|:</span>
+        <span id="bpe-vocab-count" class="llm-param-val">11</span>
+      </div>
+      <div class="llm-param-item" style="padding-left: 0.75rem; border-left: 1px solid #cbd5e1;">
+        <span class="llm-param-label">Unseen Word Length:</span>
+        <span id="bpe-unseen-len" class="llm-param-val" style="color: #059669;">7 tokens</span>
+      </div>
     </div>
   </div>
 
-  <div class="grid grid-cols-1 md:grid-cols-12 gap-5">
-    <!-- Left: Corpus Representation -->
-    <div class="md:col-span-7 space-y-3">
-      <div class="p-3.5 rounded-xl bg-slate-50 dark:bg-neutral-800/40 border border-slate-200/80 dark:border-neutral-800">
-        <div class="flex items-center justify-between mb-2">
-          <span class="text-xs font-bold uppercase tracking-wider text-slate-600 dark:text-slate-300">Toy Training Corpus</span>
-          <span id="bpe-step-counter" class="text-xs font-mono font-bold text-blue-600 dark:text-blue-400">Step 0 / 4 (Base Chars)</span>
+  <!-- Stage -->
+  <div class="llm-motion-stage">
+    <!-- Top Animated SVG Stage showing "lowest</w>" token fusion -->
+    <svg id="bpe-anim-svg" viewBox="0 0 820 115" width="100%" style="max-width: 820px; height: auto; display: block; margin-bottom: 1rem;" xmlns="http://www.w3.org/2000/svg">
+      <rect x="2" y="2" width="816" height="111" rx="10" fill="#f8fafc" stroke="#e2e8f0" stroke-width="1.5" />
+      <text x="24" y="26" fill="#475569" font-size="11" font-weight="700" font-family="sans-serif">LIVE SEGMENTATION OF UNSEEN WORD "lowest" (Zero OOV Fallback):</text>
+      <g id="bpe-svg-tokens" transform="translate(24, 42)"></g>
+    </svg>
+
+    <!-- 2-Column Corpus & Merge Table -->
+    <div class="llm-math-grid" style="width: 100%; margin: 0;">
+      <!-- Left: Corpus State -->
+      <div class="llm-math-card">
+        <div class="llm-math-header">
+          <span class="llm-math-symbol" style="font-size: 0.88rem;">Corpus State</span>
+          <span class="llm-math-shape" id="bpe-active-pair-badge">Base Characters</span>
         </div>
-        <div id="bpe-corpus-container" class="space-y-1.5 font-mono text-xs">
-          <!-- Populated by JS -->
+        <div class="llm-math-body" id="bpe-corpus-list" style="display: flex; flex-direction: column; gap: 0.55rem; font-family: ui-monospace, SFMono-Regular, monospace; font-size: 0.82rem;">
         </div>
       </div>
 
-      <!-- Live Inference on Unseen Word -->
-      <div class="p-3.5 rounded-xl bg-blue-50/70 dark:bg-blue-950/30 border border-blue-200/80 dark:border-blue-900/40">
-        <div class="flex items-center justify-between mb-1.5">
-          <span class="text-xs font-bold text-blue-900 dark:text-blue-200">Test Inference on Unseen Word:</span>
-          <span class="text-[11px] font-mono text-blue-600 dark:text-blue-400">"lowest"</span>
+      <!-- Right: Merge Rules -->
+      <div class="llm-math-card">
+        <div class="llm-math-header">
+          <span class="llm-math-symbol" style="font-size: 0.88rem;">Learned Merge Rules</span>
+          <span class="llm-math-shape" id="bpe-rule-count-badge">0 / 5 Active</span>
         </div>
-        <div class="flex items-center gap-2">
-          <span class="text-xs text-slate-500 dark:text-slate-400">Tokenized:</span>
-          <div id="bpe-inference-result" class="flex items-center gap-1.5 font-mono text-xs">
-            <!-- Populated by JS -->
-          </div>
+        <div class="llm-math-body" id="bpe-rules-list" style="display: flex; flex-direction: column; gap: 0.45rem; font-family: ui-monospace, SFMono-Regular, monospace; font-size: 0.8rem;">
         </div>
       </div>
     </div>
+  </div>
 
-    <!-- Right: Merge Rulebook & Stats -->
-    <div class="md:col-span-5 space-y-3">
-      <div class="p-3.5 rounded-xl bg-slate-50 dark:bg-neutral-800/40 border border-slate-200/80 dark:border-neutral-800">
-        <span class="text-xs font-bold uppercase tracking-wider text-slate-600 dark:text-slate-300 block mb-2">Active Merge Rulebook</span>
-        <ul id="bpe-rules-list" class="space-y-1 text-xs font-mono text-slate-600 dark:text-slate-300 min-h-[90px]">
-          <!-- Populated by JS -->
-        </ul>
-      </div>
+  <!-- Live Narration Caption -->
+  <div class="llm-motion-caption">
+    <span id="bpe-caption-text"></span>
+    <span class="llm-badge llm-badge-emerald" id="bpe-step-badge">Step 0 / 5</span>
+  </div>
 
-      <div class="p-3 rounded-lg bg-emerald-50/70 dark:bg-emerald-950/30 border border-emerald-200/80 dark:border-emerald-900/40 text-xs text-emerald-900 dark:text-emerald-200">
-        <span class="font-bold block mb-0.5">Vocabulary Size:</span>
-        <span id="bpe-vocab-stat" class="font-mono">|V| = 11 base characters</span>
-      </div>
+  <!-- Playback Controls -->
+  <div class="llm-motion-controls">
+    <div class="llm-btn-group">
+      <button type="button" class="llm-btn-play" id="bpe-play-btn">
+        <span id="bpe-play-icon">&#9654;</span>
+        <span id="bpe-play-label">Play Animation</span>
+      </button>
+      <button type="button" class="llm-btn-step" id="bpe-prev-btn">&larr; Step Back</button>
+      <button type="button" class="llm-btn-step" id="bpe-next-btn">Merge Next &rarr;</button>
+      <button type="button" class="llm-btn-step" id="bpe-reset-btn">Reset</button>
+    </div>
+
+    <div class="llm-scrubber-group">
+      <span class="llm-scrubber-label">Merge Step:</span>
+      <input type="range" id="bpe-scrubber" class="llm-scrubber" min="0" max="5" step="1" value="0">
     </div>
   </div>
 </div>
@@ -69,147 +85,217 @@
 (function() {
   const steps = [
     {
-      step: 0,
-      title: "Step 0 / 4 (Base Characters)",
-      corpus: [
-        { word: "low", count: 5, tokens: ["l", "o", "w", "</w>"] },
-        { word: "lower", count: 2, tokens: ["l", "o", "w", "e", "r", "</w>"] },
-        { word: "newest", count: 6, tokens: ["n", "e", "w", "e", "s", "t", "</w>"] },
-        { word: "widest", count: 3, tokens: ["w", "i", "d", "e", "s", "t", "</w>"] }
-      ],
-      rulebook: ["(No merges applied yet)"],
       vocabSize: 11,
-      inference: ["l", "o", "w", "e", "s", "t", "</w>"]
+      pairBadge: 'Next: (e, s) freq=9',
+      unseen: ['l', 'o', 'w', 'e', 's', 't', '</w>'],
+      unseenHighlight: [],
+      corpus: [
+        { freq: 5, tokens: ['l', 'o', 'w', '</w>'], hi: [] },
+        { freq: 2, tokens: ['l', 'o', 'w', 'e', 'r', '</w>'], hi: [] },
+        { freq: 6, tokens: ['n', 'e', 'w', 'e', 's', 't', '</w>'], hi: [3, 4] },
+        { freq: 3, tokens: ['w', 'i', 'd', 'e', 's', 't', '</w>'], hi: [3, 4] }
+      ],
+      caption: '<strong>Step 0 (Character Initialization):</strong> Every word is split into individual characters plus end-of-word <code>&lt;/w&gt;</code>. Adjacent pair <code>("e", "s")</code> has the highest corpus frequency (6 + 3 = 9).'
     },
     {
-      step: 1,
-      title: "Step 1 / 4: Merge ('e', 's') → 'es'",
-      corpus: [
-        { word: "low", count: 5, tokens: ["l", "o", "w", "</w>"] },
-        { word: "lower", count: 2, tokens: ["l", "o", "w", "e", "r", "</w>"] },
-        { word: "newest", count: 6, tokens: ["n", "e", "w", "es", "t", "</w>"] },
-        { word: "widest", count: 3, tokens: ["w", "i", "d", "es", "t", "</w>"] }
-      ],
-      rulebook: ["1. ('e', 's') → 'es' (freq: 9)"],
       vocabSize: 12,
-      inference: ["l", "o", "w", "es", "t", "</w>"]
+      pairBadge: 'Merged: "es" (freq 9)',
+      unseen: ['l', 'o', 'w', 'es', 't', '</w>'],
+      unseenHighlight: [3],
+      corpus: [
+        { freq: 5, tokens: ['l', 'o', 'w', '</w>'], hi: [] },
+        { freq: 2, tokens: ['l', 'o', 'w', 'e', 'r', '</w>'], hi: [] },
+        { freq: 6, tokens: ['n', 'e', 'w', 'es', 't', '</w>'], hi: [3] },
+        { freq: 3, tokens: ['w', 'i', 'd', 'es', 't', '</w>'], hi: [3] }
+      ],
+      caption: '<strong>Step 1 (Merge Rule #1: "e" + "s" &rarr; "es"):</strong> All occurrences of <code>("e", "s")</code> fuse into subword <code>"es"</code>. Next most frequent pair is <code>("es", "t")</code> with count 9.'
     },
     {
-      step: 2,
-      title: "Step 2 / 4: Merge ('es', 't') → 'est'",
-      corpus: [
-        { word: "low", count: 5, tokens: ["l", "o", "w", "</w>"] },
-        { word: "lower", count: 2, tokens: ["l", "o", "w", "e", "r", "</w>"] },
-        { word: "newest", count: 6, tokens: ["n", "e", "w", "est", "</w>"] },
-        { word: "widest", count: 3, tokens: ["w", "i", "d", "est", "</w>"] }
-      ],
-      rulebook: [
-        "1. ('e', 's') → 'es' (freq: 9)",
-        "2. ('es', 't') → 'est' (freq: 9)"
-      ],
       vocabSize: 13,
-      inference: ["l", "o", "w", "est", "</w>"]
+      pairBadge: 'Merged: "est" (freq 9)',
+      unseen: ['l', 'o', 'w', 'est', '</w>'],
+      unseenHighlight: [3],
+      corpus: [
+        { freq: 5, tokens: ['l', 'o', 'w', '</w>'], hi: [] },
+        { freq: 2, tokens: ['l', 'o', 'w', 'e', 'r', '</w>'], hi: [] },
+        { freq: 6, tokens: ['n', 'e', 'w', 'est', '</w>'], hi: [3] },
+        { freq: 3, tokens: ['w', 'i', 'd', 'est', '</w>'], hi: [3] }
+      ],
+      caption: '<strong>Step 2 (Merge Rule #2: "es" + "t" &rarr; "est"):</strong> The superlative suffix <code>"est"</code> emerges automatically from corpus statistics!'
     },
     {
-      step: 3,
-      title: "Step 3 / 4: Merge ('l', 'o') → 'lo'",
-      corpus: [
-        { word: "low", count: 5, tokens: ["lo", "w", "</w>"] },
-        { word: "lower", count: 2, tokens: ["lo", "w", "e", "r", "</w>"] },
-        { word: "newest", count: 6, tokens: ["n", "e", "w", "est", "</w>"] },
-        { word: "widest", count: 3, tokens: ["w", "i", "d", "est", "</w>"] }
-      ],
-      rulebook: [
-        "1. ('e', 's') → 'es' (freq: 9)",
-        "2. ('es', 't') → 'est' (freq: 9)",
-        "3. ('l', 'o') → 'lo' (freq: 7)"
-      ],
       vocabSize: 14,
-      inference: ["lo", "w", "est", "</w>"]
+      pairBadge: 'Merged: "est</w>" (freq 9)',
+      unseen: ['l', 'o', 'w', 'est</w>'],
+      unseenHighlight: [3],
+      corpus: [
+        { freq: 5, tokens: ['l', 'o', 'w', '</w>'], hi: [] },
+        { freq: 2, tokens: ['l', 'o', 'w', 'e', 'r', '</w>'], hi: [] },
+        { freq: 6, tokens: ['n', 'e', 'w', 'est</w>'], hi: [3] },
+        { freq: 3, tokens: ['w', 'i', 'd', 'est</w>'], hi: [3] }
+      ],
+      caption: '<strong>Step 3 (Merge Rule #3: "est" + "&lt;/w&gt;" &rarr; "est&lt;/w&gt;"):</strong> Incorporating <code>&lt;/w&gt;</code> locks <code>"est&lt;/w&gt;"</code> as a word-final suffix distinct from word-initial <em>"establish"</em>.'
     },
     {
-      step: 4,
-      title: "Step 4 / 4: Merge ('lo', 'w') → 'low'",
-      corpus: [
-        { word: "low", count: 5, tokens: ["low", "</w>"] },
-        { word: "lower", count: 2, tokens: ["low", "e", "r", "</w>"] },
-        { word: "newest", count: 6, tokens: ["n", "e", "w", "est", "</w>"] },
-        { word: "widest", count: 3, tokens: ["w", "i", "d", "est", "</w>"] }
-      ],
-      rulebook: [
-        "1. ('e', 's') → 'es' (freq: 9)",
-        "2. ('es', 't') → 'est' (freq: 9)",
-        "3. ('l', 'o') → 'lo' (freq: 7)",
-        "4. ('lo', 'w') → 'low' (freq: 7)"
-      ],
       vocabSize: 15,
-      inference: ["low", "est</w>"]
+      pairBadge: 'Merged: "lo" (freq 7)',
+      unseen: ['lo', 'w', 'est</w>'],
+      unseenHighlight: [0],
+      corpus: [
+        { freq: 5, tokens: ['lo', 'w', '</w>'], hi: [0] },
+        { freq: 2, tokens: ['lo', 'w', 'e', 'r', '</w>'], hi: [0] },
+        { freq: 6, tokens: ['n', 'e', 'w', 'est</w>'], hi: [] },
+        { freq: 3, tokens: ['w', 'i', 'd', 'est</w>'], hi: [] }
+      ],
+      caption: '<strong>Step 4 (Merge Rule #4: "l" + "o" &rarr; "lo"):</strong> Pair <code>("l", "o")</code> appears in <em>"low"</em> (5) and <em>"lower"</em> (2) for a total frequency of 7.'
+    },
+    {
+      vocabSize: 16,
+      pairBadge: 'Merged: "low" (freq 7)',
+      unseen: ['low', 'est</w>'],
+      unseenHighlight: [0, 1],
+      corpus: [
+        { freq: 5, tokens: ['low', '</w>'], hi: [0] },
+        { freq: 2, tokens: ['low', 'e', 'r', '</w>'], hi: [0] },
+        { freq: 6, tokens: ['n', 'e', 'w', 'est</w>'], hi: [] },
+        { freq: 3, tokens: ['w', 'i', 'd', 'est</w>'], hi: [] }
+      ],
+      caption: '<strong>Step 5 (Merge Rule #5: "lo" + "w" &rarr; "low"):</strong> The unseen test word <code>"lowest"</code> is now cleanly segmented into two meaningful morphemes: <code>["low", "est&lt;/w&gt;"]</code>!'
     }
   ];
 
-  let currentIdx = 0;
+  const rules = [
+    { id: 1, pair: '"e" + "s"', out: '"es"', freq: 9 },
+    { id: 2, pair: '"es" + "t"', out: '"est"', freq: 9 },
+    { id: 3, pair: '"est" + "</w>"', out: '"est</w>"', freq: 9 },
+    { id: 4, pair: '"l" + "o"', out: '"lo"', freq: 7 },
+    { id: 5, pair: '"lo" + "w"', out: '"low"', freq: 7 }
+  ];
 
-  const btnStep = document.getElementById('bpe-step-btn');
-  const btnReset = document.getElementById('bpe-reset-btn');
-  const counterSpan = document.getElementById('bpe-step-counter');
-  const corpusContainer = document.getElementById('bpe-corpus-container');
+  let curStep = 0;
+  let timer = null;
+
+  const svgTokens = document.getElementById('bpe-svg-tokens');
+  const corpusList = document.getElementById('bpe-corpus-list');
   const rulesList = document.getElementById('bpe-rules-list');
-  const vocabStat = document.getElementById('bpe-vocab-stat');
-  const inferenceContainer = document.getElementById('bpe-inference-result');
+  const vocabSpan = document.getElementById('bpe-vocab-count');
+  const unseenLenSpan = document.getElementById('bpe-unseen-len');
+  const pairBadge = document.getElementById('bpe-active-pair-badge');
+  const ruleBadge = document.getElementById('bpe-rule-count-badge');
+  const captionEl = document.getElementById('bpe-caption-text');
+  const stepBadge = document.getElementById('bpe-step-badge');
+  const scrubber = document.getElementById('bpe-scrubber');
+  const playBtn = document.getElementById('bpe-play-btn');
+  const playIcon = document.getElementById('bpe-play-icon');
+  const playLabel = document.getElementById('bpe-play-label');
 
-  function render() {
-    const s = steps[currentIdx];
-    counterSpan.textContent = s.title;
+  function renderStep(idx) {
+    curStep = idx;
+    const s = steps[idx];
+    scrubber.value = idx;
+    vocabSpan.textContent = s.vocabSize;
+    unseenLenSpan.textContent = s.unseen.length + ' tokens';
+    pairBadge.textContent = s.pairBadge;
+    ruleBadge.textContent = idx + ' / 5 Active';
+    captionEl.innerHTML = s.caption;
+    stepBadge.textContent = 'Step ' + idx + ' / 5';
 
-    // Render Corpus
-    let corpusHtml = '';
-    s.corpus.forEach(item => {
-      const pills = item.tokens.map(t => {
-        const isMerged = t.length > 1 && t !== '</w>';
-        const cls = isMerged 
-          ? 'bg-blue-100 dark:bg-blue-950/80 text-blue-700 dark:text-blue-300 font-bold border-blue-300 dark:border-blue-800' 
-          : 'bg-white dark:bg-neutral-900 text-slate-700 dark:text-slate-300 border-slate-200 dark:border-neutral-700';
-        return `<span class="px-1.5 py-0.5 rounded border ${cls}">${t}</span>`;
-      }).join(' ');
-
-      corpusHtml += `<div class="flex items-center justify-between p-1.5 rounded-lg bg-white/70 dark:bg-neutral-900/60 border border-slate-200/60 dark:border-neutral-800">
-        <span class="text-slate-400 dark:text-slate-500 w-16">"${item.word}" (×${item.count})</span>
-        <div class="flex items-center gap-1">${pills}</div>
-      </div>`;
+    // 1. Render Top SVG Unseen Word Tokens
+    let svgHtml = '';
+    let xPos = 0;
+    s.unseen.forEach(function(tok, tIdx) {
+      const isHi = s.unseenHighlight.indexOf(tIdx) !== -1;
+      const w = Math.max(58, tok.length * 14 + 28);
+      const fill = isHi ? '#059669' : '#2563eb';
+      const stroke = isHi ? '#047857' : '#1d4ed8';
+      const safeTok = tok.replace(/</g, '&lt;').replace(/>/g, '&gt;');
+      svgHtml += '<g transform="translate(' + xPos + ', 0)">';
+      svgHtml += '<rect width="' + w + '" height="48" rx="8" fill="' + fill + '" stroke="' + stroke + '" stroke-width="1.5" />';
+      svgHtml += '<text x="' + (w / 2) + '" y="25" text-anchor="middle" fill="#ffffff" font-size="13.5" font-weight="700" font-family="monospace">' + safeTok + '</text>';
+      svgHtml += '<text x="' + (w / 2) + '" y="41" text-anchor="middle" fill="#dbeafe" font-size="9.5" font-family="sans-serif">token #' + (tIdx + 1) + '</text>';
+      svgHtml += '</g>';
+      xPos += w + 10;
     });
-    corpusContainer.innerHTML = corpusHtml;
+    svgTokens.innerHTML = svgHtml;
 
-    // Render Rules
-    rulesList.innerHTML = s.rulebook.map(r => `<li class="p-1 rounded bg-white/60 dark:bg-neutral-900/40 border border-slate-200/50 dark:border-neutral-800/80">${r}</li>`).join('');
+    // 2. Render Corpus State
+    let cHtml = '';
+    s.corpus.forEach(function(row) {
+      cHtml += '<div style="display:flex; align-items:center; justify-content:space-between; padding:0.35rem 0.55rem; border-radius:0.45rem; background:rgba(148,163,184,0.08);">';
+      cHtml += '<div style="display:flex; flex-wrap:wrap; gap:0.35rem;">';
+      row.tokens.forEach(function(t, i) {
+        const hi = row.hi.indexOf(i) !== -1;
+        const bg = hi ? '#d1fae5' : '#f1f5f9';
+        const col = hi ? '#065f46' : '#1e293b';
+        const bdr = hi ? '#34d399' : '#cbd5e1';
+        const safeT = t.replace(/</g, '&lt;').replace(/>/g, '&gt;');
+        cHtml += '<span style="padding:0.12rem 0.45rem; border-radius:0.3rem; border:1px solid ' + bdr + '; background:' + bg + '; color:' + col + '; font-weight:700;">' + safeT + '</span>';
+      });
+      cHtml += '</div>';
+      cHtml += '<span style="color:#64748b; font-size:0.75rem; font-weight:700;">&times;' + row.freq + '</span>';
+      cHtml += '</div>';
+    });
+    corpusList.innerHTML = cHtml;
 
-    // Render Stats
-    vocabStat.textContent = `|V| = ${s.vocabSize} entries`;
-
-    // Render Inference
-    inferenceContainer.innerHTML = s.inference.map(t => {
-      const isComplete = t === 'low' || t.startsWith('est');
-      const cls = isComplete 
-        ? 'bg-emerald-100 dark:bg-emerald-950/80 text-emerald-800 dark:text-emerald-200 font-bold border-emerald-300 dark:border-emerald-700' 
-        : 'bg-white dark:bg-neutral-900 text-slate-700 dark:text-slate-300 border-slate-200 dark:border-neutral-700';
-      return `<span class="px-2 py-0.5 rounded border ${cls}">${t}</span>`;
-    }).join(' ');
-
-    btnStep.disabled = currentIdx >= steps.length - 1;
-    btnStep.classList.toggle('opacity-50', currentIdx >= steps.length - 1);
+    // 3. Render Merge Rules
+    let rHtml = '';
+    rules.forEach(function(r) {
+      const active = r.id <= idx;
+      const current = r.id === idx;
+      const bg = current ? '#eff6ff' : (active ? 'rgba(16, 185, 129, 0.08)' : 'transparent');
+      const bdr = current ? '#3b82f6' : (active ? '#a7f3d0' : '#e2e8f0');
+      const op = active ? '1' : '0.45';
+      const safePair = r.pair.replace(/</g, '&lt;').replace(/>/g, '&gt;');
+      const safeOut = r.out.replace(/</g, '&lt;').replace(/>/g, '&gt;');
+      rHtml += '<div style="display:flex; align-items:center; justify-content:space-between; padding:0.35rem 0.65rem; border-radius:0.45rem; border:1px solid ' + bdr + '; background:' + bg + '; opacity:' + op + ';">';
+      rHtml += '<span><strong>Rule ' + r.id + ':</strong> ' + safePair + ' &rarr; <strong style="color:#059669;">' + safeOut + '</strong></span>';
+      rHtml += '<span style="font-size:0.72rem; color:#64748b;">freq=' + r.freq + '</span>';
+      rHtml += '</div>';
+    });
+    rulesList.innerHTML = rHtml;
   }
 
-  btnStep.addEventListener('click', () => {
-    if (currentIdx < steps.length - 1) {
-      currentIdx++;
-      render();
+  function stopAnim() {
+    if (timer) {
+      clearInterval(timer);
+      timer = null;
+    }
+    playIcon.innerHTML = '&#9654;';
+    playLabel.textContent = 'Play Animation';
+  }
+
+  playBtn.addEventListener('click', function() {
+    if (timer) {
+      stopAnim();
+    } else {
+      playIcon.innerHTML = '&#10074;&#10074;';
+      playLabel.textContent = 'Pause';
+      timer = setInterval(function() {
+        renderStep((curStep + 1) % steps.length);
+      }, 1700);
     }
   });
 
-  btnReset.addEventListener('click', () => {
-    currentIdx = 0;
-    render();
+  document.getElementById('bpe-prev-btn').addEventListener('click', function() {
+    stopAnim();
+    renderStep((curStep + steps.length - 1) % steps.length);
   });
 
-  render();
+  document.getElementById('bpe-next-btn').addEventListener('click', function() {
+    stopAnim();
+    renderStep((curStep + 1) % steps.length);
+  });
+
+  document.getElementById('bpe-reset-btn').addEventListener('click', function() {
+    stopAnim();
+    renderStep(0);
+  });
+
+  scrubber.addEventListener('input', function() {
+    stopAnim();
+    renderStep(parseInt(scrubber.value, 10));
+  });
+
+  renderStep(0);
 })();
 </script>

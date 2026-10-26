@@ -1,0 +1,200 @@
+<div class="llm-blueprint not-prose">
+  <div class="llm-blueprint-header">
+    <div class="llm-blueprint-title-wrap">
+      <span class="llm-badge llm-badge-indigo">KV-Cache Architecture Blueprint</span>
+      <h3 class="llm-blueprint-title">Multi-Head (MHA) vs. Grouped-Query (GQA) vs. Multi-Query (MQA)</h3>
+    </div>
+    <span class="llm-blueprint-meta">Memory Bandwidth vs. Representational Capacity</span>
+  </div>
+
+  <div class="llm-blueprint-body">
+    <div class="llm-variant-grid">
+
+      <!-- ==================== COLUMN 1: MHA ==================== -->
+      <div class="llm-variant-card">
+        <div class="llm-variant-card-header">
+          <span class="llm-badge llm-badge-blue">1× Cache (Baseline)</span>
+          <div>
+            <div class="llm-variant-card-title">Multi-Head (MHA)</div>
+            <span class="llm-variant-card-sub">GPT-3, Llama-1 • 1:1 Dedicated KV</span>
+          </div>
+        </div>
+
+        <div class="llm-variant-diagram">
+          <svg viewBox="0 0 260 155" width="100%" style="max-width: 260px; height: auto; display: block;" xmlns="http://www.w3.org/2000/svg">
+            <text x="130" y="15" text-anchor="middle" fill="#64748b" font-size="9.5" font-weight="700" font-family="sans-serif">8 QUERY HEADS (h_q = 8)</text>
+            <!-- 8 Query boxes -->
+            <g transform="translate(12, 22)">
+              <rect x="0"   y="0" width="24" height="24" rx="4" fill="#4f46e5" /><text x="12" y="15" text-anchor="middle" fill="#fff" font-size="8.5" font-weight="700" font-family="monospace">Q1</text>
+              <rect x="30"  y="0" width="24" height="24" rx="4" fill="#4f46e5" /><text x="42" y="15" text-anchor="middle" fill="#fff" font-size="8.5" font-weight="700" font-family="monospace">Q2</text>
+              <rect x="60"  y="0" width="24" height="24" rx="4" fill="#4f46e5" /><text x="72" y="15" text-anchor="middle" fill="#fff" font-size="8.5" font-weight="700" font-family="monospace">Q3</text>
+              <rect x="90"  y="0" width="24" height="24" rx="4" fill="#4f46e5" /><text x="102" y="15" text-anchor="middle" fill="#fff" font-size="8.5" font-weight="700" font-family="monospace">Q4</text>
+              <rect x="120" y="0" width="24" height="24" rx="4" fill="#4f46e5" /><text x="132" y="15" text-anchor="middle" fill="#fff" font-size="8.5" font-weight="700" font-family="monospace">Q5</text>
+              <rect x="150" y="0" width="24" height="24" rx="4" fill="#4f46e5" /><text x="162" y="15" text-anchor="middle" fill="#fff" font-size="8.5" font-weight="700" font-family="monospace">Q6</text>
+              <rect x="180" y="0" width="24" height="24" rx="4" fill="#4f46e5" /><text x="192" y="15" text-anchor="middle" fill="#fff" font-size="8.5" font-weight="700" font-family="monospace">Q7</text>
+              <rect x="210" y="0" width="24" height="24" rx="4" fill="#4f46e5" /><text x="222" y="15" text-anchor="middle" fill="#fff" font-size="8.5" font-weight="700" font-family="monospace">Q8</text>
+            </g>
+
+            <!-- 1:1 Vertical Connecting Lines -->
+            <g stroke="#94a3b8" stroke-width="1.6">
+              <line x1="24"  y1="46" x2="24"  y2="104" />
+              <line x1="54"  y1="46" x2="54"  y2="104" />
+              <line x1="84"  y1="46" x2="84"  y2="104" />
+              <line x1="114" y1="46" x2="114" y2="104" />
+              <line x1="144" y1="46" x2="144" y2="104" />
+              <line x1="174" y1="46" x2="174" y2="104" />
+              <line x1="204" y1="46" x2="204" y2="104" />
+              <line x1="234" y1="46" x2="234" y2="104" />
+            </g>
+
+            <!-- 8 KV boxes -->
+            <g transform="translate(12, 104)">
+              <rect x="0"   y="0" width="24" height="26" rx="4" fill="#0284c7" /><text x="12" y="16" text-anchor="middle" fill="#fff" font-size="8" font-weight="700" font-family="monospace">KV1</text>
+              <rect x="30"  y="0" width="24" height="26" rx="4" fill="#0284c7" /><text x="42" y="16" text-anchor="middle" fill="#fff" font-size="8" font-weight="700" font-family="monospace">KV2</text>
+              <rect x="60"  y="0" width="24" height="26" rx="4" fill="#0284c7" /><text x="72" y="16" text-anchor="middle" fill="#fff" font-size="8" font-weight="700" font-family="monospace">KV3</text>
+              <rect x="90"  y="0" width="24" height="26" rx="4" fill="#0284c7" /><text x="102" y="16" text-anchor="middle" fill="#fff" font-size="8" font-weight="700" font-family="monospace">KV4</text>
+              <rect x="120" y="0" width="24" height="26" rx="4" fill="#0284c7" /><text x="132" y="16" text-anchor="middle" fill="#fff" font-size="8" font-weight="700" font-family="monospace">KV5</text>
+              <rect x="150" y="0" width="24" height="26" rx="4" fill="#0284c7" /><text x="162" y="16" text-anchor="middle" fill="#fff" font-size="8" font-weight="700" font-family="monospace">KV6</text>
+              <rect x="180" y="0" width="24" height="26" rx="4" fill="#0284c7" /><text x="192" y="16" text-anchor="middle" fill="#fff" font-size="8" font-weight="700" font-family="monospace">KV7</text>
+              <rect x="210" y="0" width="24" height="26" rx="4" fill="#0284c7" /><text x="222" y="16" text-anchor="middle" fill="#fff" font-size="8" font-weight="700" font-family="monospace">KV8</text>
+            </g>
+            <text x="130" y="146" text-anchor="middle" fill="#0284c7" font-size="9.5" font-weight="700" font-family="sans-serif">8 KEY-VALUE HEADS (h_kv = 8)</text>
+          </svg>
+        </div>
+
+        <div class="llm-variant-footer">
+          <div class="llm-variant-stat-row">
+            <span class="llm-variant-stat-label">KV Cache:</span>
+            <span class="llm-variant-stat-val">100% (8 KV)</span>
+          </div>
+          <div class="llm-variant-stat-row">
+            <span class="llm-variant-stat-label">Bandwidth:</span>
+            <span class="llm-variant-stat-val" style="color: #dc2626;">Bottlenecked</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- ==================== COLUMN 2: GQA ==================== -->
+      <div class="llm-variant-card">
+        <div class="llm-variant-card-header">
+          <span class="llm-badge llm-badge-emerald">4× Smaller Cache</span>
+          <div>
+            <div class="llm-variant-card-title">Grouped-Query (GQA)</div>
+            <span class="llm-variant-card-sub">Llama-3, Qwen-2.5 • Group Shared</span>
+          </div>
+        </div>
+
+        <div class="llm-variant-diagram">
+          <svg viewBox="0 0 260 155" width="100%" style="max-width: 260px; height: auto; display: block;" xmlns="http://www.w3.org/2000/svg">
+            <text x="130" y="15" text-anchor="middle" fill="#64748b" font-size="9.5" font-weight="700" font-family="sans-serif">8 QUERY HEADS (2 GROUPS OF 4)</text>
+            <!-- 8 Query boxes -->
+            <g transform="translate(12, 22)">
+              <rect x="0"   y="0" width="24" height="24" rx="4" fill="#4f46e5" /><text x="12" y="15" text-anchor="middle" fill="#fff" font-size="8.5" font-weight="700" font-family="monospace">Q1</text>
+              <rect x="30"  y="0" width="24" height="24" rx="4" fill="#4f46e5" /><text x="42" y="15" text-anchor="middle" fill="#fff" font-size="8.5" font-weight="700" font-family="monospace">Q2</text>
+              <rect x="60"  y="0" width="24" height="24" rx="4" fill="#4f46e5" /><text x="72" y="15" text-anchor="middle" fill="#fff" font-size="8.5" font-weight="700" font-family="monospace">Q3</text>
+              <rect x="90"  y="0" width="24" height="24" rx="4" fill="#4f46e5" /><text x="102" y="15" text-anchor="middle" fill="#fff" font-size="8.5" font-weight="700" font-family="monospace">Q4</text>
+              <rect x="120" y="0" width="24" height="24" rx="4" fill="#6366f1" /><text x="132" y="15" text-anchor="middle" fill="#fff" font-size="8.5" font-weight="700" font-family="monospace">Q5</text>
+              <rect x="150" y="0" width="24" height="24" rx="4" fill="#6366f1" /><text x="162" y="15" text-anchor="middle" fill="#fff" font-size="8.5" font-weight="700" font-family="monospace">Q6</text>
+              <rect x="180" y="0" width="24" height="24" rx="4" fill="#6366f1" /><text x="192" y="15" text-anchor="middle" fill="#fff" font-size="8.5" font-weight="700" font-family="monospace">Q7</text>
+              <rect x="210" y="0" width="24" height="24" rx="4" fill="#6366f1" /><text x="222" y="15" text-anchor="middle" fill="#fff" font-size="8.5" font-weight="700" font-family="monospace">Q8</text>
+            </g>
+
+            <!-- 4:1 Group Converging Lines -->
+            <g stroke="#059669" stroke-width="1.6" fill="none">
+              <!-- Group 1 -> KV1 (center x=69) -->
+              <path d="M 24 46 L 69 104" />
+              <path d="M 54 46 L 69 104" />
+              <path d="M 84 46 L 69 104" />
+              <path d="M 114 46 L 69 104" />
+              <!-- Group 2 -> KV2 (center x=189) -->
+              <path d="M 144 46 L 189 104" />
+              <path d="M 174 46 L 189 104" />
+              <path d="M 204 46 L 189 104" />
+              <path d="M 234 46 L 189 104" />
+            </g>
+
+            <!-- 2 Shared KV boxes -->
+            <g transform="translate(0, 104)">
+              <rect x="35"  y="0" width="68" height="26" rx="5" fill="#059669" />
+              <text x="69"  y="16" text-anchor="middle" fill="#fff" font-size="9" font-weight="700" font-family="monospace">Shared KV1</text>
+
+              <rect x="155" y="0" width="68" height="26" rx="5" fill="#059669" />
+              <text x="189" y="16" text-anchor="middle" fill="#fff" font-size="9" font-weight="700" font-family="monospace">Shared KV2</text>
+            </g>
+            <text x="130" y="146" text-anchor="middle" fill="#059669" font-size="9.5" font-weight="700" font-family="sans-serif">2 GROUPED KV HEADS (h_kv = 2)</text>
+          </svg>
+        </div>
+
+        <div class="llm-variant-footer">
+          <div class="llm-variant-stat-row">
+            <span class="llm-variant-stat-label">KV Cache:</span>
+            <span class="llm-variant-stat-val">25% (g / h_q)</span>
+          </div>
+          <div class="llm-variant-stat-row">
+            <span class="llm-variant-stat-label">Quality:</span>
+            <span class="llm-variant-stat-val" style="color: #059669;">Near-Lossless</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- ==================== COLUMN 3: MQA ==================== -->
+      <div class="llm-variant-card">
+        <div class="llm-variant-card-header">
+          <span class="llm-badge llm-badge-amber">8× Smaller Cache</span>
+          <div>
+            <div class="llm-variant-card-title">Multi-Query (MQA)</div>
+            <span class="llm-variant-card-sub">PaLM, Falcon • Single Global KV</span>
+          </div>
+        </div>
+
+        <div class="llm-variant-diagram">
+          <svg viewBox="0 0 260 155" width="100%" style="max-width: 260px; height: auto; display: block;" xmlns="http://www.w3.org/2000/svg">
+            <text x="130" y="15" text-anchor="middle" fill="#64748b" font-size="9.5" font-weight="700" font-family="sans-serif">8 QUERY HEADS SHARE 1 KV</text>
+            <!-- 8 Query boxes -->
+            <g transform="translate(12, 22)">
+              <rect x="0"   y="0" width="24" height="24" rx="4" fill="#4f46e5" /><text x="12" y="15" text-anchor="middle" fill="#fff" font-size="8.5" font-weight="700" font-family="monospace">Q1</text>
+              <rect x="30"  y="0" width="24" height="24" rx="4" fill="#4f46e5" /><text x="42" y="15" text-anchor="middle" fill="#fff" font-size="8.5" font-weight="700" font-family="monospace">Q2</text>
+              <rect x="60"  y="0" width="24" height="24" rx="4" fill="#4f46e5" /><text x="72" y="15" text-anchor="middle" fill="#fff" font-size="8.5" font-weight="700" font-family="monospace">Q3</text>
+              <rect x="90"  y="0" width="24" height="24" rx="4" fill="#4f46e5" /><text x="102" y="15" text-anchor="middle" fill="#fff" font-size="8.5" font-weight="700" font-family="monospace">Q4</text>
+              <rect x="120" y="0" width="24" height="24" rx="4" fill="#4f46e5" /><text x="132" y="15" text-anchor="middle" fill="#fff" font-size="8.5" font-weight="700" font-family="monospace">Q5</text>
+              <rect x="150" y="0" width="24" height="24" rx="4" fill="#4f46e5" /><text x="162" y="15" text-anchor="middle" fill="#fff" font-size="8.5" font-weight="700" font-family="monospace">Q6</text>
+              <rect x="180" y="0" width="24" height="24" rx="4" fill="#4f46e5" /><text x="192" y="15" text-anchor="middle" fill="#fff" font-size="8.5" font-weight="700" font-family="monospace">Q7</text>
+              <rect x="210" y="0" width="24" height="24" rx="4" fill="#4f46e5" /><text x="222" y="15" text-anchor="middle" fill="#fff" font-size="8.5" font-weight="700" font-family="monospace">Q8</text>
+            </g>
+
+            <!-- 8:1 Converging Lines -->
+            <g stroke="#d97706" stroke-width="1.5" fill="none">
+              <path d="M 24 46 L 130 104" />
+              <path d="M 54 46 L 130 104" />
+              <path d="M 84 46 L 130 104" />
+              <path d="M 114 46 L 130 104" />
+              <path d="M 144 46 L 130 104" />
+              <path d="M 174 46 L 130 104" />
+              <path d="M 204 46 L 130 104" />
+              <path d="M 234 46 L 130 104" />
+            </g>
+
+            <!-- 1 Global KV box -->
+            <g transform="translate(0, 104)">
+              <rect x="82" y="0" width="96" height="26" rx="5" fill="#d97706" />
+              <text x="130" y="16" text-anchor="middle" fill="#fff" font-size="9" font-weight="700" font-family="monospace">Global Shared KV1</text>
+            </g>
+            <text x="130" y="146" text-anchor="middle" fill="#d97706" font-size="9.5" font-weight="700" font-family="sans-serif">1 SINGLE KV HEAD (h_kv = 1)</text>
+          </svg>
+        </div>
+
+        <div class="llm-variant-footer">
+          <div class="llm-variant-stat-row">
+            <span class="llm-variant-stat-label">KV Cache:</span>
+            <span class="llm-variant-stat-val">12.5% (1 / h_q)</span>
+          </div>
+          <div class="llm-variant-stat-row">
+            <span class="llm-variant-stat-label">Tradeoff:</span>
+            <span class="llm-variant-stat-val" style="color: #d97706;">Max Throughput</span>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>

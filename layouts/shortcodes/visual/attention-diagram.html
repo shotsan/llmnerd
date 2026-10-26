@@ -1,187 +1,189 @@
-<div class="attention-diagram-container my-8 p-6 rounded-2xl border border-slate-200 dark:border-neutral-800 bg-white/80 dark:bg-neutral-900/80 shadow-md backdrop-blur-sm not-prose font-sans">
-  <div class="flex items-center justify-between pb-4 mb-6 border-b border-slate-200 dark:border-neutral-800">
-    <div class="flex items-center gap-2">
-      <span class="px-2.5 py-0.5 text-xs font-bold rounded-full bg-blue-100 dark:bg-blue-950/70 text-blue-700 dark:text-blue-300 uppercase tracking-wider">Architecture Blueprint</span>
-      <h3 class="text-base font-bold text-slate-800 dark:text-slate-100 m-0">Scaled Dot-Product Attention Pipeline</h3>
+<div class="llm-blueprint not-prose">
+  <div class="llm-blueprint-header">
+    <div class="llm-blueprint-title-wrap">
+      <span class="llm-badge llm-badge-blue">Architecture Blueprint</span>
+      <h3 class="llm-blueprint-title">Scaled Dot-Product Attention Dataflow</h3>
     </div>
-    <span class="text-xs font-mono text-slate-500 dark:text-slate-400">Vaswani et al. (2017)</span>
+    <span class="llm-blueprint-meta">O(T² · d_k) Compute • Exact Tensor Shapes</span>
   </div>
 
-  <div class="w-full flex justify-center overflow-x-auto">
-    <svg viewBox="0 0 880 340" class="w-full min-w-[700px] max-w-4xl h-auto select-none" xmlns="http://www.w3.org/2000/svg">
+  <div class="llm-blueprint-body">
+    <svg viewBox="0 0 920 330" width="100%" style="max-width: 900px; height: auto; display: block; user-select: none;" xmlns="http://www.w3.org/2000/svg">
       <style>
-        .attn-box { fill: #ffffff; stroke: #cbd5e1; stroke-width: 1.5; }
-        .attn-mask-box { fill: #fffbeb; stroke: #f59e0b; stroke-width: 1.5; stroke-dasharray: 4 3; }
-        .attn-text-title { fill: #0f172a; font-family: ui-sans-serif, system-ui, -apple-system, sans-serif; font-size: 13px; font-weight: 700; }
-        .attn-text-sub { fill: #64748b; font-family: ui-monospace, SFMono-Regular, monospace; font-size: 11px; }
-        .attn-wire { stroke: #94a3b8; stroke-width: 2; fill: none; }
-        .attn-wire-q { stroke: #3b82f6; stroke-width: 2; fill: none; }
-        .attn-wire-k { stroke: #06b6d4; stroke-width: 2; fill: none; }
-        .attn-wire-v { stroke: #10b981; stroke-width: 2.2; fill: none; }
-        .attn-wire-a { stroke: #6366f1; stroke-width: 2.2; fill: none; }
-        .attn-wire-out { stroke: #8b5cf6; stroke-width: 2.5; fill: none; }
-        .attn-badge-bg { fill: #f8fafc; stroke: #e2e8f0; stroke-width: 1; }
-        .attn-badge-text { fill: #475569; font-family: ui-monospace, monospace; font-size: 10px; font-weight: 600; }
-        .attn-legend-text { fill: #64748b; font-family: ui-sans-serif, sans-serif; font-size: 11px; }
+        .bp-card { fill: #ffffff; stroke: #cbd5e1; stroke-width: 1.5; }
+        .bp-card-mask { fill: #fffbeb; stroke: #f59e0b; stroke-width: 1.5; stroke-dasharray: 4 3; }
+        .bp-title { fill: #0f172a; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; font-size: 12.5px; font-weight: 700; }
+        .bp-sub { fill: #475569; font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 10.5px; font-weight: 600; }
+        .bp-wire { stroke: #64748b; stroke-width: 2; fill: none; }
+        .bp-wire-q { stroke: #4f46e5; stroke-width: 2.2; fill: none; }
+        .bp-wire-k { stroke: #0284c7; stroke-width: 2.2; fill: none; }
+        .bp-wire-v { stroke: #059669; stroke-width: 2.2; fill: none; }
+        .bp-wire-a { stroke: #7c3aed; stroke-width: 2.2; fill: none; }
+        .bp-pill { fill: #f8fafc; stroke: #cbd5e1; stroke-width: 1; }
+        .bp-pill-txt { fill: #334155; font-family: ui-monospace, SFMono-Regular, monospace; font-size: 10px; font-weight: 700; }
+        .bp-stage-lbl { fill: #64748b; font-family: -apple-system, BlinkMacSystemFont, sans-serif; font-size: 10px; font-weight: 700; letter-spacing: 0.05em; text-transform: uppercase; }
 
-        html.dark .attn-box { fill: #1e293b; stroke: #334155; }
-        html.dark .attn-mask-box { fill: #451a03; stroke: #d97706; }
-        html.dark .attn-text-title { fill: #f8fafc; }
-        html.dark .attn-text-sub { fill: #94a3b8; }
-        html.dark .attn-wire { stroke: #475569; }
-        html.dark .attn-badge-bg { fill: #0f172a; stroke: #334155; }
-        html.dark .attn-badge-text { fill: #cbd5e1; }
-        html.dark .attn-legend-text { fill: #94a3b8; }
+        html.dark .bp-card { fill: #1e293b; stroke: #475569; }
+        html.dark .bp-card-mask { fill: #451a03; stroke: #d97706; }
+        html.dark .bp-title { fill: #f8fafc; }
+        html.dark .bp-sub { fill: #cbd5e1; }
+        html.dark .bp-wire { stroke: #94a3b8; }
+        html.dark .bp-pill { fill: #0f172a; stroke: #334155; }
+        html.dark .bp-pill-txt { fill: #e2e8f0; }
+        html.dark .bp-stage-lbl { fill: #94a3b8; }
       </style>
 
       <defs>
-        <!-- Gradients -->
-        <linearGradient id="grad-q" x1="0%" y1="0%" x2="100%" y2="100%">
-          <stop offset="0%" stop-color="#3b82f6" />
-          <stop offset="100%" stop-color="#2563eb" />
+        <linearGradient id="bp-grad-in" x1="0%" y1="0%" x2="100%" y2="100%">
+          <stop offset="0%" stop-color="#334155" />
+          <stop offset="100%" stop-color="#1e293b" />
         </linearGradient>
-        <linearGradient id="grad-k" x1="0%" y1="0%" x2="100%" y2="100%">
-          <stop offset="0%" stop-color="#06b6d4" />
-          <stop offset="100%" stop-color="#0891b2" />
+        <linearGradient id="bp-grad-q" x1="0%" y1="0%" x2="100%" y2="100%">
+          <stop offset="0%" stop-color="#4f46e5" />
+          <stop offset="100%" stop-color="#3730a3" />
         </linearGradient>
-        <linearGradient id="grad-v" x1="0%" y1="0%" x2="100%" y2="100%">
-          <stop offset="0%" stop-color="#10b981" />
-          <stop offset="100%" stop-color="#059669" />
+        <linearGradient id="bp-grad-k" x1="0%" y1="0%" x2="100%" y2="100%">
+          <stop offset="0%" stop-color="#0284c7" />
+          <stop offset="100%" stop-color="#0369a1" />
         </linearGradient>
-        <linearGradient id="grad-softmax" x1="0%" y1="0%" x2="100%" y2="100%">
-          <stop offset="0%" stop-color="#6366f1" />
-          <stop offset="100%" stop-color="#4f46e5" />
+        <linearGradient id="bp-grad-v" x1="0%" y1="0%" x2="100%" y2="100%">
+          <stop offset="0%" stop-color="#059669" />
+          <stop offset="100%" stop-color="#047857" />
         </linearGradient>
-        <linearGradient id="grad-out" x1="0%" y1="0%" x2="100%" y2="100%">
-          <stop offset="0%" stop-color="#8b5cf6" />
-          <stop offset="100%" stop-color="#7c3aed" />
+        <linearGradient id="bp-grad-sm" x1="0%" y1="0%" x2="100%" y2="100%">
+          <stop offset="0%" stop-color="#7c3aed" />
+          <stop offset="100%" stop-color="#5b21b6" />
+        </linearGradient>
+        <linearGradient id="bp-grad-out" x1="0%" y1="0%" x2="100%" y2="100%">
+          <stop offset="0%" stop-color="#2563eb" />
+          <stop offset="100%" stop-color="#1d4ed8" />
         </linearGradient>
 
-        <!-- Drop Shadow Filter -->
-        <filter id="box-shadow" x="-8%" y="-8%" width="120%" height="130%">
-          <feDropShadow dx="0" dy="2" stdDeviation="3" flood-opacity="0.1" />
-        </filter>
-
-        <!-- Arrow Markers -->
-        <marker id="arrow-gray" viewBox="0 0 10 10" refX="6" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
-          <path d="M 0 1.5 L 8 5 L 0 8.5 z" fill="#94a3b8" />
+        <marker id="bp-arr" viewBox="0 0 10 10" refX="7" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+          <path d="M 0 1.5 L 8 5 L 0 8.5 z" fill="#64748b" />
         </marker>
-        <marker id="arrow-purple" viewBox="0 0 10 10" refX="6" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
-          <path d="M 0 1.5 L 8 5 L 0 8.5 z" fill="#8b5cf6" />
+        <marker id="bp-arr-q" viewBox="0 0 10 10" refX="7" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+          <path d="M 0 1.5 L 8 5 L 0 8.5 z" fill="#4f46e5" />
+        </marker>
+        <marker id="bp-arr-k" viewBox="0 0 10 10" refX="7" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+          <path d="M 0 1.5 L 8 5 L 0 8.5 z" fill="#0284c7" />
+        </marker>
+        <marker id="bp-arr-v" viewBox="0 0 10 10" refX="7" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+          <path d="M 0 1.5 L 8 5 L 0 8.5 z" fill="#059669" />
+        </marker>
+        <marker id="bp-arr-a" viewBox="0 0 10 10" refX="7" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+          <path d="M 0 1.5 L 8 5 L 0 8.5 z" fill="#7c3aed" />
         </marker>
       </defs>
 
-      <!-- ==================== STAGE 1: INPUT TENSORS ==================== -->
-      <!-- Query Box -->
-      <g transform="translate(30, 40)">
-        <rect width="115" height="58" rx="10" fill="url(#grad-q)" filter="url(#box-shadow)" />
-        <text x="57" y="27" text-anchor="middle" fill="#ffffff" font-size="14" font-weight="bold" font-family="ui-sans-serif, sans-serif">Queries (Q)</text>
-        <text x="57" y="44" text-anchor="middle" fill="#dbeafe" font-size="11" font-family="monospace">T &times; d_k</text>
+      <!-- Top Phase Headers -->
+      <text x="58" y="22" text-anchor="middle" class="bp-stage-lbl">Input</text>
+      <text x="195" y="22" text-anchor="middle" class="bp-stage-lbl">1. Subspace Projections</text>
+      <text x="345" y="22" text-anchor="middle" class="bp-stage-lbl">2. Dot Product</text>
+      <text x="470" y="22" text-anchor="middle" class="bp-stage-lbl">3. Scale</text>
+      <text x="590" y="22" text-anchor="middle" class="bp-stage-lbl">4. Mask</text>
+      <text x="712" y="22" text-anchor="middle" class="bp-stage-lbl">5. Normalize</text>
+      <text x="842" y="22" text-anchor="middle" class="bp-stage-lbl">6. Aggregate</text>
+
+      <!-- Input X -->
+      <g transform="translate(14, 132)">
+        <rect width="88" height="64" rx="9" fill="url(#bp-grad-in)" />
+        <text x="44" y="28" text-anchor="middle" fill="#ffffff" font-size="13.5" font-weight="700" font-family="sans-serif">Input X</text>
+        <text x="44" y="47" text-anchor="middle" fill="#cbd5e1" font-size="10.5" font-family="monospace">[T × d_model]</text>
       </g>
 
-      <!-- Key Box -->
-      <g transform="translate(30, 135)">
-        <rect width="115" height="58" rx="10" fill="url(#grad-k)" filter="url(#box-shadow)" />
-        <text x="57" y="27" text-anchor="middle" fill="#ffffff" font-size="14" font-weight="bold" font-family="ui-sans-serif, sans-serif">Keys (K)</text>
-        <text x="57" y="44" text-anchor="middle" fill="#cffafe" font-size="11" font-family="monospace">T &times; d_k</text>
+      <!-- Wires from X to Q, K, V -->
+      <path d="M 102 150 L 120 150 Q 130 150 130 135 L 130 82 Q 130 68 140 68 L 146 68" class="bp-wire-q" marker-end="url(#bp-arr-q)" />
+      <path d="M 102 164 L 146 164" class="bp-wire-k" marker-end="url(#bp-arr-k)" />
+      <path d="M 102 178 L 120 178 Q 130 178 130 193 L 130 246 Q 130 260 140 260 L 146 260" class="bp-wire-v" marker-end="url(#bp-arr-v)" />
+
+      <!-- Q, K, V Boxes -->
+      <g transform="translate(148, 38)">
+        <rect width="102" height="58" rx="9" fill="url(#bp-grad-q)" />
+        <text x="51" y="24" text-anchor="middle" fill="#ffffff" font-size="13" font-weight="700" font-family="sans-serif">Queries (Q)</text>
+        <text x="51" y="42" text-anchor="middle" fill="#e0e7ff" font-size="10.5" font-family="monospace">X·W_Q [T×d_k]</text>
       </g>
 
-      <!-- Value Box -->
-      <g transform="translate(30, 230)">
-        <rect width="115" height="58" rx="10" fill="url(#grad-v)" filter="url(#box-shadow)" />
-        <text x="57" y="27" text-anchor="middle" fill="#ffffff" font-size="14" font-weight="bold" font-family="ui-sans-serif, sans-serif">Values (V)</text>
-        <text x="57" y="44" text-anchor="middle" fill="#d1fae5" font-size="11" font-family="monospace">T &times; d_v</text>
+      <g transform="translate(148, 135)">
+        <rect width="102" height="58" rx="9" fill="url(#bp-grad-k)" />
+        <text x="51" y="24" text-anchor="middle" fill="#ffffff" font-size="13" font-weight="700" font-family="sans-serif">Keys (K)</text>
+        <text x="51" y="42" text-anchor="middle" fill="#e0f2fe" font-size="10.5" font-family="monospace">X·W_K [T×d_k]</text>
       </g>
 
-      <!-- Routing from Q, K to MatMul 1 -->
-      <path d="M 145 69 L 180 69 Q 195 69 195 87 L 195 100" class="attn-wire-q" />
-      <path d="M 145 164 L 180 164 Q 195 164 195 146 L 195 133" class="attn-wire-k" />
-
-      <!-- ==================== STAGE 2: PAIRWISE COMPATIBILITY ==================== -->
-      <!-- MatMul 1 (Q · K^T) -->
-      <g transform="translate(170, 90)">
-        <rect width="90" height="48" rx="8" class="attn-box" filter="url(#box-shadow)" />
-        <text x="45" y="22" text-anchor="middle" class="attn-text-title">MatMul</text>
-        <text x="45" y="38" text-anchor="middle" class="attn-text-sub">Q &middot; Kᵀ</text>
+      <g transform="translate(148, 232)">
+        <rect width="102" height="58" rx="9" fill="url(#bp-grad-v)" />
+        <text x="51" y="24" text-anchor="middle" fill="#ffffff" font-size="13" font-weight="700" font-family="sans-serif">Values (V)</text>
+        <text x="51" y="42" text-anchor="middle" fill="#d1fae5" font-size="10.5" font-family="monospace">X·W_V [T×d_v]</text>
       </g>
 
-      <!-- Wire to Scale -->
-      <path d="M 260 114 L 305 114" class="attn-wire" marker-end="url(#arrow-gray)" />
-      <!-- Dimension Badge S -->
-      <rect x="260" y="94" width="46" height="17" rx="4" class="attn-badge-bg" />
-      <text x="283" y="106" text-anchor="middle" class="attn-badge-text">T &times; T</text>
+      <!-- Wires from Q and K to S = QK^T -->
+      <path d="M 250 67 L 278 67 Q 288 67 288 79 L 288 100" class="bp-wire-q" marker-end="url(#bp-arr-q)" />
+      <path d="M 250 164 L 278 164 Q 288 164 288 152 L 288 134" class="bp-wire-k" marker-end="url(#bp-arr-k)" />
 
-      <!-- Scale Block -->
-      <g transform="translate(310, 90)">
-        <rect width="95" height="48" rx="8" class="attn-box" filter="url(#box-shadow)" />
-        <text x="47" y="22" text-anchor="middle" class="attn-text-title">Scale</text>
-        <text x="47" y="38" text-anchor="middle" fill="#3b82f6" font-weight="600" font-size="11" font-family="monospace">&divide; &radic;d_k</text>
+      <!-- Stage 2: MatMul QK^T -->
+      <g transform="translate(292, 86)">
+        <rect width="104" height="58" rx="9" class="bp-card" />
+        <text x="52" y="24" text-anchor="middle" class="bp-title">Scores (S)</text>
+        <text x="52" y="42" text-anchor="middle" class="bp-sub">Q · Kᵀ [T × T]</text>
       </g>
 
-      <!-- Wire to Mask -->
-      <path d="M 405 114 L 450 114" class="attn-wire" marker-end="url(#arrow-gray)" />
+      <line x1="396" y1="115" x2="420" y2="115" class="bp-wire" marker-end="url(#bp-arr)" />
 
-      <!-- ==================== STAGE 3: CAUSAL MASK & SOFTMAX ==================== -->
-      <!-- Mask Block -->
-      <g transform="translate(455, 90)">
-        <rect width="105" height="48" rx="8" class="attn-mask-box" filter="url(#box-shadow)" />
-        <text x="52" y="21" text-anchor="middle" fill="#b45309" font-family="ui-sans-serif, sans-serif" font-size="12" font-weight="700">Causal Mask</text>
-        <text x="52" y="37" text-anchor="middle" fill="#d97706" font-size="10" font-family="monospace">(add -&infin;)</text>
+      <!-- Stage 3: Scale -->
+      <g transform="translate(422, 86)">
+        <rect width="96" height="58" rx="9" class="bp-card" />
+        <text x="48" y="24" text-anchor="middle" class="bp-title">Scale</text>
+        <text x="48" y="42" text-anchor="middle" class="bp-sub">S / √d_k</text>
       </g>
 
-      <!-- Wire to Softmax -->
-      <path d="M 560 114 L 600 114" class="attn-wire" marker-end="url(#arrow-gray)" />
+      <line x1="518" y1="115" x2="540" y2="115" class="bp-wire" marker-end="url(#bp-arr)" />
 
-      <!-- Softmax Block -->
-      <g transform="translate(605, 90)">
-        <rect width="90" height="48" rx="8" fill="url(#grad-softmax)" filter="url(#box-shadow)" />
-        <text x="45" y="22" text-anchor="middle" fill="#ffffff" font-size="12" font-weight="bold" font-family="ui-sans-serif, sans-serif">Softmax</text>
-        <text x="45" y="38" text-anchor="middle" fill="#e0e7ff" font-size="9" font-family="monospace">row-wise &Sigma;=1</text>
+      <!-- Stage 4: Causal Mask -->
+      <g transform="translate(542, 86)">
+        <rect width="98" height="58" rx="9" class="bp-card-mask" />
+        <text x="49" y="24" text-anchor="middle" class="bp-title" style="fill: #b45309;">Causal Mask</text>
+        <text x="49" y="42" text-anchor="middle" class="bp-sub" style="fill: #d97706;">+ M (j &gt; i = -∞)</text>
       </g>
 
-      <!-- Attention Weights A wire routing down to MatMul 2 -->
-      <path d="M 695 114 L 730 114 Q 745 114 745 135 L 745 152" class="attn-wire-a" />
-      <!-- Attention Matrix Badge -->
-      <rect x="696" y="94" width="50" height="17" rx="4" class="attn-badge-bg" />
-      <text x="721" y="106" text-anchor="middle" fill="#6366f1" font-family="monospace" font-size="9" font-weight="bold">A (T&times;T)</text>
+      <line x1="640" y1="115" x2="662" y2="115" class="bp-wire" marker-end="url(#bp-arr)" />
 
-      <!-- Value Wire Routing from left to MatMul 2 -->
-      <path d="M 145 259 L 730 259 Q 745 259 745 238 L 745 208" class="attn-wire-v" />
-      <!-- Value Matrix Badge along wire -->
-      <rect x="380" y="244" width="75" height="17" rx="4" class="attn-badge-bg" />
-      <text x="417" y="256" text-anchor="middle" fill="#10b981" font-family="monospace" font-size="10" font-weight="bold">V (T &times; d_v)</text>
-
-      <!-- ==================== STAGE 4: CONVEX AGGREGATION & OUTPUT ==================== -->
-      <!-- MatMul 2 (A · V) -->
-      <g transform="translate(700, 155)">
-        <rect width="90" height="48" rx="8" class="attn-box" filter="url(#box-shadow)" />
-        <text x="45" y="22" text-anchor="middle" class="attn-text-title">MatMul</text>
-        <text x="45" y="38" text-anchor="middle" class="attn-text-sub">A &middot; V</text>
+      <!-- Stage 5: Softmax -->
+      <g transform="translate(664, 86)">
+        <rect width="100" height="58" rx="9" fill="url(#bp-grad-sm)" />
+        <text x="50" y="24" text-anchor="middle" fill="#ffffff" font-size="13" font-weight="700" font-family="sans-serif">Softmax (A)</text>
+        <text x="50" y="42" text-anchor="middle" fill="#ede9fe" font-size="10.5" font-family="monospace">Row Σ=1 [T×T]</text>
       </g>
 
-      <!-- Final Output Wire -->
-      <path d="M 790 179 L 815 179" class="attn-wire-out" marker-end="url(#arrow-purple)" />
+      <!-- Wire from Softmax A to Weighted Sum AV -->
+      <path d="M 764 115 L 792 115 Q 804 115 804 130 L 804 156" class="bp-wire-a" marker-end="url(#bp-arr-a)" />
 
-      <!-- Output Tensor Box -->
-      <g transform="translate(820, 150)">
-        <rect width="45" height="58" rx="10" fill="url(#grad-out)" filter="url(#box-shadow)" />
-        <text x="22" y="27" text-anchor="middle" fill="#ffffff" font-size="15" font-weight="bold" font-family="ui-sans-serif, sans-serif">O</text>
-        <text x="22" y="44" text-anchor="middle" fill="#ede9fe" font-size="9" font-family="monospace">T&times;d_v</text>
+      <!-- Long Wire from Values V to Weighted Sum AV -->
+      <path d="M 250 261 L 792 261 Q 804 261 804 244 L 804 220" class="bp-wire-v" marker-end="url(#bp-arr-v)" />
+      <g transform="translate(465, 249)">
+        <rect width="134" height="22" rx="6" class="bp-pill" />
+        <text x="67" y="15" text-anchor="middle" class="bp-pill-txt">Value Payload V [T × d_v]</text>
       </g>
 
-      <!-- Bottom Legend -->
-      <g transform="translate(30, 312)">
-        <circle cx="5" cy="5" r="4.5" fill="#3b82f6" />
-        <text x="16" y="9" class="attn-legend-text">Queries &amp; Keys: <tspan font-family="monospace">d_k</tspan></text>
+      <!-- Stage 6: Output O = A · V -->
+      <g transform="translate(756, 158)">
+        <rect width="148" height="60" rx="9" fill="url(#bp-grad-out)" />
+        <text x="74" y="25" text-anchor="middle" fill="#ffffff" font-size="13.5" font-weight="700" font-family="sans-serif">Output O = A · V</text>
+        <text x="74" y="44" text-anchor="middle" fill="#dbeafe" font-size="10.5" font-family="monospace">Contextual [T × d_v]</text>
+      </g>
 
-        <circle cx="165" cy="5" r="4.5" fill="#10b981" />
-        <text x="176" y="9" class="attn-legend-text">Values: <tspan font-family="monospace">d_v</tspan></text>
+      <!-- Bottom Legend Bar -->
+      <g transform="translate(40, 314)">
+        <circle cx="6" cy="-4" r="4.5" fill="#4f46e5" />
+        <text x="16" y="0" class="bp-sub">Queries Q: Search</text>
 
-        <circle cx="280" cy="5" r="4.5" fill="#6366f1" />
-        <text x="291" y="9" class="attn-legend-text">Attention Map: <tspan font-family="monospace">T &times; T</tspan></text>
+        <circle cx="190" cy="-4" r="4.5" fill="#0284c7" />
+        <text x="200" y="0" class="bp-sub">Keys K: Index</text>
 
-        <circle cx="430" cy="5" r="4.5" fill="#8b5cf6" />
-        <text x="441" y="9" class="attn-legend-text">Contextual Output: <tspan font-family="monospace">T &times; d_v</tspan></text>
+        <circle cx="360" cy="-4" r="4.5" fill="#059669" />
+        <text x="370" y="0" class="bp-sub">Values V: Payload</text>
+
+        <circle cx="545" cy="-4" r="4.5" fill="#7c3aed" />
+        <text x="555" y="0" class="bp-sub">Attention Map A: [T × T] probabilities</text>
       </g>
     </svg>
   </div>

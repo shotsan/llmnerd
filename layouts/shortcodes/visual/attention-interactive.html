@@ -1,110 +1,160 @@
-<div class="interactive-attention-widget my-8 p-6 rounded-2xl border border-slate-200 dark:border-neutral-800 bg-white/70 dark:bg-neutral-900/80 shadow-md backdrop-blur-sm not-prose font-sans">
-  <div class="flex flex-col md:flex-row md:items-center justify-between pb-4 mb-4 border-b border-slate-200 dark:border-neutral-800 gap-3">
+<div class="llm-motion-player not-prose" id="attn-motion-root">
+  <!-- Header -->
+  <div class="llm-motion-header">
     <div>
-      <div class="flex items-center gap-2">
-        <span class="px-2.5 py-0.5 text-xs font-bold rounded-full bg-blue-100 dark:bg-blue-950/70 text-blue-700 dark:text-blue-300 uppercase tracking-wider">Interactive Matrix Lab</span>
-        <h3 class="text-lg font-bold text-slate-800 dark:text-slate-100 m-0">Scaled Dot-Product Attention Simulator</h3>
+      <div class="llm-blueprint-title-wrap">
+        <span class="llm-badge llm-badge-blue">Motion Canvas &amp; Experiment</span>
+        <h3 class="llm-blueprint-title">Scaled Dot-Product Attention Step-by-Step Animator</h3>
       </div>
-      <p class="text-xs text-slate-500 dark:text-slate-400 mt-1 mb-0">Interact with the temperature scaling and causal mask to observe how raw dot products transform into normalized attention probabilities.</p>
+      <p class="llm-motion-goal">
+        <strong>Learning Goal:</strong> Observe how raw dot products transform into probability distributions, and experiment with temperature scaling (&radic;d<sub>k</sub>) and causal masking.
+      </p>
     </div>
-    
-    <!-- Controls -->
-    <div class="flex flex-wrap items-center gap-4 bg-slate-100 dark:bg-neutral-800/60 p-2.5 rounded-xl text-xs">
-      <div class="flex items-center gap-2">
-        <label for="attn-scale-slider" class="font-medium text-slate-700 dark:text-slate-300">Scale &radic;d<sub>k</sub>:</label>
-        <input type="range" id="attn-scale-slider" min="0.5" max="4.0" step="0.1" value="1.4" class="w-24 cursor-pointer accent-blue-600">
-        <span id="attn-scale-val" class="font-mono font-bold text-blue-600 dark:text-blue-400">1.41</span>
-      </div>
 
-      <div class="flex items-center gap-2 pl-3 border-l border-slate-300 dark:border-neutral-700">
-        <label class="inline-flex items-center gap-1.5 cursor-pointer select-none">
-          <input type="checkbox" id="attn-mask-toggle" checked class="rounded text-blue-600 focus:ring-blue-500 cursor-pointer">
-          <span class="font-medium text-slate-700 dark:text-slate-300">Causal Mask</span>
+    <!-- Interactive Experiment Parameters -->
+    <div class="llm-param-bar">
+      <div class="llm-param-item">
+        <label for="attn-scale-slider" class="llm-param-label">Scale &radic;d<sub>k</sub>:</label>
+        <input type="range" id="attn-scale-slider" min="0.4" max="4.0" step="0.1" value="1.4" style="width: 85px; accent-color: #2563eb; cursor: pointer;">
+        <span id="attn-scale-val" class="llm-param-val">1.41</span>
+      </div>
+      <div class="llm-param-item" style="padding-left: 0.75rem; border-left: 1px solid #cbd5e1;">
+        <label style="display: inline-flex; align-items: center; gap: 0.4rem; cursor: pointer; font-weight: 600;">
+          <input type="checkbox" id="attn-mask-toggle" checked style="accent-color: #2563eb; width: 14px; height: 14px; cursor: pointer;">
+          <span>Causal Mask (M)</span>
         </label>
       </div>
     </div>
   </div>
 
-  <!-- Interactive Grid of Stages -->
-  <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-    <!-- Stage 1: Raw QK^T -->
-    <div class="bg-slate-50 dark:bg-neutral-800/40 p-4 rounded-xl border border-slate-200/80 dark:border-neutral-800">
-      <div class="flex items-center justify-between mb-2">
-        <span class="text-xs font-bold uppercase tracking-wider text-slate-600 dark:text-slate-400">1. Compatibility: Q &middot; Kᵀ</span>
-        <span class="text-[11px] font-mono text-slate-400">Raw Scores</span>
-      </div>
-      <div class="overflow-x-auto">
-        <table class="w-full text-center border-collapse text-xs table-fixed">
+  <!-- Stage: Animated SVG Visual + 3 Matrix Panels -->
+  <div class="llm-motion-stage">
+    <!-- Top Animated Visual Canvas -->
+    <svg id="attn-anim-svg" viewBox="0 0 820 135" width="100%" style="max-width: 820px; height: auto; display: block; margin-bottom: 1rem;" xmlns="http://www.w3.org/2000/svg">
+      <rect x="2" y="2" width="816" height="131" rx="10" fill="#f8fafc" stroke="#e2e8f0" stroke-width="1.5" />
+
+      <!-- Phase 1..4 Pipeline Nodes -->
+      <g id="attn-node-0" transform="translate(24, 22)">
+        <rect width="165" height="46" rx="8" fill="#eff6ff" stroke="#3b82f6" stroke-width="2" />
+        <text x="82" y="20" text-anchor="middle" fill="#1e3a8a" font-size="11.5" font-weight="700" font-family="sans-serif">Phase 1: Dot Product</text>
+        <text x="82" y="36" text-anchor="middle" fill="#2563eb" font-size="10.5" font-family="monospace">S = Q · Kᵀ</text>
+      </g>
+      <line x1="189" y1="45" x2="223" y2="45" stroke="#94a3b8" stroke-width="2" />
+
+      <g id="attn-node-1" transform="translate(225, 22)">
+        <rect width="165" height="46" rx="8" fill="#ffffff" stroke="#cbd5e1" stroke-width="1.5" />
+        <text x="82" y="20" text-anchor="middle" fill="#334155" font-size="11.5" font-weight="700" font-family="sans-serif">Phase 2: Variance Scale</text>
+        <text x="82" y="36" text-anchor="middle" fill="#64748b" font-size="10.5" font-family="monospace">S / √d_k</text>
+      </g>
+      <line x1="390" y1="45" x2="424" y2="45" stroke="#94a3b8" stroke-width="2" />
+
+      <g id="attn-node-2" transform="translate(426, 22)">
+        <rect width="165" height="46" rx="8" fill="#ffffff" stroke="#cbd5e1" stroke-width="1.5" />
+        <text x="82" y="20" text-anchor="middle" fill="#334155" font-size="11.5" font-weight="700" font-family="sans-serif">Phase 3: Causal Mask</text>
+        <text x="82" y="36" text-anchor="middle" fill="#64748b" font-size="10.5" font-family="monospace">j &gt; i → -∞</text>
+      </g>
+      <line x1="591" y1="45" x2="625" y2="45" stroke="#94a3b8" stroke-width="2" />
+
+      <g id="attn-node-3" transform="translate(627, 22)">
+        <rect width="168" height="46" rx="8" fill="#ffffff" stroke="#cbd5e1" stroke-width="1.5" />
+        <text x="84" y="20" text-anchor="middle" fill="#334155" font-size="11.5" font-weight="700" font-family="sans-serif">Phase 4: Softmax &amp; O=AV</text>
+        <text x="84" y="36" text-anchor="middle" fill="#64748b" font-size="10.5" font-family="monospace">Row Σ A_ij = 1.0</text>
+      </g>
+
+      <!-- Live Attention Distribution Bar for Query Token 3 ("sat") -->
+      <text x="26" y="103" fill="#334155" font-size="11" font-weight="700" font-family="sans-serif">Query "sat" Attention Focus:</text>
+      <g transform="translate(205, 86)">
+        <!-- Bar 1: "The" -->
+        <rect id="attn-bar-0" x="0" y="0" width="120" height="24" rx="4" fill="#4f46e5" />
+        <text id="attn-lbl-0" x="60" y="16" text-anchor="middle" fill="#ffffff" font-size="10" font-weight="700" font-family="monospace">"The" (42%)</text>
+        <!-- Bar 2: "cat" -->
+        <rect id="attn-bar-1" x="124" y="0" width="76" height="24" rx="4" fill="#0284c7" />
+        <text id="attn-lbl-1" x="162" y="16" text-anchor="middle" fill="#ffffff" font-size="10" font-weight="700" font-family="monospace">"cat" (16%)</text>
+        <!-- Bar 3: "sat" -->
+        <rect id="attn-bar-2" x="204" y="0" width="120" height="24" rx="4" fill="#059669" />
+        <text id="attn-lbl-2" x="264" y="16" text-anchor="middle" fill="#ffffff" font-size="10" font-weight="700" font-family="monospace">"sat" (42%)</text>
+      </g>
+
+      <g transform="translate(555, 86)">
+        <rect width="240" height="24" rx="5" fill="#eff6ff" stroke="#bfdbfe" stroke-width="1" />
+        <text id="attn-out-svg" x="120" y="16" text-anchor="middle" fill="#1d4ed8" font-size="10.5" font-weight="700" font-family="monospace">Output o₃ = [1.264, 1.472]</text>
+      </g>
+    </svg>
+
+    <!-- 3 Matrix Panels -->
+    <div class="llm-matrix-grid-3">
+      <!-- Panel 1 -->
+      <div class="llm-matrix-panel active-stage" id="attn-panel-0">
+        <div class="llm-matrix-panel-head">
+          <span>1. Scores (S = Q·Kᵀ)</span>
+          <span class="llm-blueprint-meta">3×3</span>
+        </div>
+        <table class="llm-matrix-table">
           <thead>
-            <tr class="text-slate-400 text-[11px]">
-              <th class="p-1 w-12 text-left"></th>
-              <th class="p-1 font-semibold">"The"</th>
-              <th class="p-1 font-semibold">"cat"</th>
-              <th class="p-1 font-semibold">"sat"</th>
+            <tr>
+              <th></th><th>"The"</th><th>"cat"</th><th>"sat"</th>
             </tr>
           </thead>
-          <tbody class="font-mono" id="raw-scores-body">
-            <!-- populated by JS -->
-          </tbody>
+          <tbody id="raw-scores-body"></tbody>
         </table>
       </div>
-    </div>
 
-    <!-- Stage 2: Scaled & Masked -->
-    <div class="bg-slate-50 dark:bg-neutral-800/40 p-4 rounded-xl border border-slate-200/80 dark:border-neutral-800">
-      <div class="flex items-center justify-between mb-2">
-        <span class="text-xs font-bold uppercase tracking-wider text-slate-600 dark:text-slate-400">2. Scaled &amp; Masked</span>
-        <span class="text-[11px] font-mono text-slate-400">S<sub>scaled</sub></span>
-      </div>
-      <div class="overflow-x-auto">
-        <table class="w-full text-center border-collapse text-xs table-fixed">
+      <!-- Panel 2 -->
+      <div class="llm-matrix-panel" id="attn-panel-1">
+        <div class="llm-matrix-panel-head">
+          <span>2. Scaled &amp; Masked</span>
+          <span class="llm-blueprint-meta">S/&radic;d<sub>k</sub>+M</span>
+        </div>
+        <table class="llm-matrix-table">
           <thead>
-            <tr class="text-slate-400 text-[11px]">
-              <th class="p-1 w-12 text-left"></th>
-              <th class="p-1 font-semibold">"The"</th>
-              <th class="p-1 font-semibold">"cat"</th>
-              <th class="p-1 font-semibold">"sat"</th>
+            <tr>
+              <th></th><th>"The"</th><th>"cat"</th><th>"sat"</th>
             </tr>
           </thead>
-          <tbody class="font-mono" id="scaled-scores-body">
-            <!-- populated by JS -->
-          </tbody>
+          <tbody id="scaled-scores-body"></tbody>
         </table>
       </div>
-    </div>
 
-    <!-- Stage 3: Softmax Probabilities Heatmap -->
-    <div class="bg-slate-50 dark:bg-neutral-800/40 p-4 rounded-xl border border-slate-200/80 dark:border-neutral-800">
-      <div class="flex items-center justify-between mb-2">
-        <span class="text-xs font-bold uppercase tracking-wider text-blue-600 dark:text-blue-400">3. Softmax Attention A</span>
-        <span class="text-[11px] font-mono text-blue-500">Row Sum = 100%</span>
-      </div>
-      <div class="overflow-x-auto">
-        <table class="w-full text-center border-collapse text-xs table-fixed">
+      <!-- Panel 3 -->
+      <div class="llm-matrix-panel" id="attn-panel-2">
+        <div class="llm-matrix-panel-head">
+          <span>3. Softmax (A)</span>
+          <span class="llm-blueprint-meta">Row &Sigma;=1</span>
+        </div>
+        <table class="llm-matrix-table">
           <thead>
-            <tr class="text-slate-400 text-[11px]">
-              <th class="p-1 w-12 text-left"></th>
-              <th class="p-1 font-semibold">"The"</th>
-              <th class="p-1 font-semibold">"cat"</th>
-              <th class="p-1 font-semibold">"sat"</th>
+            <tr>
+              <th></th><th>"The"</th><th>"cat"</th><th>"sat"</th>
             </tr>
           </thead>
-          <tbody class="font-mono font-medium" id="softmax-scores-body">
-            <!-- populated by JS -->
-          </tbody>
+          <tbody id="softmax-scores-body"></tbody>
         </table>
       </div>
     </div>
   </div>
 
-  <!-- Live Value Blending Inspection -->
-  <div class="mt-4 p-3.5 bg-blue-50/60 dark:bg-blue-950/30 border border-blue-200 dark:border-blue-900/50 rounded-xl flex flex-col md:flex-row md:items-center justify-between text-xs gap-3">
-    <div>
-      <span class="font-bold text-blue-900 dark:text-blue-200">Contextualized Output O[3, :] for token "sat":</span>
-      <p class="text-slate-600 dark:text-slate-400 mt-0.5 mb-0" id="attn-explanation">Weighted combination of Values based on row 3 attention probabilities.</p>
+  <!-- Live Pedagogical Narration Caption -->
+  <div class="llm-motion-caption">
+    <span id="attn-caption-text">
+      <strong>Phase 1 (Dot Product Sweep):</strong> Each token's Query vector computes inner products against all Key vectors to measure raw directional alignment.
+    </span>
+    <span class="llm-badge llm-badge-blue" id="attn-phase-badge">Phase 1 / 4</span>
+  </div>
+
+  <!-- Playback Controls -->
+  <div class="llm-motion-controls">
+    <div class="llm-btn-group">
+      <button type="button" class="llm-btn-play" id="attn-play-btn">
+        <span id="attn-play-icon">&#9654;</span>
+        <span id="attn-play-label">Play Animation</span>
+      </button>
+      <button type="button" class="llm-btn-step" id="attn-prev-btn">&larr; Step Back</button>
+      <button type="button" class="llm-btn-step" id="attn-next-btn">Step Forward &rarr;</button>
     </div>
-    <div class="font-mono font-bold text-sm px-3 py-1.5 rounded-lg bg-white dark:bg-neutral-800 text-blue-700 dark:text-blue-300 border border-blue-200/70 dark:border-blue-900/70 self-start md:self-auto" id="output-token3">
-      [1.203, 1.594]
+
+    <div class="llm-scrubber-group">
+      <span class="llm-scrubber-label">Timeline:</span>
+      <input type="range" id="attn-phase-scrubber" class="llm-scrubber" min="0" max="3" step="1" value="0">
     </div>
   </div>
 </div>
@@ -123,62 +173,107 @@
     [1.0, 2.0]
   ];
 
+  const captions = [
+    '<strong>Phase 1 (Dot Product S = QKᵀ):</strong> Each Query vector takes the inner product with every Key vector. Unscaled scores grow with head dimension d_k.',
+    '<strong>Phase 2 (Temperature Scaling ÷ √d_k):</strong> Dividing raw scores by √d_k stabilizes variance to 1.0 so large dot products do not push softmax into zero-gradient saturation.',
+    '<strong>Phase 3 (Causal Masking + M):</strong> Upper-triangular entries (j > i, where a token would peek into the future) are set to -∞ before exponentiation.',
+    '<strong>Phase 4 (Softmax & Value Aggregation O = AV):</strong> Exponentiation maps -∞ to exactly 0.000, normalizing each row into a probability distribution that blends Value vectors V.'
+  ];
+
+  let currentPhase = 0;
+  let timer = null;
+
   const slider = document.getElementById('attn-scale-slider');
   const scaleValSpan = document.getElementById('attn-scale-val');
   const maskToggle = document.getElementById('attn-mask-toggle');
   const rawBody = document.getElementById('raw-scores-body');
   const scaledBody = document.getElementById('scaled-scores-body');
   const softmaxBody = document.getElementById('softmax-scores-body');
-  const outputSpan = document.getElementById('output-token3');
-  const explainP = document.getElementById('attn-explanation');
+  const captionEl = document.getElementById('attn-caption-text');
+  const badgeEl = document.getElementById('attn-phase-badge');
+  const scrubber = document.getElementById('attn-phase-scrubber');
+  const playBtn = document.getElementById('attn-play-btn');
+  const playIcon = document.getElementById('attn-play-icon');
+  const playLabel = document.getElementById('attn-play-label');
+  const prevBtn = document.getElementById('attn-prev-btn');
+  const nextBtn = document.getElementById('attn-next-btn');
 
-  function renderTables() {
+  function updatePhaseUI(phase) {
+    currentPhase = phase;
+    scrubber.value = phase;
+    captionEl.innerHTML = captions[phase];
+    badgeEl.textContent = 'Phase ' + (phase + 1) + ' / 4';
+
+    for (let idx = 0; idx < 4; idx++) {
+      const node = document.getElementById('attn-node-' + idx);
+      if (!node) continue;
+      const rect = node.querySelector('rect');
+      const texts = node.querySelectorAll('text');
+      if (idx === phase) {
+        rect.setAttribute('fill', '#eff6ff');
+        rect.setAttribute('stroke', '#2563eb');
+        rect.setAttribute('stroke-width', '2.2');
+        texts[0].setAttribute('fill', '#1e3a8a');
+        texts[1].setAttribute('fill', '#2563eb');
+      } else {
+        rect.setAttribute('fill', '#ffffff');
+        rect.setAttribute('stroke', '#cbd5e1');
+        rect.setAttribute('stroke-width', '1.5');
+        texts[0].setAttribute('fill', '#334155');
+        texts[1].setAttribute('fill', '#64748b');
+      }
+    }
+
+    const p0 = document.getElementById('attn-panel-0');
+    const p1 = document.getElementById('attn-panel-1');
+    const p2 = document.getElementById('attn-panel-2');
+    p0.classList.toggle('active-stage', phase === 0);
+    p1.classList.toggle('active-stage', phase === 1 || phase === 2);
+    p2.classList.toggle('active-stage', phase === 3);
+  }
+
+  function renderMatrices() {
     const scale = parseFloat(slider.value);
     scaleValSpan.textContent = scale.toFixed(2);
     const applyMask = maskToggle.checked;
 
-    // Render Raw Scores
     let rawHtml = '';
     for (let i = 0; i < 3; i++) {
-      rawHtml += `<tr><td class="p-1.5 font-sans font-semibold text-slate-500 text-left">${tokens[i]}</td>`;
+      rawHtml += '<tr><td class="row-label">' + tokens[i] + '</td>';
       for (let j = 0; j < 3; j++) {
-        rawHtml += `<td class="p-1.5 border border-slate-200/70 dark:border-neutral-700/60 bg-white/60 dark:bg-neutral-900/60">${rawQKT[i][j].toFixed(1)}</td>`;
+        rawHtml += '<td class="cell-val">' + rawQKT[i][j].toFixed(1) + '</td>';
       }
-      rawHtml += `</tr>`;
+      rawHtml += '</tr>';
     }
     rawBody.innerHTML = rawHtml;
 
-    // Compute Scaled & Masked
     const scaled = [];
     let scaledHtml = '';
     for (let i = 0; i < 3; i++) {
       scaled[i] = [];
-      scaledHtml += `<tr><td class="p-1.5 font-sans font-semibold text-slate-500 text-left">${tokens[i]}</td>`;
+      scaledHtml += '<tr><td class="row-label">' + tokens[i] + '</td>';
       for (let j = 0; j < 3; j++) {
         if (applyMask && j > i) {
           scaled[i][j] = -Infinity;
-          scaledHtml += `<td class="p-1.5 border border-slate-200/70 dark:border-neutral-700/60 bg-rose-50/50 dark:bg-rose-950/20 text-rose-500 dark:text-rose-400 font-semibold">-∞</td>`;
+          scaledHtml += '<td class="cell-masked">-&infin;</td>';
         } else {
           const val = rawQKT[i][j] / scale;
           scaled[i][j] = val;
-          scaledHtml += `<td class="p-1.5 border border-slate-200/70 dark:border-neutral-700/60 bg-white/60 dark:bg-neutral-900/60 text-slate-700 dark:text-slate-300">${val.toFixed(2)}</td>`;
+          scaledHtml += '<td class="cell-val">' + val.toFixed(2) + '</td>';
         }
       }
-      scaledHtml += `</tr>`;
+      scaledHtml += '</tr>';
     }
     scaledBody.innerHTML = scaledHtml;
 
-    // Compute Softmax
     const softmax = [];
     let softmaxHtml = '';
     for (let i = 0; i < 3; i++) {
       softmax[i] = [];
-      // calculate row max for numerical stability
       let maxVal = -Infinity;
       for (let j = 0; j < 3; j++) {
         if (scaled[i][j] > maxVal) maxVal = scaled[i][j];
       }
-
       let expSum = 0;
       const exps = [];
       for (let j = 0; j < 3; j++) {
@@ -190,39 +285,94 @@
         }
       }
 
-      softmaxHtml += `<tr><td class="p-1.5 font-sans font-semibold text-slate-500 text-left">${tokens[i]}</td>`;
+      softmaxHtml += '<tr><td class="row-label">' + tokens[i] + '</td>';
       for (let j = 0; j < 3; j++) {
         const prob = expSum > 0 ? exps[j] / expSum : 0;
         softmax[i][j] = prob;
-        const pct = (prob * 100).toFixed(1);
-        
-        // Heatmap color intensity
-        const alpha = Math.max(0.08, prob);
-        const bgStyle = prob > 0 
-          ? `background-color: rgba(59, 130, 246, ${alpha * 0.45});`
-          : `background-color: transparent; opacity: 0.4;`;
-
-        softmaxHtml += `<td class="p-1.5 border border-blue-200/60 dark:border-blue-900/50 text-blue-900 dark:text-blue-100 transition-colors" style="${bgStyle}">
-          <span>${prob.toFixed(3)}</span>
-          <div class="text-[9px] text-blue-700 dark:text-blue-300">${pct}%</div>
-        </td>`;
+        const pct = (prob * 100).toFixed(0);
+        const alpha = prob > 0 ? Math.max(0.12, prob * 0.55) : 0;
+        const style = prob > 0
+          ? 'background-color: rgba(37, 99, 235, ' + alpha.toFixed(2) + '); font-weight: 700;'
+          : 'opacity: 0.45;';
+        softmaxHtml += '<td class="cell-val" style="' + style + '"><div>' + prob.toFixed(2) + '</div><div style="font-size: 0.65rem; opacity: 0.85;">' + pct + '%</div></td>';
       }
-      softmaxHtml += `</tr>`;
+      softmaxHtml += '</tr>';
     }
     softmaxBody.innerHTML = softmaxHtml;
 
-    // Compute Output for Token 3 ("sat", index 2)
+    // Update top stacked probability bar for token 3 ("sat", row 2)
+    const totalW = 320;
+    let curX = 0;
+    const colors = ['#4f46e5', '#0284c7', '#059669'];
+    for (let j = 0; j < 3; j++) {
+      const p = softmax[2][j];
+      const w = Math.max(42, Math.round(p * totalW));
+      const bar = document.getElementById('attn-bar-' + j);
+      const lbl = document.getElementById('attn-lbl-' + j);
+      if (bar && lbl) {
+        bar.setAttribute('x', curX);
+        bar.setAttribute('width', w);
+        bar.setAttribute('fill', colors[j]);
+        lbl.setAttribute('x', curX + w / 2);
+        lbl.textContent = tokens[j] + ' ' + Math.round(p * 100) + '%';
+        curX += w + 4;
+      }
+    }
+
     let outX = 0, outY = 0;
     for (let j = 0; j < 3; j++) {
       outX += softmax[2][j] * V[j][0];
       outY += softmax[2][j] * V[j][1];
     }
-    outputSpan.textContent = `[${outX.toFixed(3)}, ${outY.toFixed(3)}]`;
-    explainP.textContent = `Token 3 incorporates ${ (softmax[2][0]*100).toFixed(1) }% of "The", ${ (softmax[2][1]*100).toFixed(1) }% of "cat", and ${ (softmax[2][2]*100).toFixed(1) }% of itself.`;
+    const outSvg = document.getElementById('attn-out-svg');
+    if (outSvg) {
+      outSvg.textContent = 'Output o₃ = [' + outX.toFixed(3) + ', ' + outY.toFixed(3) + ']';
+    }
   }
 
-  slider.addEventListener('input', renderTables);
-  maskToggle.addEventListener('change', renderTables);
-  renderTables();
+  function stopAnim() {
+    if (timer) {
+      clearInterval(timer);
+      timer = null;
+    }
+    playIcon.innerHTML = '&#9654;';
+    playLabel.textContent = 'Play Animation';
+  }
+
+  playBtn.addEventListener('click', function() {
+    if (timer) {
+      stopAnim();
+    } else {
+      playIcon.innerHTML = '&#10074;&#10074;';
+      playLabel.textContent = 'Pause';
+      timer = setInterval(function() {
+        updatePhaseUI((currentPhase + 1) % 4);
+      }, 1800);
+    }
+  });
+
+  prevBtn.addEventListener('click', function() {
+    stopAnim();
+    updatePhaseUI((currentPhase + 3) % 4);
+  });
+
+  nextBtn.addEventListener('click', function() {
+    stopAnim();
+    updatePhaseUI((currentPhase + 1) % 4);
+  });
+
+  scrubber.addEventListener('input', function() {
+    stopAnim();
+    updatePhaseUI(parseInt(scrubber.value, 10));
+  });
+
+  slider.addEventListener('input', renderMatrices);
+  maskToggle.addEventListener('change', function() {
+    renderMatrices();
+    updatePhaseUI(2);
+  });
+
+  renderMatrices();
+  updatePhaseUI(0);
 })();
 </script>

@@ -6,30 +6,26 @@ math: true
 weight: 4
 ---
 
-Before the emergence of attention, sequence modeling was dominated by Recurrent Neural Networks (RNNs, LSTMs, and GRUs). In an RNN, computing the hidden state $h_t$ at time step $t$ strictly required the prior state $h_{t-1}$:
+When reading a complex sentence like *"The trophy didn't fit into the brown suitcase because **it** was too big,"* understanding what the pronoun **"it"** refers to requires linking it directly back to *"trophy."*
 
-$$
-h_t = \tanh(W_{hh} h_{t-1} + W_{xh} x_t)
-$$
+Before the Transformer, sequence models processed text strictly one word at a time from left to right. Every past word had to be compressed into a single, fixed-size hidden vector passed step-by-step along the chain:
 
-This unbroken recurrence chain created two fundamental engineering roadblocks:
+1. **The Parallelization Barrier**: Because step $t$ could not begin until step $t - 1$ finished, GPUs could not process tokens in parallel across a sequence during training.
+2. **The Information Bottleneck**: Forcing an entire document of thousands of words through a single fixed-width vector caused early details to fade or get overwritten long before later tokens needed them.
 
-1. **The Parallelization Barrier**: An RNN cannot process token $t+1$ until token $t$ finishes executing. Training could not scale efficiently across distributed GPU clusters along the sequence dimension.
-2. **Information Bottlenecks**: Compressing an entire sequence of hundreds or thousands of tokens into a single, fixed-size vector $h_t$ caused early context to be gradually overwritten and forgotten.
+**Attention** eliminates sequential passing entirely. Instead of funneling history through a single state vector, attention treats every token in the context window as an addressable entry in a parallel key-value database. Every token simultaneously broadcasts three vectors:
 
-**Attention** eliminated sequential recurrence entirely. Instead of passing state through time, attention treats every token in a sequence as an addressable database entry. Contextualization is reframed as a parallelized, content-based associative retrieval:
+* **Query ($\mathbf{Q}$)**: *"What specific context or grammatical partner am I looking for?"*
+* **Key ($\mathbf{K}$)**: *"What syntactic and semantic features do I advertise to other tokens?"*
+* **Value ($\mathbf{V}$)**: *"What actual information payload do I contribute once selected?"*
 
-* **Query ($\mathbf{Q}$)**: *"What information am I searching for?"*
-* **Key ($\mathbf{K}$)**: *"What topics and context do I represent?"*
-* **Value ($\mathbf{V}$)**: *"What raw content do I provide if selected?"*
-
-By computing compatibility scores between Queries and Keys, each token dynamically routes information from across the entire sequence in a single parallel operation.
+By taking dot products between Queries and Keys across all token pairs simultaneously, any token can directly retrieve information from any earlier token in a single parallel matrix operation—regardless of how far apart they sit in the text.
 
 ---
 
 ## Scaled Dot-Product Attention
 
-The core operation of the Transformer architecture is **Scaled Dot-Product Attention** (Vaswani et al. 2017). It maps a set of Query vectors to a weighted sum of Value vectors based on compatibility scores computed against Key vectors:
+The fundamental building block of the Transformer is **Scaled Dot-Product Attention** (Vaswani et al. 2017). Given packed matrices of Queries $\mathbf{Q}$, Keys $\mathbf{K}$, and Values $\mathbf{V}$, it computes contextualized representations as a weighted sum of values:
 
 $$
 \operatorname{Attention}(\mathbf{Q}, \mathbf{K}, \mathbf{V}) = \operatorname{softmax}\left( \frac{\mathbf{Q}\mathbf{K}^T}{\sqrt{d_k}} + \mathbf{M} \right) \mathbf{V}
@@ -37,21 +33,9 @@ $$
 
 ### Mathematical Definitions & Tensor Shapes
 
-To understand how attention operates across parallel hardware, each symbol in the governing equation is defined below with its exact geometric meaning and tensor dimensions:
+Each symbol in the governing equation plays a distinct geometric and computational role:
 
-| Symbol | Shape | Description & Mathematical Role |
-| :--- | :--- | :--- |
-| $\mathbf{X}$ | $\mathbb{R}^{T \times d_{\text{model}}}$ | **Input Sequence Matrix**: $T$ tokens, each represented as a $d_{\text{model}}$-dimensional continuous embedding vector. |
-| $\mathbf{W}_Q, \mathbf{W}_K$ | $\mathbb{R}^{d_{\text{model}} \times d_k}$ | **Query & Key Projections**: Learned linear weights mapping input embeddings into a shared $d_k$-dimensional matching subspace. |
-| $\mathbf{W}_V$ | $\mathbb{R}^{d_{\text{model}} \times d_v}$ | **Value Projection**: Learned linear weights mapping input embeddings into the $d_v$-dimensional informational subspace (usually $d_v = d_k$). |
-| $\mathbf{Q} = \mathbf{X}\mathbf{W}_Q$ | $\mathbb{R}^{T \times d_k}$ | **Query Matrix**: Row $\mathbf{q}_i \in \mathbb{R}^{d_k}$ represents the retrieval request of token $i$ (*"what information do I need?"*). |
-| $\mathbf{K} = \mathbf{X}\mathbf{W}_K$ | $\mathbb{R}^{T \times d_k}$ | **Key Matrix**: Row $\mathbf{k}_j \in \mathbb{R}^{d_k}$ represents the indexing descriptor of token $j$ (*"what context do I offer?"*). |
-| $\mathbf{V} = \mathbf{X}\mathbf{W}_V$ | $\mathbb{R}^{T \times d_v}$ | **Value Matrix**: Row $\mathbf{v}_j \in \mathbb{R}^{d_v}$ represents the raw content extracted from token $j$ (*"what payload do I deliver?"*). |
-| $\mathbf{S} = \mathbf{Q}\mathbf{K}^T$ | $\mathbb{R}^{T \times T}$ | **Raw Compatibility Matrix**: Unnormalized scalar dot products. Entry $S_{ij} = \mathbf{q}_i \cdot \mathbf{k}_j$ measures directional alignment between query $i$ and key $j$. |
-| $\sqrt{d_k}$ | Scalar $\in \mathbb{R}^+$ | **Softmax Temperature**: Normalizing divisor. Because $\operatorname{Var}(\mathbf{q}_i \cdot \mathbf{k}_j) = d_k$, dividing by $\sqrt{d_k}$ restores variance to $1.0$, preventing softmax saturation. |
-| $\mathbf{M}$ | $\mathbb{R}^{T \times T}$ | **Autoregressive Causal Mask**: An upper-triangular mask ($M_{ij} = 0$ for $j \le i$, and $-\infty$ for $j > i$) preventing position $i$ from attending to future tokens $j > i$. |
-| $\mathbf{A}$ | $\mathbb{R}^{T \times T}$ | **Attention Weight Matrix**: $\operatorname{softmax}((\mathbf{Q}\mathbf{K}^T / \sqrt{d_k}) + \mathbf{M})$. Row $\mathbf{A}[i, :]$ forms a valid probability distribution over visible tokens ($\sum_{j=1}^T A_{ij} = 1$). |
-| $\mathbf{O} = \mathbf{A}\mathbf{V}$ | $\mathbb{R}^{T \times d_v}$ | **Contextual Output Matrix**: Each token's final representation $\mathbf{o}_i = \sum_{j=1}^i A_{ij}\mathbf{v}_j$ is a dynamic convex combination of value vectors. |
+{{< visual/attention-math-defs >}}
 
 {{< visual/attention-diagram >}}
 
@@ -220,28 +204,13 @@ For a 70B parameter model (80 layers, 64 heads, $d_{\text{head}} = 128$) running
 
 When generating each new token, the GPU must stream this entire $163\text{ GB}$ cache from off-chip HBM into on-chip SRAM just to compute dot products against a single new Query vector. The model is not limited by compute (TFLOPs), but by **memory bandwidth (TB/s)**.
 
-### MHA vs. MQA vs. GQA
+### MHA vs. GQA vs. MQA
 
-To break the memory bandwidth bottleneck, modern LLMs use grouped Key-Value sharing architectures:
+To break this memory-bandwidth wall without sacrificing the expressivity of multiple Query perspectives, modern Transformers share Key and Value heads across groups of Queries:
 
-```
-Multi-Head Attention (MHA - Vaswani et al. 2017):
-  Queries:  [Q₁] [Q₂] [Q₃] [Q₄] [Q₅] [Q₆] [Q₇] [Q₈]
-  Keys:     [K₁] [K₂] [K₃] [K₄] [K₅] [K₆] [K₇] [K₈]  (100% KV Cache)
-  Values:   [V₁] [V₂] [V₃] [V₄] [V₅] [V₆] [V₇] [V₈]
+{{< visual/mha-gqa-mqa >}}
 
-Multi-Query Attention (MQA - Shazeer 2019):
-  Queries:  [Q₁] [Q₂] [Q₃] [Q₄] [Q₅] [Q₆] [Q₇] [Q₈]
-  Keys:     [               K₁               ]  (12.5% KV Cache;
-  Values:   [               V₁               ]   slight quality loss)
-
-Grouped-Query Attention (GQA - Ainslie et al. 2023; Llama 3, Mistral):
-  Queries:  [Q₁  Q₂]  [Q₃  Q₄]  [Q₅  Q₆]  [Q₇  Q₈]
-  Keys:     [  K₁  ]  [  K₂  ]  [  K₃  ]  [  K₄  ]  (25-50% KV Cache;
-  Values:   [  V₁  ]  [  V₂  ]  [  V₃  ]  [  V₄  ]   zero quality degradation)
-```
-
-By grouping Query heads over shared Key-Value heads, **Grouped-Query Attention (GQA)** cuts memory bandwidth consumption by $4\times$ to $8\times$, drastically accelerating inference throughput.
+By grouping Query heads over shared Key-Value heads, **Grouped-Query Attention (GQA)** cuts KV-cache capacity and memory-bandwidth pressure by $4\times$ to $8\times$ while matching standard Multi-Head Attention perplexity.
 
 ### FlashAttention & SRAM Tiling
 
