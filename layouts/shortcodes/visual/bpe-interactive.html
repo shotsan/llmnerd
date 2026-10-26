@@ -1,0 +1,215 @@
+<div class="interactive-bpe-widget my-8 p-6 rounded-2xl border border-slate-200 dark:border-neutral-800 bg-white/70 dark:bg-neutral-900/80 shadow-md backdrop-blur-sm not-prose font-sans">
+  <div class="flex flex-col md:flex-row md:items-center justify-between pb-4 mb-4 border-b border-slate-200 dark:border-neutral-800 gap-3">
+    <div>
+      <div class="flex items-center gap-2">
+        <span class="px-2.5 py-0.5 text-xs font-bold rounded-full bg-emerald-100 dark:bg-emerald-950/70 text-emerald-700 dark:text-emerald-300 uppercase tracking-wider">Subword Compression Lab</span>
+        <h3 class="text-lg font-bold text-slate-800 dark:text-slate-100 m-0">Byte-Pair Encoding (BPE) Step-by-Step Simulator</h3>
+      </div>
+      <p class="text-xs text-slate-500 dark:text-slate-400 mt-1 mb-0">Step through the greedy merge loop to watch character pairs consolidate into reusable subword tokens.</p>
+    </div>
+
+    <!-- Controls -->
+    <div class="flex items-center gap-2.5">
+      <button id="bpe-step-btn" class="px-3.5 py-1.5 text-xs font-bold rounded-lg bg-blue-600 hover:bg-blue-700 text-white shadow-xs transition-colors flex items-center gap-1.5 cursor-pointer">
+        <span>Merge Next Pair</span>
+        <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M14 5l7 7m0 0l-7 7m7-7H3"/></svg>
+      </button>
+      <button id="bpe-reset-btn" class="px-3 py-1.5 text-xs font-semibold rounded-lg bg-slate-100 dark:bg-neutral-800 text-slate-600 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-neutral-700 transition-colors cursor-pointer">
+        Reset
+      </button>
+    </div>
+  </div>
+
+  <div class="grid grid-cols-1 md:grid-cols-12 gap-5">
+    <!-- Left: Corpus Representation -->
+    <div class="md:col-span-7 space-y-3">
+      <div class="p-3.5 rounded-xl bg-slate-50 dark:bg-neutral-800/40 border border-slate-200/80 dark:border-neutral-800">
+        <div class="flex items-center justify-between mb-2">
+          <span class="text-xs font-bold uppercase tracking-wider text-slate-600 dark:text-slate-300">Toy Training Corpus</span>
+          <span id="bpe-step-counter" class="text-xs font-mono font-bold text-blue-600 dark:text-blue-400">Step 0 / 4 (Base Chars)</span>
+        </div>
+        <div id="bpe-corpus-container" class="space-y-1.5 font-mono text-xs">
+          <!-- Populated by JS -->
+        </div>
+      </div>
+
+      <!-- Live Inference on Unseen Word -->
+      <div class="p-3.5 rounded-xl bg-blue-50/70 dark:bg-blue-950/30 border border-blue-200/80 dark:border-blue-900/40">
+        <div class="flex items-center justify-between mb-1.5">
+          <span class="text-xs font-bold text-blue-900 dark:text-blue-200">Test Inference on Unseen Word:</span>
+          <span class="text-[11px] font-mono text-blue-600 dark:text-blue-400">"lowest"</span>
+        </div>
+        <div class="flex items-center gap-2">
+          <span class="text-xs text-slate-500 dark:text-slate-400">Tokenized:</span>
+          <div id="bpe-inference-result" class="flex items-center gap-1.5 font-mono text-xs">
+            <!-- Populated by JS -->
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Right: Merge Rulebook & Stats -->
+    <div class="md:col-span-5 space-y-3">
+      <div class="p-3.5 rounded-xl bg-slate-50 dark:bg-neutral-800/40 border border-slate-200/80 dark:border-neutral-800">
+        <span class="text-xs font-bold uppercase tracking-wider text-slate-600 dark:text-slate-300 block mb-2">Active Merge Rulebook</span>
+        <ul id="bpe-rules-list" class="space-y-1 text-xs font-mono text-slate-600 dark:text-slate-300 min-h-[90px]">
+          <!-- Populated by JS -->
+        </ul>
+      </div>
+
+      <div class="p-3 rounded-lg bg-emerald-50/70 dark:bg-emerald-950/30 border border-emerald-200/80 dark:border-emerald-900/40 text-xs text-emerald-900 dark:text-emerald-200">
+        <span class="font-bold block mb-0.5">Vocabulary Size:</span>
+        <span id="bpe-vocab-stat" class="font-mono">|V| = 11 base characters</span>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+(function() {
+  const steps = [
+    {
+      step: 0,
+      title: "Step 0 / 4 (Base Characters)",
+      corpus: [
+        { word: "low", count: 5, tokens: ["l", "o", "w", "</w>"] },
+        { word: "lower", count: 2, tokens: ["l", "o", "w", "e", "r", "</w>"] },
+        { word: "newest", count: 6, tokens: ["n", "e", "w", "e", "s", "t", "</w>"] },
+        { word: "widest", count: 3, tokens: ["w", "i", "d", "e", "s", "t", "</w>"] }
+      ],
+      rulebook: ["(No merges applied yet)"],
+      vocabSize: 11,
+      inference: ["l", "o", "w", "e", "s", "t", "</w>"]
+    },
+    {
+      step: 1,
+      title: "Step 1 / 4: Merge ('e', 's') → 'es'",
+      corpus: [
+        { word: "low", count: 5, tokens: ["l", "o", "w", "</w>"] },
+        { word: "lower", count: 2, tokens: ["l", "o", "w", "e", "r", "</w>"] },
+        { word: "newest", count: 6, tokens: ["n", "e", "w", "es", "t", "</w>"] },
+        { word: "widest", count: 3, tokens: ["w", "i", "d", "es", "t", "</w>"] }
+      ],
+      rulebook: ["1. ('e', 's') → 'es' (freq: 9)"],
+      vocabSize: 12,
+      inference: ["l", "o", "w", "es", "t", "</w>"]
+    },
+    {
+      step: 2,
+      title: "Step 2 / 4: Merge ('es', 't') → 'est'",
+      corpus: [
+        { word: "low", count: 5, tokens: ["l", "o", "w", "</w>"] },
+        { word: "lower", count: 2, tokens: ["l", "o", "w", "e", "r", "</w>"] },
+        { word: "newest", count: 6, tokens: ["n", "e", "w", "est", "</w>"] },
+        { word: "widest", count: 3, tokens: ["w", "i", "d", "est", "</w>"] }
+      ],
+      rulebook: [
+        "1. ('e', 's') → 'es' (freq: 9)",
+        "2. ('es', 't') → 'est' (freq: 9)"
+      ],
+      vocabSize: 13,
+      inference: ["l", "o", "w", "est", "</w>"]
+    },
+    {
+      step: 3,
+      title: "Step 3 / 4: Merge ('l', 'o') → 'lo'",
+      corpus: [
+        { word: "low", count: 5, tokens: ["lo", "w", "</w>"] },
+        { word: "lower", count: 2, tokens: ["lo", "w", "e", "r", "</w>"] },
+        { word: "newest", count: 6, tokens: ["n", "e", "w", "est", "</w>"] },
+        { word: "widest", count: 3, tokens: ["w", "i", "d", "est", "</w>"] }
+      ],
+      rulebook: [
+        "1. ('e', 's') → 'es' (freq: 9)",
+        "2. ('es', 't') → 'est' (freq: 9)",
+        "3. ('l', 'o') → 'lo' (freq: 7)"
+      ],
+      vocabSize: 14,
+      inference: ["lo", "w", "est", "</w>"]
+    },
+    {
+      step: 4,
+      title: "Step 4 / 4: Merge ('lo', 'w') → 'low'",
+      corpus: [
+        { word: "low", count: 5, tokens: ["low", "</w>"] },
+        { word: "lower", count: 2, tokens: ["low", "e", "r", "</w>"] },
+        { word: "newest", count: 6, tokens: ["n", "e", "w", "est", "</w>"] },
+        { word: "widest", count: 3, tokens: ["w", "i", "d", "est", "</w>"] }
+      ],
+      rulebook: [
+        "1. ('e', 's') → 'es' (freq: 9)",
+        "2. ('es', 't') → 'est' (freq: 9)",
+        "3. ('l', 'o') → 'lo' (freq: 7)",
+        "4. ('lo', 'w') → 'low' (freq: 7)"
+      ],
+      vocabSize: 15,
+      inference: ["low", "est</w>"]
+    }
+  ];
+
+  let currentIdx = 0;
+
+  const btnStep = document.getElementById('bpe-step-btn');
+  const btnReset = document.getElementById('bpe-reset-btn');
+  const counterSpan = document.getElementById('bpe-step-counter');
+  const corpusContainer = document.getElementById('bpe-corpus-container');
+  const rulesList = document.getElementById('bpe-rules-list');
+  const vocabStat = document.getElementById('bpe-vocab-stat');
+  const inferenceContainer = document.getElementById('bpe-inference-result');
+
+  function render() {
+    const s = steps[currentIdx];
+    counterSpan.textContent = s.title;
+
+    // Render Corpus
+    let corpusHtml = '';
+    s.corpus.forEach(item => {
+      const pills = item.tokens.map(t => {
+        const isMerged = t.length > 1 && t !== '</w>';
+        const cls = isMerged 
+          ? 'bg-blue-100 dark:bg-blue-950/80 text-blue-700 dark:text-blue-300 font-bold border-blue-300 dark:border-blue-800' 
+          : 'bg-white dark:bg-neutral-900 text-slate-700 dark:text-slate-300 border-slate-200 dark:border-neutral-700';
+        return `<span class="px-1.5 py-0.5 rounded border ${cls}">${t}</span>`;
+      }).join(' ');
+
+      corpusHtml += `<div class="flex items-center justify-between p-1.5 rounded-lg bg-white/70 dark:bg-neutral-900/60 border border-slate-200/60 dark:border-neutral-800">
+        <span class="text-slate-400 dark:text-slate-500 w-16">"${item.word}" (×${item.count})</span>
+        <div class="flex items-center gap-1">${pills}</div>
+      </div>`;
+    });
+    corpusContainer.innerHTML = corpusHtml;
+
+    // Render Rules
+    rulesList.innerHTML = s.rulebook.map(r => `<li class="p-1 rounded bg-white/60 dark:bg-neutral-900/40 border border-slate-200/50 dark:border-neutral-800/80">${r}</li>`).join('');
+
+    // Render Stats
+    vocabStat.textContent = `|V| = ${s.vocabSize} entries`;
+
+    // Render Inference
+    inferenceContainer.innerHTML = s.inference.map(t => {
+      const isComplete = t === 'low' || t.startsWith('est');
+      const cls = isComplete 
+        ? 'bg-emerald-100 dark:bg-emerald-950/80 text-emerald-800 dark:text-emerald-200 font-bold border-emerald-300 dark:border-emerald-700' 
+        : 'bg-white dark:bg-neutral-900 text-slate-700 dark:text-slate-300 border-slate-200 dark:border-neutral-700';
+      return `<span class="px-2 py-0.5 rounded border ${cls}">${t}</span>`;
+    }).join(' ');
+
+    btnStep.disabled = currentIdx >= steps.length - 1;
+    btnStep.classList.toggle('opacity-50', currentIdx >= steps.length - 1);
+  }
+
+  btnStep.addEventListener('click', () => {
+    if (currentIdx < steps.length - 1) {
+      currentIdx++;
+      render();
+    }
+  });
+
+  btnReset.addEventListener('click', () => {
+    currentIdx = 0;
+    render();
+  });
+
+  render();
+})();
+</script>

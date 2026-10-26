@@ -6,32 +6,41 @@ math: true
 weight: 2
 ---
 
-After tokenization decomposes raw text into discrete integers, neural networks face a geometric challenge: how can arbitrary discrete indices be represented in a space where mathematical operations like addition, dot products, and gradient propagation carry semantic meaning?
+Once tokenization converts raw text strings into discrete integer token IDs, neural networks face a fundamental geometric question: how can arbitrary discrete numbers like `1923` and `4812` be represented in a space where mathematical operations like vector addition, dot products, and gradient updates carry semantic meaning?
 
-The simplest representation is a **one-hot vector** $e_i \in \{0, 1\}^V$, where an index is represented by a vector of zeros with a single $1$ at index $i$. While conceptually straightforward, one-hot vectors present fatal bottlenecks for deep sequence models:
+The most basic representation is a **one-hot vector** $e_i \in \{0, 1\}^V$, where an index is represented by an array of zeros with a single $1$ at position $i$. While straightforward, one-hot encodings suffer from two critical flaws:
 
-1. **Orthogonality and Semantic Blindness**: The dot product between any two distinct one-hot vectors $e_i$ and $e_j$ is identically zero:
+1. **Orthogonality and Semantic Blindness**: The dot product between any two distinct one-hot vectors is identically zero:
    $$
    e_i \cdot e_j = 0 \quad (\forall i \neq j)
    $$
-   In one-hot space, the distance between `"cat"` and `"kitten"` is identical to the distance between `"cat"` and `"refrigerator"`. The model cannot share statistical strength across related concepts.
-2. **Curse of Dimensionality**: With modern vocabularies of $V = 128{,}000$ tokens (as in Llama 3), a one-hot vector requires 128,000 dimensions per token, almost all of which are empty zeros.
+   In one-hot space, `"cat"` is just as distant from `"kitten"` as it is from `"refrigerator"`. The model cannot share statistical learning across semantically related words.
+2. **The Curse of Dimensionality**: In modern LLMs with vocabulary size $V = 128{,}000$ (e.g. LLaMA 3), a single one-hot vector requires 128,000 sparse dimensions per token, wasting memory and computation.
 
-**Dense embeddings** resolve this by projecting discrete tokens into a continuous low-dimensional manifold $\mathbb{R}^d$ (typically $d \in [2048, 8192]$). In this continuous space, tokens become coordinate vectors whose geometric distances (Euclidean norm) and angular orientations (cosine similarity) reflect linguistic, syntactic, and functional relationships.
+**Dense embeddings** resolve this by projecting discrete tokens into a continuous coordinate space $\mathbb{R}^d$ (typically $d \in [2048, 8192]$). In this continuous space, tokens become dense vectors whose geometric distances (Euclidean norm) and angular orientations (cosine similarity) reflect linguistic meaning and functional relationships.
 
 ---
 
-## Formal Mapping: Discrete Symbols to Continuous Manifolds
+## The Semantic Coordinate Space: Discrete Indices to Continuous Vectors
 
-The embedding layer performs a direct row-slice lookup from a parameter matrix $\mathbf{W}_E \in \mathbb{R}^{V \times d}$, mapping discrete integer IDs to continuous coordinates:
+The embedding layer operates as an efficient table lookup into a learned parameter matrix $\mathbf{W}_E \in \mathbb{R}^{V \times d}$:
 
 ```mermaid
 flowchart LR
-    ID["Token ID Index<br/><b>id = 1 ('cat')</b>"] --> Slice["Row Lookup<br/><b>W_E[1] ∈ ℝ^(1 × d)</b>"]
-    Slice --> Vec["Continuous Embedding<br/><b>e_cat = [0.80, 0.10, -0.50]</b>"]
-    Vec --> Scale["Scale Factor<br/><b>× √d_model</b>"]
-    Scale --> Add["Add Positional Encoding<br/><b>x̃ = (√d) · e_cat + PE</b>"]
-    Add --> Norm["RMSNorm Layer<br/><b>Hidden State h₀</b>"]
+    subgraph S1["1. Discrete Token ID"]
+        ID["<b>Token ID</b><br/><code>id = 1 ('cat')</code>"]
+    end
+
+    subgraph S2["2. Table Lookup"]
+        Slice["<b>Matrix Row Lookup</b><br/><code>W_E[1] ∈ ℝ^(1 × d)</code>"]
+    end
+
+    subgraph S3["3. Continuous Manifold"]
+        Vec["<b>Dense Coordinate Vector</b><br/><code>e_cat = [0.80, 0.10, -0.50]</code>"]
+        --> Norm["<b>Normalization (RMSNorm)</b><br/>Hidden state h₀"]
+    end
+
+    ID --> Slice --> Vec
 ```
 
 ```
@@ -47,12 +56,12 @@ Discrete Token ID          Weight Matrix W_E ∈ ℝ^(V × d)            Dense V
 
 ---
 
-## Numerical Demonstration: Vector Allocation & Distance Metrics
+## Step-by-Step Geometric Demonstration
 
-To understand how embedding parameters are indexed and how semantic proximity is quantified, let us construct a miniature embedding space with vocabulary size $V=5$ and hidden dimension $d=3$.
+To see how embedding matrices are indexed and how semantic similarity is quantified geometrically, consider a toy embedding space with vocabulary size $V=5$ and hidden dimension $d=3$.
 
 ### 1. Parameter Matrix Structure & Memory Layout
-Let the vocabulary be:
+Let our miniature vocabulary be:
 $$
 \mathcal{V} = \{ 0: \text{"the"}, \quad 1: \text{"cat"}, \quad 2: \text{"sat"}, \quad 3: \text{"dog"}, \quad 4: \text{"mat"} \}
 $$
@@ -76,8 +85,8 @@ $$
 \end{matrix}
 $$
 
-### 2. Memory Slice Retrieval (Gather Kernel)
-When the token sequence `["cat", "dog"]` (indices `[1, 3]`) enters the model, the lookup operation retrieves the corresponding rows:
+### 2. Memory Slice Retrieval (The Gather Operation)
+When the sequence `["cat", "dog"]` (token IDs `[1, 3]`) enters the model, the embedding layer retrieves rows 1 and 3:
 
 $$
 \mathbf{e}_{\text{cat}} = \mathbf{W}_E[1] = \begin{bmatrix} 0.80, & 0.10, & -0.50 \end{bmatrix}
@@ -86,21 +95,18 @@ $$
 \mathbf{e}_{\text{dog}} = \mathbf{W}_E[3] = \begin{bmatrix} 0.78, & 0.12, & -0.48 \end{bmatrix}
 $$
 
-Mathematically, this lookup is equivalent to multiplying a one-hot vector $e_1^T \in \mathbb{R}^{1 \times V}$ by the weight matrix $\mathbf{W}_E \in \mathbb{R}^{V \times d}$:
+Mathematically, this lookup is equivalent to multiplying a one-hot row vector $e_1^T \in \mathbb{R}^{1 \times V}$ by the weight matrix $\mathbf{W}_E \in \mathbb{R}^{V \times d}$:
 $$
 e_1^T \mathbf{W}_E = \mathbf{e}_{\text{cat}}
 $$
-In production frameworks (PyTorch, JAX), this is implemented as an $\mathcal{O}(1)$ direct memory pointer lookup rather than an expensive matrix multiplication.
+In PyTorch and GPU kernels, this is implemented as an $\mathcal{O}(1)$ direct memory index lookup (`torch.embedding` or `gather`), bypassing full matrix multiplication.
 
-### 3. Metric Tensor Evaluation: Dot Product vs. Cosine Affinity
-To quantify how closely related `"cat"` and `"dog"` are in this learned space, we calculate their **dot product** and **cosine similarity**:
+### 3. Measuring Semantic Distance: Dot Product vs. Cosine Similarity
+How close are `"cat"` and `"dog"` in this continuous coordinate space?
 
-1. **Dot Product**:
+1. **Dot Product (Projection Alignment)**:
    $$
-   \mathbf{e}_{\text{cat}} \cdot \mathbf{e}_{\text{dog}} = (0.80)(0.78) + (0.10)(0.12) + (-0.50)(-0.48)
-   $$
-   $$
-   = 0.624 + 0.012 + 0.240 = \mathbf{0.876}
+   \mathbf{e}_{\text{cat}} \cdot \mathbf{e}_{\text{dog}} = (0.80)(0.78) + (0.10)(0.12) + (-0.50)(-0.48) = 0.624 + 0.012 + 0.240 = \mathbf{0.876}
    $$
 
 2. **Vector Magnitudes (Euclidean Norms)**:
@@ -111,58 +117,95 @@ To quantify how closely related `"cat"` and `"dog"` are in this learned space, w
    \|\mathbf{e}_{\text{dog}}\| = \sqrt{0.78^2 + 0.12^2 + (-0.48)^2} = \sqrt{0.6084 + 0.0144 + 0.2304} = \sqrt{0.8532} \approx 0.9237
    $$
 
-3. **Cosine Similarity**:
+3. **Cosine Similarity (Angular Affinity)**:
    $$
    \cos(\theta) = \frac{\mathbf{e}_{\text{cat}} \cdot \mathbf{e}_{\text{dog}}}{\|\mathbf{e}_{\text{cat}}\| \|\mathbf{e}_{\text{dog}}\|} = \frac{0.876}{0.9487 \times 0.9237} = \frac{0.876}{0.8763} \approx \mathbf{0.9996}
    $$
 
-The cosine similarity approaches $1.0$, proving that the vectors point in virtually identical directions, encoding their shared categorical identity as domestic animals. In contrast, evaluating `"cat"` against `"the"` yields $\cos(\theta) \approx -0.11$, demonstrating functional orthogonality.
+A cosine similarity of $\approx 0.9996$ indicates that both coordinate vectors point in nearly identical directions, reflecting their shared linguistic status as animals. In contrast, calculating `"cat"` against the grammatical function word `"the"` yields $\cos(\theta) \approx -0.11$, demonstrating functional orthogonality.
 
 ---
 
-## Systems Architecture: Memory Optimization & Normalization
+## PyTorch Reference Implementation
 
-### Dual Projection Weight Tying (Input-Output Matrix Sharing)
-In an autoregressive language model, an embedding lookup occurs at the very start (converting token IDs to hidden states), and an inverse projection occurs at the very end: the final hidden state $h_L \in \mathbb{R}^d$ is projected onto the vocabulary via a language model head $\mathbf{W}_{\text{head}} \in \mathbb{R}^{d \times V}$ to compute unnormalized log-probabilities (logits):
+Here is how token embeddings, cosine similarity, and weight tying are constructed in PyTorch:
+
+```python
+import torch
+import torch.nn as nn
+import torch.nn.functional as F
+
+class LanguageModelEmbeddings(nn.Module):
+    def __init__(self, vocab_size: int, embed_dim: int):
+        super().__init__()
+        # 1. Learned embedding matrix W_E in R^(V x d)
+        self.embedding = nn.Embedding(vocab_size, embed_dim)
+        
+        # 2. Output projection head (tied to embedding weights)
+        self.output_head = nn.Linear(embed_dim, vocab_size, bias=False)
+        self.output_head.weight = self.embedding.weight  # Weight Tying!
+
+    def forward(self, token_ids: torch.Tensor) -> torch.Tensor:
+        # [batch_size, seq_len] -> [batch_size, seq_len, embed_dim]
+        return self.embedding(token_ids)
+
+# Verification:
+model = LanguageModelEmbeddings(vocab_size=128000, embed_dim=4096)
+input_tokens = torch.tensor([[1, 3]])  # ["cat", "dog"]
+embeds = model(input_tokens)
+
+# Cosine similarity between token 0 ("cat") and token 1 ("dog")
+cos_sim = F.cosine_similarity(embeds[:, 0, :], embeds[:, 1, :])
+print(f"Embedding shape: {embeds.shape}, Cosine similarity: {cos_sim.item():.4f}")
+```
+
+---
+
+## Systems & Memory Optimization: Weight Tying & RMSNorm
+
+### Dual Projection Weight Tying (Matrix Sharing)
+
+In an autoregressive language model, an embedding lookup occurs at the very start (converting token IDs to hidden states), and an inverse projection occurs at the very end: the final hidden state $h_L \in \mathbb{R}^d$ is multiplied by an output projection matrix $\mathbf{W}_{\text{head}} \in \mathbb{R}^{d \times V}$ to produce logits over the entire vocabulary:
 
 $$
 \text{logits} = h_L \mathbf{W}_{\text{head}}
 $$
 
-**Weight Tying** (Press & Wolf 2016) enforces that the output projection matrix is literally the transpose of the input embedding matrix:
+**Weight Tying** (Press & Wolf 2016) sets the output projection weights to be the exact transpose of the input embedding weights:
 $$
 \mathbf{W}_{\text{head}} = \mathbf{W}_E^T
 $$
 
-#### Parameter Footprint Reduction & Regularization Dynamics
-1. **Parameter Savings**: In a model with hidden size $d=4096$ and vocabulary $V=128{,}000$, a single embedding matrix contains $4096 \times 128{,}000 \approx \mathbf{524\text{ million}}$ parameters (over 1 GB of VRAM in float16). Tying weights eliminates an entire 524M-parameter matrix.
-2. **Representational Duality**: It forces the geometric space where tokens are read into the model to be identical to the space where tokens are predicted, serving as a powerful regularizer against overfitting on rare tokens.
+#### Practical Benefits for Modern LLMs
+1. **Parameter Savings**: In a model with hidden size $d=4096$ and vocabulary $V=128{,}000$, a single embedding matrix occupies $4096 \times 128{,}000 \approx \mathbf{524\text{ million}}$ parameters ($1.05\text{ GB}$ of VRAM in FP16). Tying weights eliminates an entire 524M-parameter matrix.
+2. **Regularization & Geometry**: It forces the continuous space where tokens enter the model to be geometrically identical to the space where tokens are predicted, preventing representation collapse on rare tokens.
 
-### Variance Preservation via $\sqrt{d_{\text{model}}}$ Scaling
-In the original Transformer architecture (Vaswani et al. 2017), the raw lookup vectors are multiplied by $\sqrt{d_{\text{model}}}$ before adding positional encodings:
+### Variance Preservation via √d_model Scaling
+
+In the original Transformer (Vaswani et al. 2017), lookup vectors were multiplied by $\sqrt{d_{\text{model}}}$ before adding positional encodings:
 
 $$
 \mathbf{x}_i = \sqrt{d_{\text{model}}} \cdot \mathbf{W}_E[t_i] + \mathbf{PE}_i
 $$
 
-#### Preventing Semantic Signal Attenuation
-When embedding weights are initialized using standard Gaussian initialization (mean 0, variance $1/d_{\text{model}}$), the expected norm of an embedding vector is $\mathcal{O}(1)$. However, positional encoding values (sinusoids) also have magnitudes on the order of $\mathcal{O}(1)$. Adding them without scaling would cause the positional signal to overpower the semantic information. Scaling by $\sqrt{d_{\text{model}}}$ elevates the semantic signal variance to $\mathcal{O}(\sqrt{d_{\text{model}}})$, ensuring the model retains semantic dominance while using positional values as coordinate modulations.
+Under standard Gaussian weight initialization (mean 0, variance $1/d_{\text{model}}$), the expected norm of an embedding vector is $\mathcal{O}(1)$. Because sinusoidal positional values also have magnitudes of $\mathcal{O}(1)$, adding them directly would cause the position signal to overpower the semantic signal. Scaling by $\sqrt{d_{\text{model}}}$ ensures semantic representations remain dominant.
 
-### Activation Normalization: LayerNorm vs. Root Mean Square (RMSNorm)
-Embeddings entering deep transformer stacks must be normalized to prevent exploding or vanishing activations across dozens of layers.
+### Activation Normalization: LayerNorm vs. RMSNorm
+
+Embeddings passing through dozens of transformer layers require normalization to stabilize gradient propagation. Modern models have largely migrated from standard LayerNorm to **Root Mean Square Normalization (RMSNorm)**:
 
 ```
 Standard LayerNorm (Vaswani 2017):
   μ = (1/d) Σ x_i
   σ² = (1/d) Σ (x_i - μ)²
-  y = [(x - μ) / √(σ² + ε)] ⊙ γ + β   (Requires 2 passes over memory)
+  y = [(x - μ) / √(σ² + ε)] ⊙ γ + β   (Requires 2 memory passes)
 
-RMSNorm (Zhang & Sennrich 2019, Llama 2/3, Mistral):
+RMSNorm (Zhang & Sennrich 2019; Llama 3, Mistral):
   RMS(x) = √[(1/d) Σ x_i² + ε]
-  y = [x / RMS(x)] ⊙ γ               (Strips mean-centering; 10-50% faster)
+  y = [x / RMS(x)] ⊙ γ               (Strips mean-centering; 15-40% faster)
 ```
 
-By removing the requirement to compute the mean $\mu$, RMSNorm reduces GPU memory read/write passes (SRAM-to-HBM bandwidth) without degrading training loss or perplexity.
+By removing the need to compute the mean $\mu$, RMSNorm reduces GPU memory read/write passes (SRAM-to-HBM bandwidth) while delivering identical convergence stability.
 
 ---
 

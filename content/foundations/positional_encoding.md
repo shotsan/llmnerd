@@ -6,50 +6,51 @@ math: true
 weight: 3
 ---
 
-The core mathematical operation of the Transformer architecture is self-attention. While self-attention allows every token to interact directly with every other token in a single computational step, it possesses a fundamental mathematical property: **permutation equivariance**.
+The core mathematical engine of the Transformer is self-attention. While self-attention allows every token to directly interact with every other token in a single parallel operation, it possesses a fundamental mathematical property: **permutation equivariance**.
 
-Let $\mathbf{X} \in \mathbb{R}^{N \times d}$ be an input sequence of $N$ token embeddings, and let $\mathbf{P} \in \{0, 1\}^{N \times N}$ be an arbitrary permutation matrix that reorders the rows of $\mathbf{X}$. Applying self-attention to the permuted sequence yields:
+Let $\mathbf{X} \in \mathbb{R}^{N \times d}$ be an input sequence of $N$ token embeddings, and let $\mathbf{P} \in \{0, 1\}^{N \times N}$ be an arbitrary permutation matrix that shuffles the rows of $\mathbf{X}$. Applying self-attention to the permuted sequence yields:
 
 $$
 \text{Attention}(\mathbf{P}\mathbf{X}) = \mathbf{P} \, \text{Attention}(\mathbf{X})
 $$
 
-Permuting the inputs simply permutes the outputs identically. The operation itself contains **zero structural awareness of sequence order**. To a pure transformer without positional encoding, the sentences:
+Permuting the inputs simply permutes the outputs identically. The operation itself contains **zero structural awareness of sequence order**. To a pure transformer without positional coordinates, the sentences:
 
 > *"The dog bit the mailman."*  
 > *"The mailman bit the dog."*
 
-produce identical sets of contextual representations. Because syntax, grammar, causality, and logic depend strictly on sequential ordering, models must explicitly break this permutation symmetry by injecting positional coordinates into the vector representations.
+produce identical sets of contextual representations. Because language, syntax, logic, and causality depend strictly on word order, models must explicitly break this permutation symmetry by injecting positional coordinates into the vector representations.
 
 ---
 
-## Coordinate Frame Formulation: Additive vs. Rotary
+## Two Paradigms: Additive Vectors vs. Complex Rotation
 
-The two primary paradigms for breaking permutation symmetry operate either by direct vector addition or coordinate rotation:
+To teach a neural network where words appear in time, two primary philosophies exist:
 
 ```mermaid
-flowchart TD
-    subgraph Absolute["1. Absolute Sinusoidal Addition (Vaswani et al. 2017)"]
-        X["Token Vector x_m"] --> Add["⨁ Additive Vector Sum"]
-        PE["Harmonic Vector PE_m<br/><b>sin / cos frequencies</b>"] --> Add
-        Add --> Out1["Modulated Input: x̃_m = x_m + PE_m"]
+flowchart LR
+    subgraph S1["1. Absolute Additive (Vaswani et al. 2017)"]
+        direction TB
+        X["<b>Token Vector (x_m)</b>"] --> Add["<b>Vector Addition (⊕)</b>"]
+        PE["<b>Trigonometric Wave (PE_m)</b><br/>Multi-scale sin/cos"] --> Add
+        Add --> Out1["<b>Modulated Input</b><br/><code>x̃_m = x_m + PE_m</code>"]
     end
 
-    subgraph Rotary["2. Rotary Position Embedding - RoPE (Su et al. 2021)"]
-        Q["Query Vector q_m"] --> RotQ["Rotate by mθ<br/><b>R_(θ,m) · q_m</b>"]
-        K["Key Vector k_n"] --> RotK["Rotate by nθ<br/><b>R_(θ,n) · k_n</b>"]
-        RotQ --> Dot["Inner Product Kernel<br/><b>⟨q̃_m, k̃_n⟩</b>"]
+    subgraph S2["2. Rotary Embeddings - RoPE (Su et al. 2021)"]
+        direction TB
+        Q["<b>Query Vector (q_m)</b>"] --> RotQ["<b>2D Complex Rotation</b><br/><code>R(mθ) · q_m</code>"]
+        K["<b>Key Vector (k_n)</b>"] --> RotK["<b>2D Complex Rotation</b><br/><code>R(nθ) · k_n</code>"]
+        RotQ --> Dot["<b>Dot Product</b><br/><code>⟨R_m · q, R_n · k⟩</code>"]
         RotK --> Dot
-        Dot --> Out2["Relative Distance Dependent:<br/><b>q_mᵀ · R_(θ, n-m) · k_n</b>"]
+        Dot --> Out2["<b>Relative Distance Kernel</b><br/><code>qᵀ · R((n-m)θ) · k</code>"]
     end
 ```
 
 ---
 
-## Mathematical Derivation & Vector Construction
+## Sinusoidal Encodings: The Multi-Scale Frequency Wave
 
-### Absolute Harmonic Encodings (Vaswani et al.)
-The original Transformer encodes sequence position by adding deterministic trigonometric waves of varying frequencies directly to the token embeddings:
+The original Transformer encoded sequence position by adding deterministic trigonometric waves of geometrically decreasing frequencies directly to token embeddings:
 
 $$
 PE_{(pos, 2i)} = \sin\left(\frac{pos}{10000^{2i/d}}\right)
@@ -58,82 +59,28 @@ $$
 PE_{(pos, 2i+1)} = \cos\left(\frac{pos}{10000^{2i/d}}\right)
 $$
 
-where $pos$ is the token index ($0, 1, 2, \dots$), $i$ is the dimension index ($0 \le i < d/2$), and $d$ is the model dimension.
+where $pos$ is the token position index ($0, 1, 2, \dots$), $i$ is the dimension pair index ($0 \le i < d/2$), and $d$ is the model embedding dimension.
 
-#### Numerical Evaluation at Fixed Hidden Dimension ($d = 4$)
-Let $d=4$, yielding two frequency channels:
-* For $i=0$: $\lambda_0 = 10000^{0/4} = 10000^0 = \mathbf{1}$
-* For $i=1$: $\lambda_1 = 10000^{2/4} = 10000^{0.5} = \sqrt{10000} = \mathbf{100}$
+### The Clock-Hand Mental Model
 
-**1. Position $pos = 0$:**
-$$
-PE_{(0, 0)} = \sin(0 / 1) = \sin(0) = \mathbf{0.0}
-$$
-$$
-PE_{(0, 1)} = \cos(0 / 1) = \cos(0) = \mathbf{1.0}
-$$
-$$
-PE_{(0, 2)} = \sin(0 / 100) = \sin(0) = \mathbf{0.0}
-$$
-$$
-PE_{(0, 3)} = \cos(0 / 100) = \cos(0) = \mathbf{1.0}
-$$
-$$
-\mathbf{PE}_0 = \begin{bmatrix} 0.0, & 1.0, & 0.0, & 1.0 \end{bmatrix}
-$$
+Think of sinusoidal encoding like a multi-hand clock or a binary counter:
+* **Dimension $i=0$ (The "Seconds Hand")**: Has a wavelength of $\lambda \approx 6.28$ tokens ($2\pi$). It oscillates rapidly, allowing the model to distinguish between immediately adjacent words (*"cat sat"* vs *"sat cat"*).
+* **Intermediate Dimensions (The "Minutes Hand")**: Have wavelengths spanning hundreds of tokens, capturing phrase and clause boundaries.
+* **Highest Dimensions (The "Hours Hand")**: Have wavelengths spanning tens of thousands of tokens ($\lambda = 20000\pi \approx 62{,}831$), tracking high-level thematic position across long documents.
 
-**2. Position $pos = 1$:**
-$$
-PE_{(1, 0)} = \sin(1 / 1) = \sin(1\text{ rad}) \approx \mathbf{0.8415}
-$$
-$$
-PE_{(1, 1)} = \cos(1 / 1) = \cos(1\text{ rad}) \approx \mathbf{0.5403}
-$$
-$$
-PE_{(1, 2)} = \sin(1 / 100) = \sin(0.01\text{ rad}) \approx \mathbf{0.0100}
-$$
-$$
-PE_{(1, 3)} = \cos(1 / 100) = \cos(0.01\text{ rad}) \approx \mathbf{0.99995}
-$$
-$$
-\mathbf{PE}_1 = \begin{bmatrix} 0.8415, & 0.5403, & 0.0100, & 0.99995 \end{bmatrix}
-$$
-
-#### Multi-Scale Frequency Decomposition & Geometric Progression
-Notice that across dimension $i=0$, the coordinates oscillate rapidly with wavelength $2\pi \approx 6.28$ tokens. At dimension $i=1$, the wavelength expands to $200\pi \approx 628$ tokens. This forms a continuous analog to the binary bits of an integer counter: low dimensions provide high-resolution local distinction between adjacent tokens, while high dimensions track global position across long documents.
-
-```mermaid
-graph TD
-    subgraph PosInput["Token Sequence Position Input"]
-        Pos["Position index: pos ∈ {0, 1, ..., N-1}"]
-    end
-
-    subgraph Spectrum["Multi-Scale Frequency Spectrum: θ_i = 10000^(-2i/d)"]
-        direction TB
-        Dim0["Dimension Pair 0 (i = 0, λ ≈ 6.28 tokens)<br/><b>Local Syntactic Distinction</b><br/>sin(pos), cos(pos)"]
-        Dim1["Dimension Pair 2 (i = 1, λ ≈ 628 tokens)<br/><b>Phrase & Clause Boundaries</b><br/>sin(pos/100), cos(pos/100)"]
-        Dim2["Dimension Pair 4 (i = 2, λ ≈ 62,831 tokens)<br/><b>Document-Level Progression</b><br/>sin(pos/10000), cos(pos/10000)"]
-    end
-
-    Pos --> Dim0
-    Pos --> Dim1
-    Pos --> Dim2
-
-    subgraph Assembly["Vector Injection"]
-        Dim0 --> Concat["Concatenate Channels<br/>PE(pos) ∈ ℝ^d"]
-        Dim1 --> Concat
-        Dim2 --> Concat
-        Word["Word Embedding: x_pos"] --> Add["Elementwise Addition<br/>z_pos = x_pos + PE(pos)"]
-        Concat --> Add
-    end
-```
+Because every position produces a unique fingerprint across the frequency spectrum, the model can infer both absolute location and relative distance through trigonometric linear combinations ($\cos(\alpha - \beta) = \cos \alpha \cos \beta + \sin \alpha \sin \beta$).
 
 ---
 
-### Rotary Position Embedding (RoPE) & Complex Plane Coordinates
-While sinusoidal encodings add vectors ($\mathbf{x} + \mathbf{PE}$), modern frontier models (LLaMA, Mistral, Gemma, Qwen) use **Rotary Position Embeddings (RoPE)**. RoPE does not add static position vectors; instead, it **rotates** the Query and Key vectors in 2D complex coordinate planes.
+## Rotary Position Embedding (RoPE): Rotating in the 2D Complex Plane
 
-For a 2D vector $\mathbf{x} = [x_1, x_2]^T$ at position $m$, RoPE applies the orthogonal rotation matrix $\mathbf{R}_{\theta, m}$:
+While sinusoidal encodings add vectors ($\mathbf{x} + \mathbf{PE}$), modern frontier LLMs (LLaMA 3, Mistral, Gemma, Qwen) use **Rotary Position Embeddings (RoPE)**. 
+
+Instead of adding static vectors to word embeddings, RoPE treats pairs of features inside the Query and Key vectors as 2D complex numbers and **rotates** them by an angle proportional to the token's position.
+
+### 1. Complex 2D Coordinates & Orthogonal Rotations
+
+For a 2D feature pair $\mathbf{x} = [x_1, x_2]^T$ at token position $m$, RoPE applies the 2D rotation matrix $\mathbf{R}_{\theta, m}$:
 
 $$
 \mathbf{R}_{\theta, m} = \begin{bmatrix}
@@ -142,8 +89,15 @@ $$
 \end{bmatrix}
 $$
 
-#### Orthogonal Invariance & Relative Displacement Proof
-Suppose token $m$ emits Query $\mathbf{q}$ and token $n$ emits Key $\mathbf{k}$. When the model computes their attention dot product:
+In the complex plane $\mathbb{C}$, if we write the 2D vector as a complex number $z = x_1 + i x_2$, multiplying by $\mathbf{R}_{\theta, m}$ is mathematically equivalent to multiplying by a complex phase factor:
+
+$$
+\tilde{z} = z \cdot e^{i m \theta}
+$$
+
+### 2. Proof of Relative Displacement Invariance
+
+Suppose token $m$ emits Query $\mathbf{q}$ and token $n$ emits Key $\mathbf{k}$. When the self-attention layer computes their dot product:
 
 $$
 \langle \mathbf{R}_{\theta, m} \mathbf{q}, \, \mathbf{R}_{\theta, n} \mathbf{k} \rangle = (\mathbf{R}_{\theta, m} \mathbf{q})^T (\mathbf{R}_{\theta, n} \mathbf{k}) = \mathbf{q}^T \mathbf{R}_{\theta, m}^T \mathbf{R}_{\theta, n} \mathbf{k}
@@ -159,63 +113,81 @@ $$
 \langle \mathbf{R}_{\theta, m} \mathbf{q}, \, \mathbf{R}_{\theta, n} \mathbf{k} \rangle = \mathbf{q}^T \mathbf{R}_{\theta, n-m} \mathbf{k}
 $$
 
-The inner product depends **strictly on the relative displacement `(n - m)`**, completely independent of absolute token indices. Whether two words appear at positions `(1, 3)` or positions `(501, 503)`, their attention score is mathematically identical.
+> **The Core Mathematical Invariance**:  
+> The inner product depends **strictly on the relative displacement $(n - m)$**, completely independent of absolute token coordinates.  
+> Whether two words appear at positions $(1, 3)$ or positions $(501, 503)$, their relative angle is $(3 - 1)\theta = 2\theta$, producing an identical attention score!
 
-```mermaid
-graph LR
-    subgraph TokenM["Query Token m (Position m)"]
-        Qm["Query Vector q ∈ ℝ^d"] --> SplitM["Partition into 2D Subspaces<br/>[q₀, q₁], [q₂, q₃], ..."]
-        SplitM --> RotM["2D Complex Plane Rotation<br/>R(mθ_i) · [q_{2i}, q_{2i+1}]"]
-        RotM --> RotatedQ["Rotated Query: R_m · q"]
-    end
+---
 
-    subgraph TokenN["Key Token n (Position n)"]
-        Kn["Key Vector k ∈ ℝ^d"] --> SplitN["Partition into 2D Subspaces<br/>[k₀, k₁], [k₂, k₃], ..."]
-        SplitN --> RotN["2D Complex Plane Rotation<br/>R(nθ_i) · [k_{2i}, k_{2i+1}]"]
-        RotN --> RotatedK["Rotated Key: R_n · k"]
-    end
+## Interactive RoPE 2D Complex Rotation Lab
 
-    RotatedQ --> AttnDot["Attention Dot Product<br/>⟨R_m · q, R_n · k⟩"]
-    RotatedK --> AttnDot
+Use the interactive simulator below to rotate Query $\mathbf{q}$ and Key $\mathbf{k}$ on the complex unit circle. Notice that shifting both positions simultaneously preserves the relative angle and produces the exact same dot product:
 
-    AttnDot --> RelativeScore["Inner Product Simplification<br/>qᵀ (R_m)ᵀ R_n k = qᵀ R_{(n-m)θ} k<br/><b>Strict Relative Angle: (n - m)θ</b>"]
+{{< visual/rope-interactive >}}
+
+---
+
+## PyTorch Reference Implementation
+
+Here is how Rotary Position Embeddings are implemented in modern LLM architectures:
+
+```python
+import torch
+
+def precompute_freqs_cis(dim: int, max_seq_len: int, theta: float = 10000.0) -> torch.Tensor:
+    """Precomputes complex exponential rotation factors e^(i * m * theta)."""
+    # 1. Frequency bands: theta_i = 1.0 / (theta ** (2i / dim))
+    freqs = 1.0 / (theta ** (torch.arange(0, dim, 2)[: (dim // 2)].float() / dim))
+    
+    # 2. Position indices [0, 1, ..., max_seq_len - 1]
+    positions = torch.arange(max_seq_len)
+    
+    # 3. Outer product: angles m * theta_i
+    angles = torch.outer(positions, freqs)
+    
+    # 4. Complex polar coordinate tensor: e^(i * angle)
+    return torch.polar(torch.ones_like(angles), angles)
+
+def apply_rotary_emb(x: torch.Tensor, freqs_cis: torch.Tensor) -> torch.Tensor:
+    """
+    Applies 2D rotation to consecutive feature pairs of Queries or Keys.
+    x shape: [batch_size, seq_len, num_heads, head_dim]
+    """
+    # View feature pairs as complex numbers: [B, T, H, head_dim // 2]
+    x_complex = torch.view_as_complex(x.float().reshape(*x.shape[:-1], -1, 2))
+    
+    # Broadcast rotation frequencies
+    freqs_cis = freqs_cis[: x.shape[1], None, :]
+    
+    # Rotate via complex multiplication: z_rotated = z * e^(i * m * theta)
+    x_rotated = x_complex * freqs_cis
+    
+    # Flatten back to real coordinates: [B, T, H, head_dim]
+    return torch.view_as_real(x_rotated).flatten(-2)
 ```
 
 ---
 
-## Implementation & Context Extrapolation
+## Context Window Extrapolation: RoPE Scaling & YaRN
 
-### Sequence Positional Inductive Biases
+When an LLM trained with RoPE on an $8{,}192$-token context window is asked to evaluate $128{,}000$ tokens, the rotation angles $m\theta$ enter unobserved geometric territory, causing attention entropy to destabilize.
 
-| Architecture Paradigm | Examples | Mechanism | Extrapolation to Unseen Lengths |
+Modern techniques extend context windows without retraining from scratch:
+
+1. **Linear Position Interpolation (PI)**: Scales down position indices $m \to m \cdot \frac{L_{\text{train}}}{L_{\text{target}}}$. This maps all positions back into the observed range, but compresses high-frequency dimensions too tightly, impairing local grammatical distinctions.
+2. **Base Frequency $\theta$ Scaling (Llama 3)**: Increasing the base frequency from $\theta = 10{,}000$ to $\theta = 500{,}000$ (or $1{,}000{,}000$) slows the rotation rate across all dimensions, preserving fine-grained positional resolution across $128\text{k}+$ tokens.
+3. **YaRN (Yet another RoPE extensioN)**: Applies non-uniform frequency scaling. It leaves high frequencies unscaled (preserving local syntax), linearly interpolates low frequencies (expanding long-range context), and applies an entropy temperature correction to prevent attention dilution.
+
+---
+
+## Architectural Taxonomy of Positional Inductive Biases
+
+| Paradigm | Exemplar Models | Mathematical Mechanism | Extrapolation to Unseen Lengths |
 | :--- | :--- | :--- | :--- |
-| **Absolute Learned** | GPT-2, BERT | Learned parameter matrix $\mathbf{W}_{\text{pos}} \in \mathbb{R}^{L_{\max} \times d}$ added to embeddings | **Zero** — cannot evaluate sequences longer than $L_{\max}$ |
-| **Absolute Sinusoidal** | Original Transformer | Fixed sine/cosine formulas added to embeddings | Poor — attention weights degrade rapidly outside training distribution |
-| **Relative Bias** | T5, ALiBi | Injects scalar distance penalty directly into attention logits ($QK^T / \sqrt{d} - m \cdot \|i - j\|$) | **Excellent** (ALiBi trains on 2k, tests on 8k+ without fine-tuning) |
-| **Rotary (RoPE)** | LLaMA 1/2/3, Mistral, Gemma | Multiplies Q and K by block-diagonal 2D rotation matrices | **Very High** with base-frequency $\theta$ scaling and YaRN |
-
-### Attention with Linear Biases (ALiBi): Direct Logit Distance Penalties
-ALiBi demonstrated that explicit positional embeddings are unnecessary. Instead, it subtracts a static, non-learned linear penalty proportional to the token distance directly from the pre-softmax attention score:
-
-$$
-\text{Attention Matrix} = \text{softmax}\left(\frac{\mathbf{Q}\mathbf{K}^T}{\sqrt{d}} - m \cdot \begin{bmatrix}
-0 & \infty & \infty & \cdots \\
-1 & 0 & \infty & \cdots \\
-2 & 1 & 0 & \cdots \\
-\vdots & \vdots & \vdots & \ddots
-\end{bmatrix}\right)
-$$
-
-where $m$ is a head-specific geometric slope (e.g. $2^{-8/H}$). By biasing the model to favor recent tokens, ALiBi allows models trained on 2,048 tokens to extrapolate seamlessly to 8,192 tokens without any degradation in perplexity.
-
-### Context Window Expansion: Frequency Interpolation & YaRN
-When an LLM trained with RoPE on an 8,192-token window is asked to process 128,000 tokens, the rotation angles $m\theta$ enter unobserved geometric territory, causing catastrophic attention collapse.
-
-To extend context windows without re-training from scratch:
-
-1. **Linear Position Interpolation (PI)**: Scales down the position index $m \to m \cdot \frac{L_{\text{train}}}{L_{\text{target}}}$. This compresses all positions back into the training range, but squeezes high frequencies too closely, damaging local grammar distinctions.
-2. **Base Frequency $\theta$ Scaling (Llama 3)**: The default base frequency is $\theta_0 = 10{,}000$. Increasing $\theta_0 \to 500{,}000$ (as in Llama 3) dramatically slows the rotation rate of all dimensions, enabling the model to distinguish tokens across 128k contexts without compressing local positional resolution.
-3. **YaRN (Yet another RoPE extensioN)**: Applies non-uniform frequency interpolation. It treats high-frequency dimensions with zero interpolation (preserving exact local syntax), interpolates low-frequency dimensions linearly (expanding global context), and applies an entropy temperature correction to prevent attention entropy from diluting over 100k+ tokens.
+| **Learned Absolute** | GPT-2, BERT | Learned embedding matrix $\mathbf{W}_{\text{pos}} \in \mathbb{R}^{L_{\max} \times d}$ | **Zero** — Hard error if sequence length exceeds $L_{\max}$ |
+| **Sinusoidal Absolute** | Vaswani (2017) | Fixed harmonic sine/cosine waves added to token vectors | **Poor** — Attention weights degrade outside training length |
+| **Relative Bias (ALiBi)** | MPT, BLOOM | Subtracts distance penalty directly from attention logits ($QK^T / \sqrt{d} - m \cdot \|i - j\|$) | **Excellent** — Trains on 2k, tests on 8k+ without fine-tuning |
+| **Rotary (RoPE)** | LLaMA 3, Mistral, Gemma | Multiplies Q and K by block-diagonal 2D complex rotation matrices | **Very High** — Scales seamlessly to 128k–1M tokens with YaRN |
 
 ---
 
