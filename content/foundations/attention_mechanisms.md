@@ -29,36 +29,31 @@ By computing compatibility scores between Queries and Keys, each token dynamical
 
 ## Scaled Dot-Product Attention
 
-Scaled dot-product attention computes compatibility between queries, keys, and values through the following structured pipeline:
+The core operation of the Transformer architecture is **Scaled Dot-Product Attention** (Vaswani et al. 2017). It maps a set of Query vectors to a weighted sum of Value vectors based on compatibility scores computed against Key vectors:
 
-```mermaid
-flowchart LR
-    subgraph S1["1. Linear Projections"]
-        direction TB
-        Q["<b>Queries (Q)</b><br/><code>T × d_k</code>"]
-        K["<b>Keys (K)</b><br/><code>T × d_k</code>"]
-        V["<b>Values (V)</b><br/><code>T × d_v</code>"]
-    end
+$$
+\operatorname{Attention}(\mathbf{Q}, \mathbf{K}, \mathbf{V}) = \operatorname{softmax}\left( \frac{\mathbf{Q}\mathbf{K}^T}{\sqrt{d_k}} + \mathbf{M} \right) \mathbf{V}
+$$
 
-    subgraph S2["2. Alignment & Softmax"]
-        direction TB
-        Dot["<b>Pairwise Compatibility</b><br/><code>Q · Kᵀ (T × T)</code>"]
-        --> Scale["<b>Scale by 1/√d_k</b><br/>Variance stabilization"]
-        --> Mask["<b>Causal Masking</b><br/>Upper triangle = -∞"]
-        --> Softmax["<b>Row-wise Softmax</b><br/>Attention weights A"]
-    end
+### Mathematical Definitions & Tensor Shapes
 
-    subgraph S3["3. Contextual Aggregation"]
-        direction TB
-        MatMulV["<b>Weighted Value Sum</b><br/><code>A · V (T × d_v)</code>"]
-        --> OutProj["<b>Output Projection (W_O)</b><br/>Contextualized tensor"]
-    end
+To understand how attention operates across parallel hardware, each symbol in the governing equation is defined below with its exact geometric meaning and tensor dimensions:
 
-    Q --> Dot
-    K --> Dot
-    Softmax --> MatMulV
-    V --> MatMulV
-```
+| Symbol | Shape | Description & Mathematical Role |
+| :--- | :--- | :--- |
+| $\mathbf{X}$ | $\mathbb{R}^{T \times d_{\text{model}}}$ | **Input Sequence Matrix**: $T$ tokens, each represented as a $d_{\text{model}}$-dimensional continuous embedding vector. |
+| $\mathbf{W}_Q, \mathbf{W}_K$ | $\mathbb{R}^{d_{\text{model}} \times d_k}$ | **Query & Key Projections**: Learned linear weights mapping input embeddings into a shared $d_k$-dimensional matching subspace. |
+| $\mathbf{W}_V$ | $\mathbb{R}^{d_{\text{model}} \times d_v}$ | **Value Projection**: Learned linear weights mapping input embeddings into the $d_v$-dimensional informational subspace (usually $d_v = d_k$). |
+| $\mathbf{Q} = \mathbf{X}\mathbf{W}_Q$ | $\mathbb{R}^{T \times d_k}$ | **Query Matrix**: Row $\mathbf{q}_i \in \mathbb{R}^{d_k}$ represents the retrieval request of token $i$ (*"what information do I need?"*). |
+| $\mathbf{K} = \mathbf{X}\mathbf{W}_K$ | $\mathbb{R}^{T \times d_k}$ | **Key Matrix**: Row $\mathbf{k}_j \in \mathbb{R}^{d_k}$ represents the indexing descriptor of token $j$ (*"what context do I offer?"*). |
+| $\mathbf{V} = \mathbf{X}\mathbf{W}_V$ | $\mathbb{R}^{T \times d_v}$ | **Value Matrix**: Row $\mathbf{v}_j \in \mathbb{R}^{d_v}$ represents the raw content extracted from token $j$ (*"what payload do I deliver?"*). |
+| $\mathbf{S} = \mathbf{Q}\mathbf{K}^T$ | $\mathbb{R}^{T \times T}$ | **Raw Compatibility Matrix**: Unnormalized scalar dot products. Entry $S_{ij} = \mathbf{q}_i \cdot \mathbf{k}_j$ measures directional alignment between query $i$ and key $j$. |
+| $\sqrt{d_k}$ | Scalar $\in \mathbb{R}^+$ | **Softmax Temperature**: Normalizing divisor. Because $\operatorname{Var}(\mathbf{q}_i \cdot \mathbf{k}_j) = d_k$, dividing by $\sqrt{d_k}$ restores variance to $1.0$, preventing softmax saturation. |
+| $\mathbf{M}$ | $\mathbb{R}^{T \times T}$ | **Autoregressive Causal Mask**: An upper-triangular mask ($M_{ij} = 0$ for $j \le i$, and $-\infty$ for $j > i$) preventing position $i$ from attending to future tokens $j > i$. |
+| $\mathbf{A}$ | $\mathbb{R}^{T \times T}$ | **Attention Weight Matrix**: $\operatorname{softmax}((\mathbf{Q}\mathbf{K}^T / \sqrt{d_k}) + \mathbf{M})$. Row $\mathbf{A}[i, :]$ forms a valid probability distribution over visible tokens ($\sum_{j=1}^T A_{ij} = 1$). |
+| $\mathbf{O} = \mathbf{A}\mathbf{V}$ | $\mathbb{R}^{T \times d_v}$ | **Contextual Output Matrix**: Each token's final representation $\mathbf{o}_i = \sum_{j=1}^i A_{ij}\mathbf{v}_j$ is a dynamic convex combination of value vectors. |
+
+{{< visual/attention-diagram >}}
 
 ---
 
