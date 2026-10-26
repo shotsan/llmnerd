@@ -11,7 +11,7 @@
     <!-- Controls -->
     <div class="flex flex-wrap items-center gap-4 bg-slate-100 dark:bg-neutral-800/60 p-2.5 rounded-xl text-xs">
       <div class="flex items-center gap-2">
-        <label for="attn-scale-slider" class="font-medium text-slate-700 dark:text-slate-300">Scale $\sqrt{d_k}$:</label>
+        <label for="attn-scale-slider" class="font-medium text-slate-700 dark:text-slate-300">Scale &radic;d<sub>k</sub>:</label>
         <input type="range" id="attn-scale-slider" min="0.5" max="4.0" step="0.1" value="1.4" class="w-24 cursor-pointer accent-blue-600">
         <span id="attn-scale-val" class="font-mono font-bold text-blue-600 dark:text-blue-400">1.41</span>
       </div>
@@ -30,14 +30,14 @@
     <!-- Stage 1: Raw QK^T -->
     <div class="bg-slate-50 dark:bg-neutral-800/40 p-4 rounded-xl border border-slate-200/80 dark:border-neutral-800">
       <div class="flex items-center justify-between mb-2">
-        <span class="text-xs font-bold uppercase tracking-wider text-slate-600 dark:text-slate-400">1. Compatibility: $\mathbf{Q}\mathbf{K}^T$</span>
+        <span class="text-xs font-bold uppercase tracking-wider text-slate-600 dark:text-slate-400">1. Compatibility: Q &middot; Kᵀ</span>
         <span class="text-[11px] font-mono text-slate-400">Raw Scores</span>
       </div>
       <div class="overflow-x-auto">
-        <table class="w-full text-center border-collapse text-xs">
+        <table class="w-full text-center border-collapse text-xs table-fixed">
           <thead>
             <tr class="text-slate-400 text-[11px]">
-              <th class="p-1"></th>
+              <th class="p-1 w-12 text-left"></th>
               <th class="p-1 font-semibold">"The"</th>
               <th class="p-1 font-semibold">"cat"</th>
               <th class="p-1 font-semibold">"sat"</th>
@@ -53,14 +53,14 @@
     <!-- Stage 2: Scaled & Masked -->
     <div class="bg-slate-50 dark:bg-neutral-800/40 p-4 rounded-xl border border-slate-200/80 dark:border-neutral-800">
       <div class="flex items-center justify-between mb-2">
-        <span class="text-xs font-bold uppercase tracking-wider text-slate-600 dark:text-slate-400">2. Scaled & Masked</span>
-        <span class="text-[11px] font-mono text-slate-400">$\mathbf{S}_{\text{scaled}}$</span>
+        <span class="text-xs font-bold uppercase tracking-wider text-slate-600 dark:text-slate-400">2. Scaled &amp; Masked</span>
+        <span class="text-[11px] font-mono text-slate-400">S<sub>scaled</sub></span>
       </div>
       <div class="overflow-x-auto">
-        <table class="w-full text-center border-collapse text-xs">
+        <table class="w-full text-center border-collapse text-xs table-fixed">
           <thead>
             <tr class="text-slate-400 text-[11px]">
-              <th class="p-1"></th>
+              <th class="p-1 w-12 text-left"></th>
               <th class="p-1 font-semibold">"The"</th>
               <th class="p-1 font-semibold">"cat"</th>
               <th class="p-1 font-semibold">"sat"</th>
@@ -76,14 +76,14 @@
     <!-- Stage 3: Softmax Probabilities Heatmap -->
     <div class="bg-slate-50 dark:bg-neutral-800/40 p-4 rounded-xl border border-slate-200/80 dark:border-neutral-800">
       <div class="flex items-center justify-between mb-2">
-        <span class="text-xs font-bold uppercase tracking-wider text-blue-600 dark:text-blue-400">3. Softmax Attention $\mathbf{A}$</span>
-        <span class="text-[11px] font-mono text-blue-500">$\sum \text{Row} = 100\%$</span>
+        <span class="text-xs font-bold uppercase tracking-wider text-blue-600 dark:text-blue-400">3. Softmax Attention A</span>
+        <span class="text-[11px] font-mono text-blue-500">Row Sum = 100%</span>
       </div>
       <div class="overflow-x-auto">
-        <table class="w-full text-center border-collapse text-xs">
+        <table class="w-full text-center border-collapse text-xs table-fixed">
           <thead>
             <tr class="text-slate-400 text-[11px]">
-              <th class="p-1"></th>
+              <th class="p-1 w-12 text-left"></th>
               <th class="p-1 font-semibold">"The"</th>
               <th class="p-1 font-semibold">"cat"</th>
               <th class="p-1 font-semibold">"sat"</th>
@@ -100,7 +100,7 @@
   <!-- Live Value Blending Inspection -->
   <div class="mt-4 p-3.5 bg-blue-50/60 dark:bg-blue-950/30 border border-blue-200 dark:border-blue-900/50 rounded-xl flex flex-col md:flex-row md:items-center justify-between text-xs gap-3">
     <div>
-      <span class="font-bold text-blue-900 dark:text-blue-200">Contextualized Output $\mathbf{O}[3, :]$ for token "sat":</span>
+      <span class="font-bold text-blue-900 dark:text-blue-200">Contextualized Output O[3, :] for token "sat":</span>
       <p class="text-slate-600 dark:text-slate-400 mt-0.5 mb-0" id="attn-explanation">Weighted combination of Values based on row 3 attention probabilities.</p>
     </div>
     <div class="font-mono font-bold text-sm px-3 py-1.5 rounded-lg bg-white dark:bg-neutral-800 text-blue-700 dark:text-blue-300 border border-blue-200/70 dark:border-blue-900/70 self-start md:self-auto" id="output-token3">

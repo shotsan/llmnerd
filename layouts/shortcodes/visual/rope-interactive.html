@@ -5,25 +5,25 @@
         <span class="px-2.5 py-0.5 text-xs font-bold rounded-full bg-indigo-100 dark:bg-indigo-950/70 text-indigo-700 dark:text-indigo-300 uppercase tracking-wider">3Blue1Brown Geometric Lab</span>
         <h3 class="text-lg font-bold text-slate-800 dark:text-slate-100 m-0">RoPE 2D Complex Rotation Visualizer</h3>
       </div>
-      <p class="text-xs text-slate-500 dark:text-slate-400 mt-1 mb-0">Rotate Query $\mathbf{q}$ and Key $\mathbf{k}$ in the 2D complex plane. See how the dot product depends solely on relative distance $(n-m)$.</p>
+      <p class="text-xs text-slate-500 dark:text-slate-400 mt-1 mb-0">Rotate Query <b>q</b> and Key <b>k</b> in the 2D complex plane. See how the dot product depends solely on relative distance (n &minus; m).</p>
     </div>
     
     <!-- Controls -->
     <div class="flex flex-wrap items-center gap-4 bg-slate-100 dark:bg-neutral-800/60 p-2.5 rounded-xl text-xs">
       <div class="flex items-center gap-2">
-        <label for="rope-pos-m" class="font-medium text-blue-600 dark:text-blue-400">Query $m$:</label>
+        <label for="rope-pos-m" class="font-medium text-blue-600 dark:text-blue-400">Query m:</label>
         <input type="range" id="rope-pos-m" min="0" max="8" step="1" value="2" class="w-20 cursor-pointer accent-blue-600">
         <span id="rope-val-m" class="font-mono font-bold w-4 text-blue-600 dark:text-blue-400">2</span>
       </div>
 
       <div class="flex items-center gap-2 pl-3 border-l border-slate-300 dark:border-neutral-700">
-        <label for="rope-pos-n" class="font-medium text-emerald-600 dark:text-emerald-400">Key $n$:</label>
+        <label for="rope-pos-n" class="font-medium text-emerald-600 dark:text-emerald-400">Key n:</label>
         <input type="range" id="rope-pos-n" min="0" max="8" step="1" value="5" class="w-20 cursor-pointer accent-emerald-600">
         <span id="rope-val-n" class="font-mono font-bold w-4 text-emerald-600 dark:text-emerald-400">5</span>
       </div>
 
       <div class="flex items-center gap-2 pl-3 border-l border-slate-300 dark:border-neutral-700">
-        <label for="rope-step-theta" class="font-medium text-slate-700 dark:text-slate-300">Base $\theta$:</label>
+        <label for="rope-step-theta" class="font-medium text-slate-700 dark:text-slate-300">Base &theta;:</label>
         <input type="range" id="rope-step-theta" min="15" max="45" step="5" value="30" class="w-16 cursor-pointer accent-purple-600">
         <span id="rope-val-theta" class="font-mono font-bold text-purple-600 dark:text-purple-400">30°</span>
       </div>
@@ -69,27 +69,27 @@
     <div class="lg:col-span-6 flex flex-col justify-center gap-3">
       <div class="grid grid-cols-2 gap-3 text-xs font-mono">
         <div class="p-3 rounded-lg bg-blue-50/70 dark:bg-blue-950/30 border border-blue-200/80 dark:border-blue-900/40">
-          <span class="text-blue-700 dark:text-blue-300 font-sans font-semibold text-[11px] block">Query Token ($m$)</span>
-          <span id="stat-angle-q" class="text-blue-900 dark:text-blue-100 font-bold text-sm">θ_q = 60°</span>
-          <span class="text-[10px] text-slate-500 dark:text-slate-400 block mt-0.5">m × θ = 2 × 30°</span>
+          <span class="text-blue-700 dark:text-blue-300 font-sans font-semibold text-[11px] block">Query Token (m)</span>
+          <span id="stat-angle-q" class="text-blue-900 dark:text-blue-100 font-bold text-sm">&theta;<sub>q</sub> = 60°</span>
+          <span class="text-[10px] text-slate-500 dark:text-slate-400 block mt-0.5">m &times; &theta; = 2 &times; 30°</span>
         </div>
 
         <div class="p-3 rounded-lg bg-emerald-50/70 dark:bg-emerald-950/30 border border-emerald-200/80 dark:border-emerald-900/40">
-          <span class="text-emerald-700 dark:text-emerald-300 font-sans font-semibold text-[11px] block">Key Token ($n$)</span>
-          <span id="stat-angle-k" class="text-emerald-900 dark:text-emerald-100 font-bold text-sm">θ_k = 150°</span>
-          <span class="text-[10px] text-slate-500 dark:text-slate-400 block mt-0.5">n × θ = 5 × 30°</span>
+          <span class="text-emerald-700 dark:text-emerald-300 font-sans font-semibold text-[11px] block">Key Token (n)</span>
+          <span id="stat-angle-k" class="text-emerald-900 dark:text-emerald-100 font-bold text-sm">&theta;<sub>k</sub> = 150°</span>
+          <span class="text-[10px] text-slate-500 dark:text-slate-400 block mt-0.5">n &times; &theta; = 5 &times; 30°</span>
         </div>
       </div>
 
       <!-- Invariant Result -->
       <div class="p-3.5 rounded-xl bg-purple-50/60 dark:bg-purple-950/30 border border-purple-200 dark:border-purple-900/50">
         <div class="flex items-center justify-between">
-          <span class="text-xs font-semibold text-purple-900 dark:text-purple-200">Relative Angle $\Delta \theta = (n - m)\theta$:</span>
+          <span class="text-xs font-semibold text-purple-900 dark:text-purple-200">Relative Angle &Delta;&theta; = (n &minus; m)&theta;:</span>
           <span id="stat-rel-angle" class="font-mono font-bold text-purple-700 dark:text-purple-300 text-sm">90°</span>
         </div>
         
         <div class="flex items-center justify-between mt-2 pt-2 border-t border-purple-200/80 dark:border-purple-900/40">
-          <span class="text-xs font-bold text-slate-800 dark:text-slate-100">Inner Product $\langle \mathbf{R}_m \mathbf{q}, \mathbf{R}_n \mathbf{k} \rangle$:</span>
+          <span class="text-xs font-bold text-slate-800 dark:text-slate-100">Inner Product &lang;R<sub>m</sub>q, R<sub>n</sub>k&rang;:</span>
           <span id="stat-inner-prod" class="font-mono font-extrabold text-base text-purple-600 dark:text-purple-400">0.000</span>
         </div>
       </div>
@@ -97,7 +97,7 @@
       <!-- Intuitive Invariance Notice -->
       <div class="p-3 rounded-lg bg-slate-100/80 dark:bg-neutral-800/60 text-xs text-slate-600 dark:text-slate-300">
         <span class="font-bold text-slate-800 dark:text-slate-200">Relative Shift Invariance:</span>
-        <span id="stat-invariance-msg">Because $(5 - 2) = 3$, any two tokens separated by $3$ positions will yield this exact same score, regardless of where they appear in the sequence!</span>
+        <span id="stat-invariance-msg">Because (5 &minus; 2) = 3, any two tokens separated by 3 positions will yield this exact same score, regardless of where they appear in the sequence!</span>
       </div>
     </div>
   </div>

@@ -65,13 +65,12 @@ flowchart LR
 ## Step-by-Step Forward Pass Walkthrough
 
 To trace the arithmetic mechanics, let us calculate the forward pass for an autoregressive sequence of 3 tokens ($T=3$) with a head dimension of $d_k = 2$:
-
-$$
-\text{Tokens: } [t_1: \text{"The"}, \quad t_2: \text{"cat"}, \quad t_3: \text{"sat"}]
-$$
+* $t_1$: `"The"`
+* $t_2$: `"cat"`
+* $t_3$: `"sat"`
 
 ### 1. Projecting Inputs to Queries, Keys, and Values
-Each token embedding $x_i$ is multiplied by projection matrices $W_Q, W_K, W_V$ to produce explicit coordinate matrices $\mathbf{Q}, \mathbf{K}, \mathbf{V} \in \mathbb{R}^{3 \times 2}$:
+Each token embedding is projected into Query, Key, and Value coordinate matrices $\mathbf{Q}, \mathbf{K}, \mathbf{V} \in \mathbb{R}^{3 \times 2}$:
 
 $$
 \mathbf{Q} = \begin{bmatrix} 1.0 & 0.0 \\ 0.0 & 2.0 \\ 1.0 & 1.0 \end{bmatrix}, \quad
@@ -80,78 +79,59 @@ $$
 $$
 
 ### 2. Computing Raw Attention Scores (Q · Kᵀ)
-We compute the pairwise dot product between every query and key:
-
-$$
-\mathbf{K}^T = \begin{bmatrix} 1.0 & 1.0 & 0.0 \\ 1.0 & 0.0 & 2.0 \end{bmatrix}
-$$
+We compute the pairwise dot product $\mathbf{S} = \mathbf{Q}\mathbf{K}^T \in \mathbb{R}^{3 \times 3}$, where entry $S_{ij}$ represents the compatibility between query $i$ and key $j$:
 
 $$
 \mathbf{S} = \mathbf{Q}\mathbf{K}^T = \begin{bmatrix}
-(1)(1) + (0)(1) & (1)(1) + (0)(0) & (1)(0) + (0)(2) \\
-(0)(1) + (2)(1) & (0)(1) + (2)(0) & (0)(0) + (2)(2) \\
-(1)(1) + (1)(1) & (1)(1) + (1)(0) & (1)(0) + (1)(2)
-\end{bmatrix} = \begin{bmatrix}
 1.0 & 1.0 & 0.0 \\
 2.0 & 0.0 & 4.0 \\
 2.0 & 1.0 & 2.0
 \end{bmatrix}
 $$
 
-Each row $i$ represents how strongly token $i$ attends to tokens $1, 2, 3$.
-
-### 3. Scaling by √d_k to Stabilize Gradients
-Because the head dimension is $d_k = 2$, our scaling factor is $\sqrt{d_k} = \sqrt{2} \approx \mathbf{1.414}$.
-Dividing each element of $\mathbf{S}$ by $1.414$:
+### 3. Temperature Scaling to Stabilize Gradients
+Dividing by $\sqrt{d_k} = \sqrt{2} \approx 1.414$ normalizes score variance to $1.0$, preventing extreme values that cause softmax gradients to saturate:
 
 $$
 \mathbf{S}_{\text{scaled}} = \frac{\mathbf{S}}{\sqrt{2}} \approx \begin{bmatrix}
-0.707 & 0.707 & 0.000 \\
-1.414 & 0.000 & 2.828 \\
-1.414 & 0.707 & 1.414
+0.71 & 0.71 & 0.00 \\
+1.41 & 0.00 & 2.83 \\
+1.41 & 0.71 & 1.41
 \end{bmatrix}
 $$
 
 > **The Mathematical Intuition for Scaling**:  
-> If the components of $\mathbf{q}$ and $\mathbf{k}$ are independent random variables with zero mean and variance $\sigma^2 = 1$, their dot product $\sum_{i=1}^{d_k} q_i k_i$ has mean $0$ and variance $d_k$.  
-> When $d_k$ is large (e.g., $d_k = 128$), dot products grow to large magnitudes ($>15$). When fed into $\text{softmax}$, large inputs push activations into regions where the gradient is essentially zero ($\approx 0$), killing gradient backpropagation. Dividing by $\sqrt{d_k}$ normalizes the variance back to $1.0$.
+> If components of $\mathbf{q}$ and $\mathbf{k}$ are independent random variables with zero mean and unit variance, their dot product has mean $0$ and variance $d_k$.  
+> When $d_k$ is large (e.g., $d_k = 128$), dot products grow to large magnitudes ($>15$), pushing $\text{softmax}$ into flat saturation regions where gradients vanish ($\approx 0$). Dividing by $\sqrt{d_k}$ normalizes the variance back to $1.0$.
 
 ### 4. Autoregressive Causal Masking
-In an autoregressive language model, token $t$ is strictly forbidden from looking into future tokens ($t' > t$). We enforce this by setting the upper triangle of the score matrix to $-\infty$:
+In an autoregressive decoder, token $t$ is strictly forbidden from looking into future tokens ($t' > t$). We enforce this by setting the upper triangle of the score matrix to $-\infty$ ($e^{-\infty} = 0$):
 
 $$
 \mathbf{S}_{\text{masked}} = \begin{bmatrix}
-0.707 & -\infty & -\infty \\
-1.414 & 0.000 & -\infty \\
-1.414 & 0.707 & 1.414
+0.71 & -\infty & -\infty \\
+1.41 & 0.00 & -\infty \\
+1.41 & 0.71 & 1.41
 \end{bmatrix}
 $$
 
-Because $e^{-\infty} = 0$, masked positions receive zero attention weight after softmax.
-
 ### 5. Probability Normalization via Softmax
-Softmax is applied independently across each row to normalize scores into a valid probability distribution ($\sum_j A_{ij} = 1$):
-
-* **Row 1** (`"The"`):
-  $e^{0.707} \approx 2.028$. Since future positions are $-\infty$, they contribute $0$:
-  $$\mathbf{A}[1, :] = [1.0, \quad 0.0, \quad 0.0]$$
-* **Row 2** (`"cat"`):
-  $e^{1.414} \approx 4.112, \quad e^0 = 1.0$. Sum $= 5.112$.
-  $$\mathbf{A}[2, :] = [4.112/5.112, \quad 1.0/5.112, \quad 0.0] = [\mathbf{0.804}, \quad \mathbf{0.196}, \quad \mathbf{0.0}]$$
-* **Row 3** (`"sat"`):
-  $e^{1.414} \approx 4.112, \quad e^{0.707} \approx 2.028, \quad e^{1.414} \approx 4.112$. Sum $= 10.252$.
-  $$\mathbf{A}[3, :] = [4.112/10.252, \quad 2.028/10.252, \quad 4.112/10.252] = [\mathbf{0.401}, \quad \mathbf{0.198}, \quad \mathbf{0.401}]$$
+Applying $\text{softmax}$ row-wise normalizes scores into a valid probability distribution ($\sum_j A_{ij} = 1$):
 
 $$
-\mathbf{A} = \begin{bmatrix}
+\mathbf{A} = \text{softmax}(\mathbf{S}_{\text{masked}}) = \begin{bmatrix}
 1.000 & 0.000 & 0.000 \\
 0.804 & 0.196 & 0.000 \\
 0.401 & 0.198 & 0.401
 \end{bmatrix}
 $$
 
+* **Row 1 (`"The"`)**: Attends solely to itself ($100\%$).
+* **Row 2 (`"cat"`)**: Distributes attention between `"The"` ($80.4\%$) and `"cat"` ($19.6\%$).
+* **Row 3 (`"sat"`)**: Synthesizes context across `"The"` ($40.1\%$), `"cat"` ($19.8\%$), and `"sat"` ($40.1\%$).
+
 ### 6. Value Aggregation to Form Contextual Outputs
-Finally, we compute the output by multiplying the attention probabilities $\mathbf{A}$ by the Value matrix $\mathbf{V}$:
+Multiplying attention weights by the Value matrix $\mathbf{V}$ produces the contextual output $\mathbf{O} \in \mathbb{R}^{3 \times 2}$:
 
 $$
 \mathbf{O} = \mathbf{A}\mathbf{V} = \begin{bmatrix}
@@ -164,14 +144,7 @@ $$
 0.0 & 4.0 \\
 1.0 & 2.0
 \end{bmatrix}
-$$
-
-* **Token 1 Output (`"The"`)**: $1.0 \times [2.0, 0.0] = \mathbf{[2.000, 0.000]}$
-* **Token 2 Output (`"cat"`)**: $0.804 \times [2.0, 0.0] + 0.196 \times [0.0, 4.0] = \mathbf{[1.608, 0.784]}$
-* **Token 3 Output (`"sat"`)**: $0.401 \times [2.0, 0.0] + 0.198 \times [0.0, 4.0] + 0.401 \times [1.0, 2.0] = \mathbf{[1.203, 1.594]}$
-
-$$
-\mathbf{O} = \begin{bmatrix}
+= \begin{bmatrix}
 2.000 & 0.000 \\
 1.608 & 0.784 \\
 1.203 & 1.594

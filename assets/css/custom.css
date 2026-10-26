@@ -149,3 +149,67 @@ html.dark .mermaid .edgeLabel span {
 .mermaid .edgePath path.path {
   stroke-width: 1.75px !important;
 }
+
+/* ==========================================================================
+   KaTeX Mathematical Typography & Responsive Display
+   ========================================================================== */
+
+.katex-display {
+  margin: 1.5rem 0 !important;
+  padding: 0.6rem 0 !important;
+  overflow-x: auto !important;
+  overflow-y: hidden !important;
+  -webkit-overflow-scrolling: touch;
+}
+
+.katex-display > .katex {
+  max-width: 100%;
+  text-align: center;
+  font-size: 1.08em;
+}
+
+.katex {
+  text-rendering: auto;
+  font-feature-settings: "kern";
+}
+
+/* Matrix delimiters and grid alignment */
+.katex .matrix {
+  margin: 0 0.15em;
+}
+
+.content blockquote .katex-display {
+  margin: 1rem 0 !important;
+  padding: 0.25rem 0 !important;
+}
+
+/* ==========================================================================
+   Interactive Attention Matrix Lab Styles
+   ========================================================================== */
+
+.interactive-attention-widget table {
+  width: 100% !important;
+  border-collapse: collapse !important;
+  table-layout: fixed !important;
+  margin-top: 0.25rem !important;
+}
+
+.interactive-attention-widget th,
+.interactive-attention-widget td {
+  padding: 0.4rem 0.25rem !important;
+  text-align: center !important;
+  vertical-align: middle !important;
+}
+
+.interactive-attention-widget th {
+  font-size: 0.75rem !important;
+  font-weight: 600 !important;
+}
+
+.interactive-attention-widget td {
+  border: 1px solid rgba(226, 232, 240, 0.9) !important;
+}
+
+html.dark .interactive-attention-widget td {
+  border-color: rgba(64, 64, 64, 0.7) !important;
+}
