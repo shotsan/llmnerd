@@ -23,19 +23,19 @@ Modern tokenizers transform raw text into integer tensors through three distinct
 
 ```mermaid
 flowchart LR
-    subgraph S1["1. Character & Byte Ingestion"]
+    subgraph S1["Character & Byte Ingestion"]
         direction TB
         A["<b>Raw Text Input</b><br/><code>&quot;understanding&quot;</code>"]
         --> B["<b>Pre-Tokenization</b><br/>Whitespace & byte split"]
     end
 
-    subgraph S2["2. Subword Segmentation"]
+    subgraph S2["Subword Segmentation"]
         direction TB
         C["<b>BPE Merge Engine</b><br/>Greedy pair frequency rules"]
         --> D["<b>Subword Sequence</b><br/><code>[&quot; under&quot;,&nbsp;&quot;stand&quot;,&nbsp;&quot;ing&quot;]</code>"]
     end
 
-    subgraph S3["3. Numerical Vectorization"]
+    subgraph S3["Numerical Vectorization"]
         direction TB
         E["<b>Vocabulary Lookup</b><br/><code>[2104,&nbsp;3812,&nbsp;278]</code>"]
         --> F["<b>Model Input Tensor</b><br/>Embedding coordinate lookup"]

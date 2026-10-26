@@ -27,15 +27,15 @@ The embedding layer operates as an efficient table lookup into a learned paramet
 
 ```mermaid
 flowchart LR
-    subgraph S1["1. Discrete Token ID"]
+    subgraph S1["Discrete Token ID"]
         ID["<b>Token ID</b><br/><code>id = 1 ('cat')</code>"]
     end
 
-    subgraph S2["2. Table Lookup"]
+    subgraph S2["Embedding Table Lookup"]
         Slice["<b>Matrix Row Lookup</b><br/><code>W_E[1] ∈ ℝ^(1 × d)</code>"]
     end
 
-    subgraph S3["3. Continuous Manifold"]
+    subgraph S3["Continuous Coordinate Space"]
         Vec["<b>Dense Coordinate Vector</b><br/><code>e_cat = [0.80, 0.10, -0.50]</code>"]
         --> Norm["<b>Normalization (RMSNorm)</b><br/>Hidden state h₀"]
     end

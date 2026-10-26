@@ -88,13 +88,32 @@ html.dark .hextra-mermaid-wrapper:hover {
 
 /* Subgraph cluster titles */
 .mermaid .cluster .cluster-label,
+.mermaid .cluster .cluster-label span,
 .mermaid .cluster foreignObject span,
 .mermaid .cluster foreignObject div,
 .mermaid .cluster text {
-  font-size: 13.5px !important;
-  font-weight: 700 !important;
-  letter-spacing: 0.03em !important;
-  text-transform: uppercase !important;
+  font-size: 13px !important;
+  font-weight: 650 !important;
+  letter-spacing: -0.01em !important;
+  text-transform: none !important;
+}
+
+html:not(.dark) .mermaid .cluster text,
+html:not(.dark) .mermaid .cluster .cluster-label,
+html:not(.dark) .mermaid .cluster .cluster-label span,
+html:not(.dark) .mermaid .cluster foreignObject div,
+html:not(.dark) .mermaid .cluster foreignObject span {
+  fill: #334155 !important;
+  color: #334155 !important;
+}
+
+html.dark .mermaid .cluster text,
+html.dark .mermaid .cluster .cluster-label,
+html.dark .mermaid .cluster .cluster-label span,
+html.dark .mermaid .cluster foreignObject div,
+html.dark .mermaid .cluster foreignObject span {
+  fill: #e2e8f0 !important;
+  color: #e2e8f0 !important;
 }
 
 /* Edge connector labels */
@@ -140,9 +159,19 @@ html.dark .mermaid .edgeLabel span {
 
 /* Cluster Subgraph styling */
 .mermaid .cluster rect {
-  rx: 12px !important;
-  ry: 12px !important;
-  stroke-width: 1.25px !important;
+  rx: 10px !important;
+  ry: 10px !important;
+  stroke-width: 1.5px !important;
+}
+
+html:not(.dark) .mermaid .cluster rect {
+  fill: #f8fafc !important;
+  stroke: #cbd5e1 !important;
+}
+
+html.dark .mermaid .cluster rect {
+  fill: rgba(15, 23, 42, 0.55) !important;
+  stroke: #334155 !important;
 }
 
 /* Smooth edge paths */

@@ -29,14 +29,14 @@ To teach a neural network where words appear in time, two primary philosophies e
 
 ```mermaid
 flowchart LR
-    subgraph S1["1. Absolute Additive (Vaswani et al. 2017)"]
+    subgraph S1["Absolute Additive (Vaswani et al. 2017)"]
         direction TB
         X["<b>Token Vector (x_m)</b>"] --> Add["<b>Vector Addition (⊕)</b>"]
         PE["<b>Trigonometric Wave (PE_m)</b><br/>Multi-scale sin/cos"] --> Add
         Add --> Out1["<b>Modulated Input</b><br/><code>x̃_m = x_m + PE_m</code>"]
     end
 
-    subgraph S2["2. Rotary Embeddings - RoPE (Su et al. 2021)"]
+    subgraph S2["Rotary Embeddings - RoPE (Su et al. 2021)"]
         direction TB
         Q["<b>Query Vector (q_m)</b>"] --> RotQ["<b>2D Complex Rotation</b><br/><code>R(mθ) · q_m</code>"]
         K["<b>Key Vector (k_n)</b>"] --> RotK["<b>2D Complex Rotation</b><br/><code>R(nθ) · k_n</code>"]
