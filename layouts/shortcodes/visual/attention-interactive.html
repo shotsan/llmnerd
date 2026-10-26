@@ -1,0 +1,228 @@
+<div class="interactive-attention-widget my-8 p-6 rounded-2xl border border-slate-200 dark:border-neutral-800 bg-white/70 dark:bg-neutral-900/80 shadow-md backdrop-blur-sm not-prose font-sans">
+  <div class="flex flex-col md:flex-row md:items-center justify-between pb-4 mb-4 border-b border-slate-200 dark:border-neutral-800 gap-3">
+    <div>
+      <div class="flex items-center gap-2">
+        <span class="px-2.5 py-0.5 text-xs font-bold rounded-full bg-blue-100 dark:bg-blue-950/70 text-blue-700 dark:text-blue-300 uppercase tracking-wider">Interactive Matrix Lab</span>
+        <h3 class="text-lg font-bold text-slate-800 dark:text-slate-100 m-0">Scaled Dot-Product Attention Simulator</h3>
+      </div>
+      <p class="text-xs text-slate-500 dark:text-slate-400 mt-1 mb-0">Interact with the temperature scaling and causal mask to observe how raw dot products transform into normalized attention probabilities.</p>
+    </div>
+    
+    <!-- Controls -->
+    <div class="flex flex-wrap items-center gap-4 bg-slate-100 dark:bg-neutral-800/60 p-2.5 rounded-xl text-xs">
+      <div class="flex items-center gap-2">
+        <label for="attn-scale-slider" class="font-medium text-slate-700 dark:text-slate-300">Scale $\sqrt{d_k}$:</label>
+        <input type="range" id="attn-scale-slider" min="0.5" max="4.0" step="0.1" value="1.4" class="w-24 cursor-pointer accent-blue-600">
+        <span id="attn-scale-val" class="font-mono font-bold text-blue-600 dark:text-blue-400">1.41</span>
+      </div>
+
+      <div class="flex items-center gap-2 pl-3 border-l border-slate-300 dark:border-neutral-700">
+        <label class="inline-flex items-center gap-1.5 cursor-pointer select-none">
+          <input type="checkbox" id="attn-mask-toggle" checked class="rounded text-blue-600 focus:ring-blue-500 cursor-pointer">
+          <span class="font-medium text-slate-700 dark:text-slate-300">Causal Mask</span>
+        </label>
+      </div>
+    </div>
+  </div>
+
+  <!-- Interactive Grid of Stages -->
+  <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+    <!-- Stage 1: Raw QK^T -->
+    <div class="bg-slate-50 dark:bg-neutral-800/40 p-4 rounded-xl border border-slate-200/80 dark:border-neutral-800">
+      <div class="flex items-center justify-between mb-2">
+        <span class="text-xs font-bold uppercase tracking-wider text-slate-600 dark:text-slate-400">1. Compatibility: $\mathbf{Q}\mathbf{K}^T$</span>
+        <span class="text-[11px] font-mono text-slate-400">Raw Scores</span>
+      </div>
+      <div class="overflow-x-auto">
+        <table class="w-full text-center border-collapse text-xs">
+          <thead>
+            <tr class="text-slate-400 text-[11px]">
+              <th class="p-1"></th>
+              <th class="p-1 font-semibold">"The"</th>
+              <th class="p-1 font-semibold">"cat"</th>
+              <th class="p-1 font-semibold">"sat"</th>
+            </tr>
+          </thead>
+          <tbody class="font-mono" id="raw-scores-body">
+            <!-- populated by JS -->
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- Stage 2: Scaled & Masked -->
+    <div class="bg-slate-50 dark:bg-neutral-800/40 p-4 rounded-xl border border-slate-200/80 dark:border-neutral-800">
+      <div class="flex items-center justify-between mb-2">
+        <span class="text-xs font-bold uppercase tracking-wider text-slate-600 dark:text-slate-400">2. Scaled & Masked</span>
+        <span class="text-[11px] font-mono text-slate-400">$\mathbf{S}_{\text{scaled}}$</span>
+      </div>
+      <div class="overflow-x-auto">
+        <table class="w-full text-center border-collapse text-xs">
+          <thead>
+            <tr class="text-slate-400 text-[11px]">
+              <th class="p-1"></th>
+              <th class="p-1 font-semibold">"The"</th>
+              <th class="p-1 font-semibold">"cat"</th>
+              <th class="p-1 font-semibold">"sat"</th>
+            </tr>
+          </thead>
+          <tbody class="font-mono" id="scaled-scores-body">
+            <!-- populated by JS -->
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- Stage 3: Softmax Probabilities Heatmap -->
+    <div class="bg-slate-50 dark:bg-neutral-800/40 p-4 rounded-xl border border-slate-200/80 dark:border-neutral-800">
+      <div class="flex items-center justify-between mb-2">
+        <span class="text-xs font-bold uppercase tracking-wider text-blue-600 dark:text-blue-400">3. Softmax Attention $\mathbf{A}$</span>
+        <span class="text-[11px] font-mono text-blue-500">$\sum \text{Row} = 100\%$</span>
+      </div>
+      <div class="overflow-x-auto">
+        <table class="w-full text-center border-collapse text-xs">
+          <thead>
+            <tr class="text-slate-400 text-[11px]">
+              <th class="p-1"></th>
+              <th class="p-1 font-semibold">"The"</th>
+              <th class="p-1 font-semibold">"cat"</th>
+              <th class="p-1 font-semibold">"sat"</th>
+            </tr>
+          </thead>
+          <tbody class="font-mono font-medium" id="softmax-scores-body">
+            <!-- populated by JS -->
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- Live Value Blending Inspection -->
+  <div class="mt-4 p-3.5 bg-blue-50/60 dark:bg-blue-950/30 border border-blue-200 dark:border-blue-900/50 rounded-xl flex flex-col md:flex-row md:items-center justify-between text-xs gap-3">
+    <div>
+      <span class="font-bold text-blue-900 dark:text-blue-200">Contextualized Output $\mathbf{O}[3, :]$ for token "sat":</span>
+      <p class="text-slate-600 dark:text-slate-400 mt-0.5 mb-0" id="attn-explanation">Weighted combination of Values based on row 3 attention probabilities.</p>
+    </div>
+    <div class="font-mono font-bold text-sm px-3 py-1.5 rounded-lg bg-white dark:bg-neutral-800 text-blue-700 dark:text-blue-300 border border-blue-200/70 dark:border-blue-900/70 self-start md:self-auto" id="output-token3">
+      [1.203, 1.594]
+    </div>
+  </div>
+</div>
+
+<script>
+(function() {
+  const tokens = ['"The"', '"cat"', '"sat"'];
+  const rawQKT = [
+    [1.0, 1.0, 0.0],
+    [2.0, 0.0, 4.0],
+    [2.0, 1.0, 2.0]
+  ];
+  const V = [
+    [2.0, 0.0],
+    [0.0, 4.0],
+    [1.0, 2.0]
+  ];
+
+  const slider = document.getElementById('attn-scale-slider');
+  const scaleValSpan = document.getElementById('attn-scale-val');
+  const maskToggle = document.getElementById('attn-mask-toggle');
+  const rawBody = document.getElementById('raw-scores-body');
+  const scaledBody = document.getElementById('scaled-scores-body');
+  const softmaxBody = document.getElementById('softmax-scores-body');
+  const outputSpan = document.getElementById('output-token3');
+  const explainP = document.getElementById('attn-explanation');
+
+  function renderTables() {
+    const scale = parseFloat(slider.value);
+    scaleValSpan.textContent = scale.toFixed(2);
+    const applyMask = maskToggle.checked;
+
+    // Render Raw Scores
+    let rawHtml = '';
+    for (let i = 0; i < 3; i++) {
+      rawHtml += `<tr><td class="p-1.5 font-sans font-semibold text-slate-500 text-left">${tokens[i]}</td>`;
+      for (let j = 0; j < 3; j++) {
+        rawHtml += `<td class="p-1.5 border border-slate-200/70 dark:border-neutral-700/60 bg-white/60 dark:bg-neutral-900/60">${rawQKT[i][j].toFixed(1)}</td>`;
+      }
+      rawHtml += `</tr>`;
+    }
+    rawBody.innerHTML = rawHtml;
+
+    // Compute Scaled & Masked
+    const scaled = [];
+    let scaledHtml = '';
+    for (let i = 0; i < 3; i++) {
+      scaled[i] = [];
+      scaledHtml += `<tr><td class="p-1.5 font-sans font-semibold text-slate-500 text-left">${tokens[i]}</td>`;
+      for (let j = 0; j < 3; j++) {
+        if (applyMask && j > i) {
+          scaled[i][j] = -Infinity;
+          scaledHtml += `<td class="p-1.5 border border-slate-200/70 dark:border-neutral-700/60 bg-rose-50/50 dark:bg-rose-950/20 text-rose-500 dark:text-rose-400 font-semibold">-∞</td>`;
+        } else {
+          const val = rawQKT[i][j] / scale;
+          scaled[i][j] = val;
+          scaledHtml += `<td class="p-1.5 border border-slate-200/70 dark:border-neutral-700/60 bg-white/60 dark:bg-neutral-900/60 text-slate-700 dark:text-slate-300">${val.toFixed(2)}</td>`;
+        }
+      }
+      scaledHtml += `</tr>`;
+    }
+    scaledBody.innerHTML = scaledHtml;
+
+    // Compute Softmax
+    const softmax = [];
+    let softmaxHtml = '';
+    for (let i = 0; i < 3; i++) {
+      softmax[i] = [];
+      // calculate row max for numerical stability
+      let maxVal = -Infinity;
+      for (let j = 0; j < 3; j++) {
+        if (scaled[i][j] > maxVal) maxVal = scaled[i][j];
+      }
+
+      let expSum = 0;
+      const exps = [];
+      for (let j = 0; j < 3; j++) {
+        if (scaled[i][j] === -Infinity) {
+          exps[j] = 0;
+        } else {
+          exps[j] = Math.exp(scaled[i][j] - maxVal);
+          expSum += exps[j];
+        }
+      }
+
+      softmaxHtml += `<tr><td class="p-1.5 font-sans font-semibold text-slate-500 text-left">${tokens[i]}</td>`;
+      for (let j = 0; j < 3; j++) {
+        const prob = expSum > 0 ? exps[j] / expSum : 0;
+        softmax[i][j] = prob;
+        const pct = (prob * 100).toFixed(1);
+        
+        // Heatmap color intensity
+        const alpha = Math.max(0.08, prob);
+        const bgStyle = prob > 0 
+          ? `background-color: rgba(59, 130, 246, ${alpha * 0.45});`
+          : `background-color: transparent; opacity: 0.4;`;
+
+        softmaxHtml += `<td class="p-1.5 border border-blue-200/60 dark:border-blue-900/50 text-blue-900 dark:text-blue-100 transition-colors" style="${bgStyle}">
+          <span>${prob.toFixed(3)}</span>
+          <div class="text-[9px] text-blue-700 dark:text-blue-300">${pct}%</div>
+        </td>`;
+      }
+      softmaxHtml += `</tr>`;
+    }
+    softmaxBody.innerHTML = softmaxHtml;
+
+    // Compute Output for Token 3 ("sat", index 2)
+    let outX = 0, outY = 0;
+    for (let j = 0; j < 3; j++) {
+      outX += softmax[2][j] * V[j][0];
+      outY += softmax[2][j] * V[j][1];
+    }
+    outputSpan.textContent = `[${outX.toFixed(3)}, ${outY.toFixed(3)}]`;
+    explainP.textContent = `Token 3 incorporates ${ (softmax[2][0]*100).toFixed(1) }% of "The", ${ (softmax[2][1]*100).toFixed(1) }% of "cat", and ${ (softmax[2][2]*100).toFixed(1) }% of itself.`;
+  }
+
+  slider.addEventListener('input', renderTables);
+  maskToggle.addEventListener('change', renderTables);
+  renderTables();
+})();
+</script>

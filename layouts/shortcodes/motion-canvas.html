@@ -1,0 +1,25 @@
+{{- /* Motion Canvas Player Shortcode */ -}}
+{{- $src := .Get "src" | default (.Get 0) -}}
+{{- $auto := .Get "autoplay" | default true -}}
+{{- $loop := .Get "loop" | default true -}}
+{{- $controls := .Get "controls" | default true -}}
+{{- $title := .Get "title" | default "" -}}
+
+<div class="motion-canvas-container my-6 p-4 rounded-xl border border-slate-200 dark:border-neutral-800 bg-slate-50/50 dark:bg-neutral-900/50 shadow-sm">
+  {{- with $title -}}
+    <div class="text-sm font-semibold text-slate-700 dark:text-slate-300 mb-3 flex items-center gap-2">
+      <span class="inline-block w-2 h-2 rounded-full bg-blue-500 animate-pulse"></span>
+      {{ . }}
+    </div>
+  {{- end -}}
+  <script type="module" src="https://unpkg.com/@motion-canvas/player/lib/index.js"></script>
+  <div class="flex justify-center w-full overflow-hidden rounded-lg">
+    <motion-canvas-player
+      src="{{ $src | relURL }}"
+      {{ if $auto }}autoplay{{ end }}
+      {{ if $loop }}loop{{ end }}
+      {{ if $controls }}controls{{ end }}
+      style="width: 100%; max-width: 850px; aspect-ratio: 16 / 9; border-radius: 0.5rem;"
+    ></motion-canvas-player>
+  </div>
+</div>
