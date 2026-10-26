@@ -7,7 +7,7 @@ Novel techniques for making LLMs faster, smaller, and more efficient.
 
 ## Overview
 
-Research направленная на оптимизацию вычислительных ресурсов.
+Research focused on optimizing computational resources and accelerating model execution.
 
 ## Key Areas
 

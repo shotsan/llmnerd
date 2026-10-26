@@ -21,7 +21,7 @@ The most basic representation is a **one-hot vector** $e_i \in \{0, 1\}^V$, wher
 
 ---
 
-## The Semantic Coordinate Space: Discrete Indices to Continuous Vectors
+## From Discrete Tokens to Continuous Vectors
 
 The embedding layer operates as an efficient table lookup into a learned parameter matrix $\mathbf{W}_E \in \mathbb{R}^{V \times d}$:
 
@@ -56,11 +56,11 @@ Discrete Token ID          Weight Matrix W_E ∈ ℝ^(V × d)            Dense V
 
 ---
 
-## Step-by-Step Geometric Demonstration
+## Vector Geometry & Memory Layout
 
 To see how embedding matrices are indexed and how semantic similarity is quantified geometrically, consider a toy embedding space with vocabulary size $V=5$ and hidden dimension $d=3$.
 
-### 1. Parameter Matrix Structure & Memory Layout
+### 1. Embedding Matrix Structure
 Let our miniature vocabulary be:
 $$
 \mathcal{V} = \{ 0: \text{"the"}, \quad 1: \text{"cat"}, \quad 2: \text{"sat"}, \quad 3: \text{"dog"}, \quad 4: \text{"mat"} \}
@@ -85,7 +85,7 @@ $$
 \end{matrix}
 $$
 
-### 2. Memory Slice Retrieval (The Gather Operation)
+### 2. Memory Lookup & Gather
 When the sequence `["cat", "dog"]` (token IDs `[1, 3]`) enters the model, the embedding layer retrieves rows 1 and 3:
 
 $$
@@ -101,7 +101,7 @@ e_1^T \mathbf{W}_E = \mathbf{e}_{\text{cat}}
 $$
 In PyTorch and GPU kernels, this is implemented as an $\mathcal{O}(1)$ direct memory index lookup (`torch.embedding` or `gather`), bypassing full matrix multiplication.
 
-### 3. Measuring Semantic Distance: Dot Product vs. Cosine Similarity
+### 3. Measuring Semantic Similarity
 How close are `"cat"` and `"dog"` in this continuous coordinate space?
 
 1. **Dot Product (Projection Alignment)**:
@@ -126,7 +126,7 @@ A cosine similarity of $\approx 0.9996$ indicates that both coordinate vectors p
 
 ---
 
-## PyTorch Reference Implementation
+## PyTorch Implementation
 
 Here is how token embeddings, cosine similarity, and weight tying are constructed in PyTorch:
 
@@ -161,9 +161,9 @@ print(f"Embedding shape: {embeds.shape}, Cosine similarity: {cos_sim.item():.4f}
 
 ---
 
-## Systems & Memory Optimization: Weight Tying & RMSNorm
+## Memory Optimization & Normalization
 
-### Dual Projection Weight Tying (Matrix Sharing)
+### Weight Tying
 
 In an autoregressive language model, an embedding lookup occurs at the very start (converting token IDs to hidden states), and an inverse projection occurs at the very end: the final hidden state $h_L \in \mathbb{R}^d$ is multiplied by an output projection matrix $\mathbf{W}_{\text{head}} \in \mathbb{R}^{d \times V}$ to produce logits over the entire vocabulary:
 
@@ -176,11 +176,11 @@ $$
 \mathbf{W}_{\text{head}} = \mathbf{W}_E^T
 $$
 
-#### Practical Benefits for Modern LLMs
+**Key Benefits for LLMs**:
 1. **Parameter Savings**: In a model with hidden size $d=4096$ and vocabulary $V=128{,}000$, a single embedding matrix occupies $4096 \times 128{,}000 \approx \mathbf{524\text{ million}}$ parameters ($1.05\text{ GB}$ of VRAM in FP16). Tying weights eliminates an entire 524M-parameter matrix.
 2. **Regularization & Geometry**: It forces the continuous space where tokens enter the model to be geometrically identical to the space where tokens are predicted, preventing representation collapse on rare tokens.
 
-### Variance Preservation via √d_model Scaling
+### Embedding Scale Factor
 
 In the original Transformer (Vaswani et al. 2017), lookup vectors were multiplied by $\sqrt{d_{\text{model}}}$ before adding positional encodings:
 
@@ -190,7 +190,7 @@ $$
 
 Under standard Gaussian weight initialization (mean 0, variance $1/d_{\text{model}}$), the expected norm of an embedding vector is $\mathcal{O}(1)$. Because sinusoidal positional values also have magnitudes of $\mathcal{O}(1)$, adding them directly would cause the position signal to overpower the semantic signal. Scaling by $\sqrt{d_{\text{model}}}$ ensures semantic representations remain dominant.
 
-### Activation Normalization: LayerNorm vs. RMSNorm
+### LayerNorm vs. RMSNorm
 
 Embeddings passing through dozens of transformer layers require normalization to stabilize gradient propagation. Modern models have largely migrated from standard LayerNorm to **Root Mean Square Normalization (RMSNorm)**:
 
@@ -209,7 +209,7 @@ By removing the need to compute the mean $\mu$, RMSNorm reduces GPU memory read/
 
 ---
 
-## Seminal Papers & References
+## Key Papers & References
 
 {{< cards >}}
   {{< card link="https://arxiv.org/abs/1310.4546" title="Distributed Representations of Words and Phrases and their Compositionality" subtitle="Mikolov et al. (NeurIPS 2013) • Demonstrated linear vector analogies (King - Man + Woman ≈ Queen) in continuous spaces." >}}

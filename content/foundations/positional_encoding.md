@@ -23,7 +23,7 @@ produce identical sets of contextual representations. Because language, syntax, 
 
 ---
 
-## Two Paradigms: Additive Vectors vs. Complex Rotation
+## Why Transformers Need Positional Information
 
 To teach a neural network where words appear in time, two primary philosophies exist:
 
@@ -48,7 +48,7 @@ flowchart LR
 
 ---
 
-## Sinusoidal Encodings: The Multi-Scale Frequency Wave
+## Sinusoidal Positional Encoding
 
 The original Transformer encoded sequence position by adding deterministic trigonometric waves of geometrically decreasing frequencies directly to token embeddings:
 
@@ -61,7 +61,7 @@ $$
 
 where $pos$ is the token position index ($0, 1, 2, \dots$), $i$ is the dimension pair index ($0 \le i < d/2$), and $d$ is the model embedding dimension.
 
-### The Clock-Hand Mental Model
+### Geometric Intuition
 
 Think of sinusoidal encoding like a multi-hand clock or a binary counter:
 * **Dimension $i=0$ (The "Seconds Hand")**: Has a wavelength of $\lambda \approx 6.28$ tokens ($2\pi$). It oscillates rapidly, allowing the model to distinguish between immediately adjacent words (*"cat sat"* vs *"sat cat"*).
@@ -72,13 +72,13 @@ Because every position produces a unique fingerprint across the frequency spectr
 
 ---
 
-## Rotary Position Embedding (RoPE): Rotating in the 2D Complex Plane
+## Rotary Position Embedding (RoPE)
 
 While sinusoidal encodings add vectors ($\mathbf{x} + \mathbf{PE}$), modern frontier LLMs (LLaMA 3, Mistral, Gemma, Qwen) use **Rotary Position Embeddings (RoPE)**. 
 
 Instead of adding static vectors to word embeddings, RoPE treats pairs of features inside the Query and Key vectors as 2D complex numbers and **rotates** them by an angle proportional to the token's position.
 
-### 1. Complex 2D Coordinates & Orthogonal Rotations
+### 1. Rotating Query and Key Vectors
 
 For a 2D feature pair $\mathbf{x} = [x_1, x_2]^T$ at token position $m$, RoPE applies the 2D rotation matrix $\mathbf{R}_{\theta, m}$:
 
@@ -95,7 +95,7 @@ $$
 \tilde{z} = z \cdot e^{i m \theta}
 $$
 
-### 2. Proof of Relative Displacement Invariance
+### 2. Relative Position Invariance
 
 Suppose token $m$ emits Query $\mathbf{q}$ and token $n$ emits Key $\mathbf{k}$. When the self-attention layer computes their dot product:
 
@@ -119,7 +119,7 @@ $$
 
 ---
 
-## Interactive RoPE 2D Complex Rotation Lab
+## Interactive RoPE Simulator
 
 Use the interactive simulator below to rotate Query $\mathbf{q}$ and Key $\mathbf{k}$ on the complex unit circle. Notice that shifting both positions simultaneously preserves the relative angle and produces the exact same dot product:
 
@@ -127,7 +127,7 @@ Use the interactive simulator below to rotate Query $\mathbf{q}$ and Key $\mathb
 
 ---
 
-## PyTorch Reference Implementation
+## PyTorch Implementation
 
 Here is how Rotary Position Embeddings are implemented in modern LLM architectures:
 
@@ -168,7 +168,7 @@ def apply_rotary_emb(x: torch.Tensor, freqs_cis: torch.Tensor) -> torch.Tensor:
 
 ---
 
-## Context Window Extrapolation: RoPE Scaling & YaRN
+## Extending Context Windows: RoPE Scaling & YaRN
 
 When an LLM trained with RoPE on an $8{,}192$-token context window is asked to evaluate $128{,}000$ tokens, the rotation angles $m\theta$ enter unobserved geometric territory, causing attention entropy to destabilize.
 
@@ -180,7 +180,7 @@ Modern techniques extend context windows without retraining from scratch:
 
 ---
 
-## Architectural Taxonomy of Positional Inductive Biases
+## Comparing Positional Encodings
 
 | Paradigm | Exemplar Models | Mathematical Mechanism | Extrapolation to Unseen Lengths |
 | :--- | :--- | :--- | :--- |
@@ -191,7 +191,7 @@ Modern techniques extend context windows without retraining from scratch:
 
 ---
 
-## Seminal Papers & References
+## Key Papers & References
 
 {{< cards >}}
   {{< card link="https://arxiv.org/abs/1706.03762" title="Attention Is All You Need" subtitle="Vaswani et al. (NeurIPS 2017) • Introduced the Transformer and Sinusoidal Positional Encoding." >}}

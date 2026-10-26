@@ -12,7 +12,7 @@ Rather than remaining a static blueprint, the Transformer evolved through distin
 
 ---
 
-## The Evolutionary Arc of Transformer Architectures
+## Evolution of Transformer Architectures
 
 How the fundamental Transformer evolved from a translation dual-stack into modern frontier decoders:
 
@@ -50,7 +50,7 @@ flowchart LR
 
 ---
 
-## 1. The Original Encoder-Decoder (Vaswani et al. 2017)
+## 1. Original Encoder-Decoder
 
 Prior to 2017, sequence-to-sequence translation relied on recurrent networks (LSTMs, GRUs) that processed tokens step-by-step. The original Transformer broke this bottleneck by introducing a dual-stack **Encoder-Decoder** architecture built purely on self-attention and cross-attention:
 
@@ -70,7 +70,7 @@ Source Sequence (e.g., French)        Target Sequence (e.g., English)
                            └───────────────┘
 ```
 
-### Asymmetric Cross-Attention Conditioning
+### Cross-Attention Conditioning
 * **The Encoder**: Consumes the full source sentence using unmasked bidirectional attention, computing contextual representations $H_{\text{enc}} \in \mathbb{R}^{S \times d}$.
 * **The Decoder**: Generates the target sentence autoregressively. Each decoder layer performs two distinct attention passes:
   1. **Causal Self-Attention**: Allows target tokens to attend only to earlier generated tokens ($t' \le t$).
@@ -81,20 +81,20 @@ Source Sequence (e.g., French)        Target Sequence (e.g., English)
 
 ---
 
-## 2. Specialization: Encoders (BERT) vs. Decoders (GPT)
+## 2. Encoders vs. Decoders
 
 Between 2018 and 2020, researchers discovered that the two halves of the Transformer could be decoupled for fundamentally different tasks:
 
-### Bidirectional Masked Encoders (BERT, RoBERTa)
+### Bidirectional Encoders (BERT)
 By discarding the decoder and training solely on **Masked Language Modeling (MLM)** (randomly masking 15% of tokens and training the model to predict them from surrounding bidirectional context), BERT achieved breakthroughs in text classification, semantic search, and passage ranking.
 * **The Generation Limit**: Because attention is fully bidirectional, an encoder cannot generate open-ended text efficiently. Predicting a 100-token paragraph would require 100 separate, full forward passes from scratch.
 
-### Autoregressive Causal Decoders (GPT Series)
+### Autoregressive Decoders (GPT)
 By discarding the encoder and training purely on **causal next-token prediction** ($p(x_t \mid x_{<t})$), the GPT series demonstrated that next-token prediction at massive scale absorbs world knowledge, logical reasoning, and zero-shot task execution without task-specific fine-tuning. Empirical scaling laws established causal decoders as the most compute-efficient architecture for pre-training.
 
 ---
 
-## 3. The Modern Decoder Block: Residual Highways & Pre-LN
+## 3. The Modern Decoder Block
 
 Modern frontier foundation models (LLaMA 3, Mistral, Gemma, Qwen) have converged on a standardized autoregressive block engineered for training stability at depth and inference efficiency:
 
@@ -115,7 +115,7 @@ flowchart LR
     end
 ```
 
-### The Residual Highway Mental Model
+### Pre-LN & Residual Connections
 Think of a deep Transformer not as a rigid stack of layers, but as a high-speed **information highway** (the residual stream).
 * Each attention layer and MLP block simply reads from the highway, computes an additive refinement, and deposits it back onto the highway:
   $$
@@ -123,7 +123,7 @@ Think of a deep Transformer not as a rigid stack of layers, but as a high-speed 
   $$
 * Under **Pre-RMSNorm**, activations are normalized *before* entering the sublayer, preserving an unobstructed identity path where gradients backpropagate unimpeded from layer $L$ to layer $1$. This allows 100+ layer networks to train stably without exploding or vanishing gradients.
 
-### SwiGLU Gated Multi-Layer Perceptrons
+### SwiGLU Feed-Forward Networks
 Traditional transformers used standard MLPs with ReLU or GELU activations. Modern models replace this with **SwiGLU** (Shazeer 2020), a Gated Linear Unit with Swish activation ($\text{Swish}(x) = x \cdot \sigma(x)$):
 
 $$
@@ -134,7 +134,7 @@ where $\odot$ represents element-wise multiplication. By using a multiplicative 
 
 ---
 
-## PyTorch Reference Implementation: Modern Decoder Block
+## PyTorch Implementation
 
 Here is how a modern Pre-RMSNorm Transformer block is constructed in PyTorch:
 
@@ -217,7 +217,7 @@ This delivers the representational capacity of a large model with the inference 
 
 ---
 
-## 5. Frontier Breakthroughs: Multi-Head Latent Attention (MLA)
+## 5. Multi-Head Latent Attention (MLA)
 
 Standard Grouped-Query Attention (GQA) reduces KV-cache by sharing key-value heads. DeepSeek introduced **Multi-Head Latent Attention (MLA)**, taking cache compression to its theoretical limit using low-rank joint projection:
 
@@ -241,7 +241,7 @@ flowchart LR
 
 ---
 
-## Seminal Papers & References
+## Key Papers & References
 
 {{< cards >}}
   {{< card link="https://arxiv.org/abs/1706.03762" title="Attention Is All You Need" subtitle="Vaswani et al. (NeurIPS 2017) • The foundation: introduced the Transformer encoder-decoder." >}}

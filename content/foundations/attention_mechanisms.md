@@ -27,7 +27,7 @@ By computing compatibility scores between Queries and Keys, each token dynamical
 
 ---
 
-## The Attention Pipeline: Scaled Dot-Product & Multi-Head Attention
+## Scaled Dot-Product Attention
 
 Scaled dot-product attention computes compatibility between queries, keys, and values through the following structured pipeline:
 
@@ -62,14 +62,14 @@ flowchart LR
 
 ---
 
-## Step-by-Step Forward Pass Walkthrough
+## Forward Pass Walkthrough
 
 To trace the arithmetic mechanics, let us calculate the forward pass for an autoregressive sequence of 3 tokens ($T=3$) with a head dimension of $d_k = 2$:
 * $t_1$: `"The"`
 * $t_2$: `"cat"`
 * $t_3$: `"sat"`
 
-### 1. Projecting Inputs to Queries, Keys, and Values
+### 1. Projecting Queries, Keys, and Values
 Each token embedding is projected into Query, Key, and Value coordinate matrices $\mathbf{Q}, \mathbf{K}, \mathbf{V} \in \mathbb{R}^{3 \times 2}$:
 
 $$
@@ -78,7 +78,7 @@ $$
 \mathbf{V} = \begin{bmatrix} 2.0 & 0.0 \\ 0.0 & 4.0 \\ 1.0 & 2.0 \end{bmatrix}
 $$
 
-### 2. Computing Raw Attention Scores (Q · Kᵀ)
+### 2. Computing Attention Scores
 We compute the pairwise dot product $\mathbf{S} = \mathbf{Q}\mathbf{K}^T \in \mathbb{R}^{3 \times 3}$, where entry $S_{ij}$ represents the compatibility between query $i$ and key $j$:
 
 $$
@@ -89,7 +89,7 @@ $$
 \end{bmatrix}
 $$
 
-### 3. Temperature Scaling to Stabilize Gradients
+### 3. Temperature Scaling
 Dividing by $\sqrt{d_k} = \sqrt{2} \approx 1.414$ normalizes score variance to $1.0$, preventing extreme values that cause softmax gradients to saturate:
 
 $$
@@ -102,9 +102,9 @@ $$
 
 > **The Mathematical Intuition for Scaling**:  
 > If components of $\mathbf{q}$ and $\mathbf{k}$ are independent random variables with zero mean and unit variance, their dot product has mean $0$ and variance $d_k$.  
-> When $d_k$ is large (e.g., $d_k = 128$), dot products grow to large magnitudes ($>15$), pushing $\text{softmax}$ into flat saturation regions where gradients vanish ($\approx 0$). Dividing by $\sqrt{d_k}$ normalizes the variance back to $1.0$.
+> When $d_k$ is large (e.g., $d_k = 128$), dot products grow to large magnitudes ($>15$), pushing $\operatorname{softmax}$ into flat saturation regions where gradients vanish ($\approx 0$). Dividing by $\sqrt{d_k}$ normalizes the variance back to $1.0$.
 
-### 4. Autoregressive Causal Masking
+### 4. Causal Masking
 In an autoregressive decoder, token $t$ is strictly forbidden from looking into future tokens ($t' > t$). We enforce this by setting the upper triangle of the score matrix to $-\infty$ ($e^{-\infty} = 0$):
 
 $$
@@ -115,11 +115,11 @@ $$
 \end{bmatrix}
 $$
 
-### 5. Probability Normalization via Softmax
-Applying $\text{softmax}$ row-wise normalizes scores into a valid probability distribution ($\sum_j A_{ij} = 1$):
+### 5. Softmax Normalization
+Applying $\operatorname{softmax}$ row-wise normalizes scores into a valid probability distribution ($\sum_j A_{ij} = 1$):
 
 $$
-\mathbf{A} = \text{softmax}(\mathbf{S}_{\text{masked}}) = \begin{bmatrix}
+\mathbf{A} = \operatorname{softmax}(\mathbf{S}_{\text{masked}}) = \begin{bmatrix}
 1.000 & 0.000 & 0.000 \\
 0.804 & 0.196 & 0.000 \\
 0.401 & 0.198 & 0.401
@@ -130,7 +130,7 @@ $$
 * **Row 2 (`"cat"`)**: Distributes attention between `"The"` ($80.4\%$) and `"cat"` ($19.6\%$).
 * **Row 3 (`"sat"`)**: Synthesizes context across `"The"` ($40.1\%$), `"cat"` ($19.8\%$), and `"sat"` ($40.1\%$).
 
-### 6. Value Aggregation to Form Contextual Outputs
+### 6. Value Aggregation
 Multiplying attention weights by the Value matrix $\mathbf{V}$ produces the contextual output $\mathbf{O} \in \mathbb{R}^{3 \times 2}$:
 
 $$
@@ -163,7 +163,7 @@ Test the mechanics interactively below. Drag the temperature slider to see how v
 
 ---
 
-## PyTorch Reference Implementation
+## PyTorch Implementation
 
 Here is how scaled dot-product attention translates into clean, idiomatic PyTorch:
 
@@ -207,9 +207,9 @@ def scaled_dot_product_attention(
 
 ---
 
-## Systems & Hardware Optimization: GPU Memory Hierarchy
+## GPU Memory & Hardware Efficiency
 
-### The Memory Bandwidth Wall & KV-Cache Scaling
+### The KV-Cache Bottleneck
 
 During prefill (processing the initial prompt), tokens are known upfront and can be processed in parallel, saturating the GPU's tensor computing cores.
 
@@ -225,7 +225,7 @@ For a 70B parameter model (80 layers, 64 heads, $d_{\text{head}} = 128$) running
 
 When generating each new token, the GPU must stream this entire $163\text{ GB}$ cache from off-chip HBM into on-chip SRAM just to compute dot products against a single new Query vector. The model is not limited by compute (TFLOPs), but by **memory bandwidth (TB/s)**.
 
-### Architectural Solutions: MHA vs. MQA vs. GQA
+### MHA vs. MQA vs. GQA
 
 To break the memory bandwidth bottleneck, modern LLMs use grouped Key-Value sharing architectures:
 
@@ -248,7 +248,7 @@ Grouped-Query Attention (GQA - Ainslie et al. 2023; Llama 3, Mistral):
 
 By grouping Query heads over shared Key-Value heads, **Grouped-Query Attention (GQA)** cuts memory bandwidth consumption by $4\times$ to $8\times$, drastically accelerating inference throughput.
 
-### SRAM Tiling: FlashAttention (Dao et al.)
+### FlashAttention & SRAM Tiling
 
 Standard naive attention implementations materialize the intermediate $T \times T$ attention matrix in GPU global memory (HBM). For long sequences ($T = 64\text{k}$), reading and writing this quadratic matrix to HBM introduces severe I/O latency.
 
@@ -259,7 +259,7 @@ Standard naive attention implementations materialize the intermediate $T \times 
 
 ---
 
-## Seminal Papers & References
+## Key Papers & References
 
 {{< cards >}}
   {{< card link="https://arxiv.org/abs/1706.03762" title="Attention Is All You Need" subtitle="Vaswani et al. (NeurIPS 2017) • The seminal paper introducing Scaled Dot-Product and Multi-Head Attention." >}}

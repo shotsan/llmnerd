@@ -17,7 +17,7 @@ The design of every tokenizer is governed by a fundamental tradeoff in sequence 
 
 ---
 
-## The Tokenization Pipeline: From Strings to Tensors
+## How Tokenization Works
 
 Modern tokenizers transform raw text into integer tensors through three distinct phases:
 
@@ -46,7 +46,7 @@ flowchart LR
 
 ---
 
-## Step-by-Step BPE Walkthrough
+## The BPE Algorithm Walkthrough
 
 To see how Byte-Pair Encoding (BPE) constructs its vocabulary, consider building a tokenizer from scratch on a miniature training corpus consisting of four words:
 
@@ -54,7 +54,7 @@ $$
 \mathcal{D} = \{ \text{"low": 5}, \quad \text{"lower": 2}, \quad \text{"newest": 6}, \quad \text{"widest": 3} \}
 $$
 
-### 1. Base Character Vocabulary Initialization
+### 1. Initial Character Vocabulary
 We append a special end-of-word suffix `</w>` to each word to preserve word boundary information across merges. We split each word into individual character symbols:
 
 * `l o w </w>` (frequency: 5)
@@ -67,7 +67,7 @@ $$
 V_0 = \{ \text{'d'}, \text{'e'}, \text{'i'}, \text{'l'}, \text{'n'}, \text{'o'}, \text{'r'}, \text{'s'}, \text{'t'}, \text{'w'}, \text{'</w>'} \} \quad (|V_0| = 11)
 $$
 
-### 2. Frequency Aggregation & Greedy Pair Extraction
+### 2. Counting Symbol Pairs
 We scan the corpus and count all adjacent pairs of symbols:
 
 | Adjacent Symbol Pair | Occurrences Across Corpus | Total Frequency |
@@ -89,7 +89,7 @@ Both `('e', 's')` and `('s', 't')` share the top frequency of 9. Breaking ties d
   * `n e w es t </w>` (6)
   * `w i d es t </w>` (3)
 
-### 3. Iterative Subword Assembly
+### 3. Merging Most Frequent Pairs
 Re-evaluating adjacent pair frequencies in the updated corpus:
 * `('es', 't')`: appears $6 + 3 = \mathbf{9}$ times.
 * `('l', 'o')`: appears $5 + 2 = 7$ times.
@@ -111,7 +111,7 @@ Next, `('l', 'o')` and `('o', 'w')` both occur 7 times:
   * `n e w est </w>` (6)
   * `w i d est </w>` (3)
 
-### 4. Deterministic Inference on Unseen Inputs
+### 4. Tokenizing Unseen Words
 Suppose the model encounters the previously unseen word **`"lowest"`**:
 1. Split into base characters: `['l', 'o', 'w', 'e', 's', 't', '</w>']`
 2. Check merge rulebook in chronological training order:
@@ -125,7 +125,7 @@ Despite `"lowest"` never appearing in the training corpus, the tokenizer decompo
 
 ---
 
-## Interactive BPE Merge Simulator
+## Interactive BPE Simulator
 
 Step through each merge below to watch the vocabulary grow and see how `"lowest"` is segmented:
 
@@ -133,7 +133,7 @@ Step through each merge below to watch the vocabulary grow and see how `"lowest"
 
 ---
 
-## Python Reference Implementation
+## Python Implementation
 
 Here is an educational implementation of Byte-Pair Encoding in pure Python:
 
@@ -177,9 +177,9 @@ for i in range(num_merges):
 
 ---
 
-## Graduate Engineering Insights: Edge Cases & Realities
+## Practical Edge Cases & Realities
 
-### Byte-Level Fallback & Zero-OOV Guarantees
+### Byte-Level BPE & No Out-of-Vocabulary Tokens
 Early BPE models operated on Unicode characters. If an input contained an unencountered emoji, rare mathematical symbol, or character from an unsupported script, the tokenizer emitted the destructive unknown token `[UNK]`.
 
 Modern frontier tokenizers (Tiktoken for GPT-4, LLaMA 3, Gemma) eliminate `[UNK]` completely using **Byte-Level BPE**:
@@ -192,7 +192,7 @@ UTF-8 Hex:  0xE2 0x9C 0xA8
 Fallback:   Byte(226), Byte(156), Byte(168) -> Always representable!
 ```
 
-### Numerical Tokenization & Digit Splitting
+### Numbers & Digit Splitting
 Standard BPE trained on raw text merges numbers haphazardly:
 * `1234` might tokenize as `["12", "34"]`
 * `12345` might tokenize as `["123", "45"]`
@@ -200,7 +200,7 @@ Standard BPE trained on raw text merges numbers haphazardly:
 
 This unpredictable chunking forces attention layers to waste capacity inferring decimal alignment before performing arithmetic. Modern models enforce regex pre-tokenization rules that split every individual digit into its own token (`split_digits: true`), stabilizing mathematical reasoning.
 
-### Cross-Lingual Fertility & Compute Discrepancy
+### Multilingual Fertility & Compute Cost
 Tokenizer vocabularies trained predominantly on English corpora dedicate most entries to English morphemes.
 * In English, **fertility** (tokens per character) is roughly **0.25 to 0.30** (~4 characters per token).
 * In non-Latin scripts (Hindi, Arabic, Japanese, Telugu), text frequently splits into individual bytes, causing fertility to surge to **0.80 to 1.20** tokens per character.
@@ -209,7 +209,7 @@ This means non-English prompts consume 3x to 4x more tokens for the exact same s
 
 ---
 
-## Comparison of Modern Tokenization Algorithms
+## Comparing Modern Tokenizers
 
 | Algorithm | Used By | Optimization Objective | Boundary Handling |
 | :--- | :--- | :--- | :--- |
@@ -219,7 +219,7 @@ This means non-English prompts consume 3x to 4x more tokens for the exact same s
 
 ---
 
-## Seminal Papers & References
+## Key Papers & References
 
 {{< cards >}}
   {{< card link="https://arxiv.org/abs/1508.07909" title="Neural Machine Translation of Rare Words with Subword Units" subtitle="Sennrich, Haddow, Birch (ACL 2016) • Introduced BPE to NLP, solving the open-vocabulary translation problem." >}}
