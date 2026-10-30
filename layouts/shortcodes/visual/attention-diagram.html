@@ -4,7 +4,7 @@
       <span class="llm-badge llm-badge-blue">Architecture Blueprint</span>
       <h3 class="llm-blueprint-title">Scaled Dot-Product Attention Dataflow</h3>
     </div>
-    <span class="llm-blueprint-meta">O(T² · d_k) Compute • Exact Tensor Shapes</span>
+    <span class="llm-blueprint-meta">O(T<sup>2</sup> &middot; d<sub>k</sub>) Compute &bull; Exact Tensor Shapes</span>
   </div>
 
   <div class="llm-blueprint-body">
@@ -89,7 +89,7 @@
       <g transform="translate(14, 132)">
         <rect width="88" height="64" rx="9" fill="url(#bp-grad-in)" />
         <text x="44" y="28" text-anchor="middle" fill="#ffffff" font-size="13.5" font-weight="700" font-family="sans-serif">Input X</text>
-        <text x="44" y="47" text-anchor="middle" fill="#cbd5e1" font-size="10.5" font-family="monospace">[T × d_model]</text>
+        <text x="44" y="47" text-anchor="middle" fill="#cbd5e1" font-size="10.5" font-family="monospace">[T × d<tspan dy="2.5" font-size="8.5">model</tspan><tspan dy="-2.5">]</tspan></text>
       </g>
 
       <!-- Wires from X to Q, K, V -->
@@ -101,19 +101,19 @@
       <g transform="translate(148, 38)">
         <rect width="102" height="58" rx="9" fill="url(#bp-grad-q)" />
         <text x="51" y="24" text-anchor="middle" fill="#ffffff" font-size="13" font-weight="700" font-family="sans-serif">Queries (Q)</text>
-        <text x="51" y="42" text-anchor="middle" fill="#e0e7ff" font-size="10.5" font-family="monospace">X·W_Q [T×d_k]</text>
+        <text x="51" y="42" text-anchor="middle" fill="#e0e7ff" font-size="10.5" font-family="monospace">X·W<tspan dy="2.5" font-size="8.5">Q</tspan><tspan dy="-2.5"> [T×d</tspan><tspan dy="2.5" font-size="8.5">k</tspan><tspan dy="-2.5">]</tspan></text>
       </g>
 
       <g transform="translate(148, 135)">
         <rect width="102" height="58" rx="9" fill="url(#bp-grad-k)" />
         <text x="51" y="24" text-anchor="middle" fill="#ffffff" font-size="13" font-weight="700" font-family="sans-serif">Keys (K)</text>
-        <text x="51" y="42" text-anchor="middle" fill="#e0f2fe" font-size="10.5" font-family="monospace">X·W_K [T×d_k]</text>
+        <text x="51" y="42" text-anchor="middle" fill="#e0f2fe" font-size="10.5" font-family="monospace">X·W<tspan dy="2.5" font-size="8.5">K</tspan><tspan dy="-2.5"> [T×d</tspan><tspan dy="2.5" font-size="8.5">k</tspan><tspan dy="-2.5">]</tspan></text>
       </g>
 
       <g transform="translate(148, 232)">
         <rect width="102" height="58" rx="9" fill="url(#bp-grad-v)" />
         <text x="51" y="24" text-anchor="middle" fill="#ffffff" font-size="13" font-weight="700" font-family="sans-serif">Values (V)</text>
-        <text x="51" y="42" text-anchor="middle" fill="#d1fae5" font-size="10.5" font-family="monospace">X·W_V [T×d_v]</text>
+        <text x="51" y="42" text-anchor="middle" fill="#d1fae5" font-size="10.5" font-family="monospace">X·W<tspan dy="2.5" font-size="8.5">V</tspan><tspan dy="-2.5"> [T×d</tspan><tspan dy="2.5" font-size="8.5">v</tspan><tspan dy="-2.5">]</tspan></text>
       </g>
 
       <!-- Wires from Q and K to S = QK^T -->
@@ -124,7 +124,7 @@
       <g transform="translate(292, 86)">
         <rect width="104" height="58" rx="9" class="bp-card" />
         <text x="52" y="24" text-anchor="middle" class="bp-title">Scores (S)</text>
-        <text x="52" y="42" text-anchor="middle" class="bp-sub">Q · Kᵀ [T × T]</text>
+        <text x="52" y="42" text-anchor="middle" class="bp-sub">Q · K<tspan dy="-4" font-size="8.5">T</tspan><tspan dy="4"> [T × T]</tspan></text>
       </g>
 
       <line x1="396" y1="115" x2="420" y2="115" class="bp-wire" marker-end="url(#bp-arr)" />
@@ -133,7 +133,7 @@
       <g transform="translate(422, 86)">
         <rect width="96" height="58" rx="9" class="bp-card" />
         <text x="48" y="24" text-anchor="middle" class="bp-title">Scale</text>
-        <text x="48" y="42" text-anchor="middle" class="bp-sub">S / √d_k</text>
+        <text x="48" y="42" text-anchor="middle" class="bp-sub">S / √d<tspan dy="2.5" font-size="8.5">k</tspan></text>
       </g>
 
       <line x1="518" y1="115" x2="540" y2="115" class="bp-wire" marker-end="url(#bp-arr)" />
@@ -161,14 +161,14 @@
       <path d="M 250 261 L 792 261 Q 804 261 804 244 L 804 220" class="bp-wire-v" marker-end="url(#bp-arr-v)" />
       <g transform="translate(465, 249)">
         <rect width="134" height="22" rx="6" class="bp-pill" />
-        <text x="67" y="15" text-anchor="middle" class="bp-pill-txt">Value Payload V [T × d_v]</text>
+        <text x="67" y="15" text-anchor="middle" class="bp-pill-txt">Value Payload V [T × d<tspan dy="2.5" font-size="8">v</tspan><tspan dy="-2.5">]</tspan></text>
       </g>
 
       <!-- Stage 6: Output O = A · V -->
       <g transform="translate(756, 158)">
         <rect width="148" height="60" rx="9" fill="url(#bp-grad-out)" />
         <text x="74" y="25" text-anchor="middle" fill="#ffffff" font-size="13.5" font-weight="700" font-family="sans-serif">Output O = A · V</text>
-        <text x="74" y="44" text-anchor="middle" fill="#dbeafe" font-size="10.5" font-family="monospace">Contextual [T × d_v]</text>
+        <text x="74" y="44" text-anchor="middle" fill="#dbeafe" font-size="10.5" font-family="monospace">Contextual [T × d<tspan dy="2.5" font-size="8.5">v</tspan><tspan dy="-2.5">]</tspan></text>
       </g>
 
       <!-- Bottom Legend Bar -->

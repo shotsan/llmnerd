@@ -16,8 +16,8 @@ $$
 
 Permuting the inputs simply permutes the outputs identically. The operation itself contains **zero structural awareness of sequence order**. To a pure transformer without positional coordinates, the sentences:
 
-> *"The dog bit the mailman."*  
-> *"The mailman bit the dog."*
+* *The dog bit the mailman.*
+* *The mailman bit the dog.*
 
 produce identical sets of contextual representations. Because language, syntax, logic, and causality depend strictly on word order, models must explicitly break this permutation symmetry by injecting positional coordinates into the vector representations.
 
@@ -31,18 +31,18 @@ To teach a neural network where words appear in time, two primary philosophies e
 flowchart LR
     subgraph S1["Absolute Additive (Vaswani et al. 2017)"]
         direction TB
-        X["<b>Token Vector (x_m)</b>"] --> Add["<b>Vector Addition (⊕)</b>"]
-        PE["<b>Trigonometric Wave (PE_m)</b><br/>Multi-scale sin/cos"] --> Add
-        Add --> Out1["<b>Modulated Input</b><br/><code>x̃_m = x_m + PE_m</code>"]
+        X["<b>Token Vector (x<sub>m</sub>)</b>"] --> Add["<b>Vector Addition (⊕)</b>"]
+        PE["<b>Trigonometric Wave (PE<sub>m</sub>)</b><br/>Multi-scale sin/cos"] --> Add
+        Add --> Out1["<b>Modulated Input</b><br/><code>x̃<sub>m</sub> = x<sub>m</sub> + PE<sub>m</sub></code>"]
     end
 
     subgraph S2["Rotary Embeddings - RoPE (Su et al. 2021)"]
         direction TB
-        Q["<b>Query Vector (q_m)</b>"] --> RotQ["<b>2D Complex Rotation</b><br/><code>R(mθ) · q_m</code>"]
-        K["<b>Key Vector (k_n)</b>"] --> RotK["<b>2D Complex Rotation</b><br/><code>R(nθ) · k_n</code>"]
-        RotQ --> Dot["<b>Dot Product</b><br/><code>⟨R_m · q, R_n · k⟩</code>"]
+        Q["<b>Query Vector (q<sub>m</sub>)</b>"] --> RotQ["<b>2D Complex Rotation</b><br/><code>R(mθ) · q<sub>m</sub></code>"]
+        K["<b>Key Vector (k<sub>n</sub>)</b>"] --> RotK["<b>2D Complex Rotation</b><br/><code>R(nθ) · k<sub>n</sub></code>"]
+        RotQ --> Dot["<b>Dot Product</b><br/><code>⟨R<sub>m</sub> · q, R<sub>n</sub> · k⟩</code>"]
         RotK --> Dot
-        Dot --> Out2["<b>Relative Distance Kernel</b><br/><code>qᵀ · R((n-m)θ) · k</code>"]
+        Dot --> Out2["<b>Relative Distance Kernel</b><br/><code>q<sup>T</sup> · R((n−m)θ) · k</code>"]
     end
 ```
 
@@ -64,9 +64,9 @@ where $pos$ is the token position index ($0, 1, 2, \dots$), $i$ is the dimension
 ### Geometric Intuition
 
 Think of sinusoidal encoding like a multi-hand clock or a binary counter:
-* **Dimension $i=0$ (The "Seconds Hand")**: Has a wavelength of $\lambda \approx 6.28$ tokens ($2\pi$). It oscillates rapidly, allowing the model to distinguish between immediately adjacent words (*"cat sat"* vs *"sat cat"*).
-* **Intermediate Dimensions (The "Minutes Hand")**: Have wavelengths spanning hundreds of tokens, capturing phrase and clause boundaries.
-* **Highest Dimensions (The "Hours Hand")**: Have wavelengths spanning tens of thousands of tokens ($\lambda = 20000\pi \approx 62{,}831$), tracking high-level thematic position across long documents.
+* **Dimension $i=0$ (High-Frequency Hand)**: Has a wavelength of $\lambda \approx 6.28$ tokens ($2\pi$). It oscillates rapidly, allowing the model to distinguish between immediately adjacent words (`cat sat` vs `sat cat`).
+* **Intermediate Dimensions (Mid-Frequency Hand)**: Have wavelengths spanning hundreds of tokens, capturing phrase and clause boundaries.
+* **Highest Dimensions (Low-Frequency Hand)**: Have wavelengths spanning tens of thousands of tokens ($\lambda = 20000\pi \approx 62{,}831$), tracking high-level thematic position across long documents.
 
 Because every position produces a unique fingerprint across the frequency spectrum, the model can infer both absolute location and relative distance through trigonometric linear combinations ($\cos(\alpha - \beta) = \cos \alpha \cos \beta + \sin \alpha \sin \beta$).
 

@@ -36,8 +36,61 @@ body {
   font-feature-settings: "kern";
 }
 
+/* Make KaTeX superscripts and subscripts clearly offset from the main baseline */
+/* 1. Superscript only (.vlist-t without .vlist-t2) */
+.katex .msupsub > .vlist-t:not(.vlist-t2) > .vlist-r > .vlist > span {
+  transform: translateY(-0.15em);
+}
+/* 2. Subscript only (.vlist-t.vlist-t2 with a single child in first .vlist) */
+.katex .msupsub > .vlist-t.vlist-t2 > .vlist-r:first-child > .vlist > span:first-child:last-child {
+  transform: translateY(0.15em);
+}
+/* 3. Simultaneous subscript + superscript (.vlist-t.vlist-t2 with two children in first .vlist) */
+.katex .msupsub > .vlist-t.vlist-t2 > .vlist-r:first-child > .vlist > span:first-child:not(:last-child) {
+  transform: translateY(0.14em);
+}
+.katex .msupsub > .vlist-t.vlist-t2 > .vlist-r:first-child > .vlist > span:nth-child(2) {
+  transform: translateY(-0.15em);
+}
+/* Inside square roots and fractions, use a slightly tighter offset so scripts never touch vinculum bars */
+.katex .sqrt .msupsub > .vlist-t:not(.vlist-t2) > .vlist-r > .vlist > span,
+.katex .mfrac .msupsub > .vlist-t:not(.vlist-t2) > .vlist-r > .vlist > span,
+.katex .sqrt .msupsub > .vlist-t.vlist-t2 > .vlist-r:first-child > .vlist > span:nth-child(2),
+.katex .mfrac .msupsub > .vlist-t.vlist-t2 > .vlist-r:first-child > .vlist > span:nth-child(2) {
+  transform: translateY(-0.09em);
+}
+.katex .sqrt .msupsub > .vlist-t.vlist-t2 > .vlist-r:first-child > .vlist > span:first-child:last-child,
+.katex .mfrac .msupsub > .vlist-t.vlist-t2 > .vlist-r:first-child > .vlist > span:first-child:last-child,
+.katex .sqrt .msupsub > .vlist-t.vlist-t2 > .vlist-r:first-child > .vlist > span:first-child:not(:last-child),
+.katex .mfrac .msupsub > .vlist-t.vlist-t2 > .vlist-r:first-child > .vlist > span:first-child:not(:last-child) {
+  transform: translateY(0.09em);
+}
+
 .katex .matrix {
   margin: 0 0.15em;
+}
+
+/* Crisp HTML sub/sup styling across all custom components & diagrams */
+.llm-blueprint sub,
+.llm-motion-player sub,
+.llm-math-grid sub,
+.mermaid sub {
+  font-size: 0.76em;
+  line-height: 0;
+  position: relative;
+  vertical-align: baseline;
+  bottom: -0.24em;
+}
+
+.llm-blueprint sup,
+.llm-motion-player sup,
+.llm-math-grid sup,
+.mermaid sup {
+  font-size: 0.76em;
+  line-height: 0;
+  position: relative;
+  vertical-align: baseline;
+  top: -0.42em;
 }
 
 .content blockquote .katex-display {

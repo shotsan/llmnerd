@@ -41,7 +41,7 @@
       <g id="attn-node-1" transform="translate(225, 20)">
         <rect width="165" height="48" rx="8" fill="#ffffff" stroke="#cbd5e1" stroke-width="1.5" />
         <text x="82" y="21" text-anchor="middle" fill="#334155" font-size="12" font-weight="700" font-family="sans-serif">Phase 2: Variance Scale</text>
-        <text x="82" y="38" text-anchor="middle" fill="#64748b" font-size="11" font-family="monospace">S / √d_k</text>
+        <text x="82" y="38" text-anchor="middle" fill="#64748b" font-size="11" font-family="monospace">S / √d<tspan dy="2.5" font-size="8.5">k</tspan></text>
       </g>
       <line x1="390" y1="44" x2="424" y2="44" stroke="#94a3b8" stroke-width="2" />
 
@@ -55,7 +55,7 @@
       <g id="attn-node-3" transform="translate(627, 20)">
         <rect width="168" height="48" rx="8" fill="#ffffff" stroke="#cbd5e1" stroke-width="1.5" />
         <text x="84" y="21" text-anchor="middle" fill="#334155" font-size="12" font-weight="700" font-family="sans-serif">Phase 4: Softmax &amp; O=AV</text>
-        <text x="84" y="38" text-anchor="middle" fill="#64748b" font-size="11" font-family="monospace">Row Σ A_ij = 1.0</text>
+        <text x="84" y="38" text-anchor="middle" fill="#64748b" font-size="11" font-family="monospace">Row Σ A<tspan dy="2.5" font-size="8.5">ij</tspan><tspan dy="-2.5"> = 1.0</tspan></text>
       </g>
 
       <!-- Live Attention Distribution Bar for Query Token 3 (sat) -->
@@ -171,10 +171,10 @@
   ];
 
   const captions = [
-    '<strong>Phase 1 (Dot Product S = QKᵀ):</strong> Each Query vector takes the inner product with every Key vector. Unscaled scores grow with head dimension d_k.',
-    '<strong>Phase 2 (Temperature Scaling ÷ √d_k):</strong> Dividing raw scores by √d_k stabilizes variance to 1.0 so large dot products do not push softmax into zero-gradient saturation.',
-    '<strong>Phase 3 (Causal Masking + M):</strong> Upper-triangular entries (j > i, where a token would peek into the future) are set to -∞ before exponentiation.',
-    '<strong>Phase 4 (Softmax & Value Aggregation O = AV):</strong> Exponentiation maps -∞ to 0.00, normalizing each row into a probability distribution that blends Value vectors V.'
+    '<strong>Phase 1 (Dot Product S = QK<sup>T</sup>):</strong> Each Query vector takes the inner product with every Key vector. Unscaled scores grow with head dimension d<sub>k</sub>.',
+    '<strong>Phase 2 (Temperature Scaling &divide; &radic;d<sub>k</sub>):</strong> Dividing raw scores by &radic;d<sub>k</sub> stabilizes variance to 1.0 so large dot products do not push softmax into zero-gradient saturation.',
+    '<strong>Phase 3 (Causal Masking + M):</strong> Upper-triangular entries (j &gt; i, where a token would peek into the future) are set to &minus;&infin; before exponentiation.',
+    '<strong>Phase 4 (Softmax &amp; Value Aggregation O = AV):</strong> Exponentiation maps &minus;&infin; to 0.00, normalizing each row into a probability distribution that blends Value vectors V.'
   ];
 
   let currentPhase = 0;

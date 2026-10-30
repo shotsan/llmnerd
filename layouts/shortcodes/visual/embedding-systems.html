@@ -1,0 +1,56 @@
+{{- $m := dict "output" "html" "displayMode" false -}}
+{{- $.Page.Store.Set "hasMath" true -}}
+
+<div class="llm-blueprint not-prose">
+  <div class="llm-blueprint-header">
+    <div class="llm-blueprint-title-wrap">
+      <span class="llm-badge llm-badge-indigo">Systems &amp; Memory Architecture</span>
+      <h3 class="llm-blueprint-title">Weight Tying, Variance Scaling &amp; RMSNorm</h3>
+    </div>
+    <span class="llm-blueprint-meta">VRAM Optimization &amp; Gradient Stabilization</span>
+  </div>
+
+  <div class="llm-blueprint-body" style="align-items: stretch; gap: 1rem;">
+    <!-- 1. Weight Tying -->
+    <div class="llm-math-card">
+      <div class="llm-math-header">
+        <div style="display: flex; align-items: center; gap: 0.65rem;">
+          <span class="llm-badge llm-badge-blue">-524M Params</span>
+          <span class="llm-math-symbol">Weight Tying</span>
+        </div>
+        <span class="llm-math-shape">{{ transform.ToMath `\mathbf{W}_{\text{head}} = \mathbf{W}_E^T` $m }}</span>
+      </div>
+      <div class="llm-math-body">
+        In an autoregressive decoder (Press &amp; Wolf 2017), the final hidden state {{ transform.ToMath `\mathbf{h}_L \in \mathbb{R}^d` $m }} projects back to vocabulary logits via {{ transform.ToMath `\text{logits} = \mathbf{h}_L \mathbf{W}_{\text{head}}` $m }}. Setting {{ transform.ToMath `\mathbf{W}_{\text{head}} = \mathbf{W}_E^T` $m }} reuses the input embedding matrix as the output classifier—saving <strong>524 million parameters</strong> (<strong>1.05 GB FP16</strong> at {{ transform.ToMath `d=4096, V=128\text{k}` $m }}) and enforcing a single shared geometric manifold between token ingestion and token prediction.
+      </div>
+    </div>
+
+    <!-- 2. Embedding Scale Factor -->
+    <div class="llm-math-card">
+      <div class="llm-math-header">
+        <div style="display: flex; align-items: center; gap: 0.65rem;">
+          <span class="llm-badge llm-badge-amber">Variance Matching</span>
+          <span class="llm-math-symbol">Embedding Scale Factor</span>
+        </div>
+        <span class="llm-math-shape">{{ transform.ToMath `\mathbf{x}_i = \sqrt{d} \cdot \mathbf{W}_E[t_i] + \mathbf{PE}_i` $m }}</span>
+      </div>
+      <div class="llm-math-body">
+        Under standard Gaussian weight initialization (Vaswani et al. 2017) with variance {{ transform.ToMath `\sigma^2 = 1 / d_{\text{model}}` $m }}, individual embedding coordinates have magnitude {{ transform.ToMath `\mathcal{O}(1 / \sqrt{d_{\text{model}}})` $m }}. Multiplying the lookup vector by {{ transform.ToMath `\sqrt{d_{\text{model}}}` $m }} restores unit variance {{ transform.ToMath `\mathcal{O}(1)` $m }} per coordinate before adding positional encodings, ensuring positional waves do not overpower token semantics.
+      </div>
+    </div>
+
+    <!-- 3. RMSNorm vs LayerNorm -->
+    <div class="llm-math-card">
+      <div class="llm-math-header">
+        <div style="display: flex; align-items: center; gap: 0.65rem;">
+          <span class="llm-badge llm-badge-emerald">-40% HBM Traffic</span>
+          <span class="llm-math-symbol">RMSNorm Stabilization</span>
+        </div>
+        <span class="llm-math-shape">{{ transform.ToMath `\operatorname{RMSNorm}(\mathbf{x}) = \frac{\mathbf{x}}{\sqrt{\frac{1}{d}\sum_{i=1}^d x_i^2 + \epsilon}} \odot \boldsymbol{\gamma}` $m }}</span>
+      </div>
+      <div class="llm-math-body">
+        Standard LayerNorm requires two sequential reduction passes across hidden dimension {{ transform.ToMath `d` $m }} (mean {{ transform.ToMath `\mu` $m }} and variance {{ transform.ToMath `\sigma^2` $m }}). Modern LLMs (Zhang &amp; Sennrich 2019; LLaMA 3, Mistral, Gemma) eliminate mean-centering and normalize strictly by the root-mean-square norm, cutting GPU SRAM-to-HBM memory roundtrips while preserving identical convergence stability.
+      </div>
+    </div>
+  </div>
+</div>

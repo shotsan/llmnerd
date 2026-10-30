@@ -1,0 +1,121 @@
+{{- $m := dict "output" "html" "displayMode" false -}}
+{{- $.Page.Store.Set "hasMath" true -}}
+
+<div class="llm-math-grid not-prose">
+  <!-- 1. One-Hot Vector -->
+  <div class="llm-math-card">
+    <div class="llm-math-header">
+      <span class="llm-math-symbol">{{ transform.ToMath `\mathbf{e}_i` $m }}</span>
+      <span class="llm-math-shape">{{ transform.ToMath `\{0, 1\}^V` $m }}</span>
+    </div>
+    <div class="llm-math-body">
+      <span class="llm-math-role">Sparse One-Hot Basis Vector</span>
+      All-zero vector of length {{ transform.ToMath `V` $m }} with a single {{ transform.ToMath `1` $m }} at index {{ transform.ToMath `i` $m }}. Orthogonal across all distinct tokens ({{ transform.ToMath `\mathbf{e}_i \cdot \mathbf{e}_j = 0` $m }}).
+    </div>
+  </div>
+
+  <!-- 2. Embedding Matrix W_E -->
+  <div class="llm-math-card">
+    <div class="llm-math-header">
+      <span class="llm-math-symbol">{{ transform.ToMath `\mathbf{W}_E` $m }}</span>
+      <span class="llm-math-shape">{{ transform.ToMath `\mathbb{R}^{V \times d}` $m }}</span>
+    </div>
+    <div class="llm-math-body">
+      <span class="llm-math-role">Learned Embedding Lookup Table</span>
+      Parameter matrix storing {{ transform.ToMath `d` $m }}-dimensional continuous coordinates for every token in the {{ transform.ToMath `V` $m }}-token vocabulary.
+    </div>
+  </div>
+
+  <!-- 3. Dense Coordinate Vector -->
+  <div class="llm-math-card">
+    <div class="llm-math-header">
+      <span class="llm-math-symbol">{{ transform.ToMath `\mathbf{x}_i = \mathbf{W}_E[t_i]` $m }}</span>
+      <span class="llm-math-shape">{{ transform.ToMath `\mathbb{R}^d` $m }}</span>
+    </div>
+    <div class="llm-math-body">
+      <span class="llm-math-role">Dense Token Embedding Vector</span>
+      Retrieved in {{ transform.ToMath `\mathcal{O}(1)` $m }} time via direct memory gather (mathematically equivalent to {{ transform.ToMath `\mathbf{e}_i^T \mathbf{W}_E` $m }}).
+    </div>
+  </div>
+
+  <!-- 4. Cosine Similarity -->
+  <div class="llm-math-card">
+    <div class="llm-math-header">
+      <span class="llm-math-symbol">{{ transform.ToMath `\cos(\theta) = \frac{\mathbf{u} \cdot \mathbf{v}}{\|\mathbf{u}\|\|\mathbf{v}\|}` $m }}</span>
+      <span class="llm-math-shape">{{ transform.ToMath `[-1, 1]` $m }}</span>
+    </div>
+    <div class="llm-math-body">
+      <span class="llm-math-role">Angular Semantic Affinity</span>
+      Normalized inner product measuring directional alignment between two token vectors independent of vector magnitude.
+    </div>
+  </div>
+</div>
+
+<div class="llm-blueprint not-prose">
+  <div class="llm-blueprint-header">
+    <div class="llm-blueprint-title-wrap">
+      <span class="llm-badge llm-badge-blue">Architecture Blueprint</span>
+      <h3 class="llm-blueprint-title">Embedding Gather &amp; Input Normalization Pipeline</h3>
+    </div>
+    <span class="llm-blueprint-meta">O(1) Memory Gather • Continuous Rᵈ Projection</span>
+  </div>
+
+  <div class="llm-blueprint-body">
+    <svg viewBox="0 0 880 165" width="100%" style="max-width: 860px; height: auto; display: block; user-select: none;" xmlns="http://www.w3.org/2000/svg">
+      <defs>
+        <marker id="emb-bp-arr" viewBox="0 0 10 10" refX="7" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+          <path d="M 0 1.5 L 8 5 L 0 8.5 z" fill="#64748b" />
+        </marker>
+      </defs>
+
+      <!-- Stage Headers -->
+      <text x="102" y="24" text-anchor="middle" fill="#64748b" font-size="10.5" font-weight="700" font-family="sans-serif" letter-spacing="0.05em">1. DISCRETE INDEX</text>
+      <text x="326" y="24" text-anchor="middle" fill="#64748b" font-size="10.5" font-weight="700" font-family="sans-serif" letter-spacing="0.05em">2. TABLE GATHER</text>
+      <text x="562" y="24" text-anchor="middle" fill="#64748b" font-size="10.5" font-weight="700" font-family="sans-serif" letter-spacing="0.05em">3. DENSE VECTOR</text>
+      <text x="780" y="24" text-anchor="middle" fill="#64748b" font-size="10.5" font-weight="700" font-family="sans-serif" letter-spacing="0.05em">4. RESIDUAL INPUT</text>
+
+      <!-- Box 1: Discrete Token ID -->
+      <g transform="translate(18, 42)">
+        <rect width="168" height="76" rx="9" fill="#1e293b" />
+        <text x="84" y="28" text-anchor="middle" fill="#ffffff" font-size="13.5" font-weight="700" font-family="sans-serif">Token ID</text>
+        <text x="84" y="50" text-anchor="middle" fill="#93c5fd" font-size="12" font-weight="700" font-family="monospace">t = 1 (cat)</text>
+        <text x="84" y="66" text-anchor="middle" fill="#94a3b8" font-size="10" font-family="monospace">Integer Scalar</text>
+      </g>
+
+      <line x1="186" y1="80" x2="226" y2="80" stroke="#64748b" stroke-width="2.2" marker-end="url(#emb-bp-arr)" />
+
+      <!-- Box 2: Matrix Row Gather -->
+      <g transform="translate(228, 42)">
+        <rect width="196" height="76" rx="9" fill="#4f46e5" />
+        <text x="98" y="28" text-anchor="middle" fill="#ffffff" font-size="13.5" font-weight="700" font-family="sans-serif">Row Gather</text>
+        <text x="98" y="50" text-anchor="middle" fill="#e0e7ff" font-size="12" font-weight="700" font-family="monospace">W<tspan dy="3" font-size="9.5">E</tspan><tspan dy="-3">[1] ∈ ℝ</tspan><tspan dy="-5" font-size="9.5">1×d</tspan></text>
+        <text x="98" y="66" text-anchor="middle" fill="#c7d2fe" font-size="10" font-family="monospace">O(1) HBM Slice</text>
+      </g>
+
+      <line x1="424" y1="80" x2="460" y2="80" stroke="#64748b" stroke-width="2.2" marker-end="url(#emb-bp-arr)" />
+
+      <!-- Box 3: Dense Coordinate Vector -->
+      <g transform="translate(462, 42)">
+        <rect width="200" height="76" rx="9" fill="#0284c7" />
+        <text x="100" y="28" text-anchor="middle" fill="#ffffff" font-size="13.5" font-weight="700" font-family="sans-serif">Dense Vector</text>
+        <text x="100" y="50" text-anchor="middle" fill="#e0f2fe" font-size="11.5" font-weight="700" font-family="monospace">e<tspan dy="3" font-size="9">cat</tspan><tspan dy="-3"> = [0.80, 0.10, -0.50]</tspan></text>
+        <text x="100" y="66" text-anchor="middle" fill="#bae6fd" font-size="10" font-family="monospace">Continuous ℝ<tspan dy="-4" font-size="8.5">d</tspan></text>
+      </g>
+
+      <line x1="662" y1="80" x2="696" y2="80" stroke="#64748b" stroke-width="2.2" marker-end="url(#emb-bp-arr)" />
+
+      <!-- Box 4: RMSNorm Hidden State -->
+      <g transform="translate(698, 42)">
+        <rect width="164" height="76" rx="9" fill="#059669" />
+        <text x="82" y="28" text-anchor="middle" fill="#ffffff" font-size="13.5" font-weight="700" font-family="sans-serif">RMSNorm</text>
+        <text x="82" y="50" text-anchor="middle" fill="#d1fae5" font-size="12" font-weight="700" font-family="monospace">Hidden State h<tspan dy="3" font-size="9.5">0</tspan></text>
+        <text x="82" y="66" text-anchor="middle" fill="#a7f3d0" font-size="10" font-family="monospace">Unit-Variance Stream</text>
+      </g>
+
+      <!-- Bottom Legend -->
+      <text x="440" y="146" text-anchor="middle" fill="#64748b" font-size="11" font-weight="600" font-family="sans-serif">
+        Direct indexing bypasses sparse matrix multiplication (e<tspan dy="2.5" font-size="8.5">1</tspan><tspan dy="-5.5" font-size="8.5">T</tspan><tspan dy="3"> · W</tspan><tspan dy="2.5" font-size="8.5">E</tspan><tspan dy="-2.5">) by reading contiguous row offsets directly from GPU memory.</tspan>
+      </text>
+    </svg>
+  </div>
+</div>

@@ -6,7 +6,7 @@ math: true
 weight: 4
 ---
 
-When reading a complex sentence like *"The trophy didn't fit into the brown suitcase because **it** was too big,"* understanding what the pronoun **"it"** refers to requires linking it directly back to *"trophy."*
+When reading a complex sentence like *The trophy didn't fit into the brown suitcase because **it** was too big*, understanding what the pronoun **it** refers to requires linking it directly back to *trophy*.
 
 Before the Transformer, sequence models processed text strictly one word at a time from left to right. Every past word had to be compressed into a single, fixed-size hidden vector passed step-by-step along the chain:
 
@@ -15,9 +15,9 @@ Before the Transformer, sequence models processed text strictly one word at a ti
 
 **Attention** eliminates sequential passing entirely. Instead of funneling history through a single state vector, attention treats every token in the context window as an addressable entry in a parallel key-value database. Every token simultaneously broadcasts three vectors:
 
-* **Query ($\mathbf{Q}$)**: *"What specific context or grammatical partner am I looking for?"*
-* **Key ($\mathbf{K}$)**: *"What syntactic and semantic features do I advertise to other tokens?"*
-* **Value ($\mathbf{V}$)**: *"What actual information payload do I contribute once selected?"*
+* **Query ($\mathbf{Q}$)**: Encodes what specific context or grammatical partner the token is looking for.
+* **Key ($\mathbf{K}$)**: Advertises the syntactic and semantic features the token contains.
+* **Value ($\mathbf{V}$)**: Holds the actual information payload contributed once selected.
 
 By taking dot products between Queries and Keys across all token pairs simultaneously, any token can directly retrieve information from any earlier token in a single parallel matrix operation—regardless of how far apart they sit in the text.
 

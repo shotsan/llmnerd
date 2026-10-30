@@ -1,3 +1,6 @@
+{{- $m := dict "output" "html" "displayMode" false -}}
+{{- $.Page.Store.Set "hasMath" true -}}
+
 <div class="llm-motion-player not-prose" id="emb-motion-root">
   <!-- Header -->
   <div class="llm-motion-header">
@@ -42,31 +45,31 @@
       <div style="display: flex; flex-direction: column; gap: 0.75rem; justify-content: center;">
         <div class="llm-math-card">
           <div class="llm-math-header">
-            <span class="llm-math-symbol" style="font-size: 0.98rem;">cos(cat, kitten)</span>
+            <span class="llm-math-symbol">{{ transform.ToMath `\cos(\mathbf{e}_{\text{cat}}, \mathbf{e}_{\text{kitten}})` $m }}</span>
             <span class="llm-math-shape" id="emb-sim-cat" style="color: #047857; background: #d1fae5; border-color: #a7f3d0;">+0.982</span>
           </div>
-          <div class="llm-math-body" style="padding: 0.65rem 1rem; font-size: 0.92rem;">
+          <div class="llm-math-body" style="padding: 0.65rem 1rem;">
             <strong>Same Cluster:</strong> Synonyms and shared contexts pull vectors toward nearly identical angles.
           </div>
         </div>
 
         <div class="llm-math-card">
           <div class="llm-math-header">
-            <span class="llm-math-symbol" style="font-size: 0.98rem;">cos(cat, king)</span>
+            <span class="llm-math-symbol">{{ transform.ToMath `\cos(\mathbf{e}_{\text{cat}}, \mathbf{e}_{\text{king}})` $m }}</span>
             <span class="llm-math-shape" id="emb-sim-unrel">+0.140</span>
           </div>
-          <div class="llm-math-body" style="padding: 0.65rem 1rem; font-size: 0.92rem;">
+          <div class="llm-math-body" style="padding: 0.65rem 1rem;">
             <strong>Unrelated:</strong> Unrelated concepts remain nearly orthogonal in high-dimensional space.
           </div>
         </div>
 
         <div class="llm-math-card" style="border-color: #c4b5fd;">
           <div class="llm-math-header" style="background: #f5f3ff;">
-            <span class="llm-math-symbol" style="font-size: 0.98rem; color: #6d28d9;"><span>e<sub>king</sub> &minus; e<sub>man</sub> + e<sub>woman</sub></span></span>
-            <span class="llm-math-shape" id="emb-analogy-match" style="color: #6d28d9; background: #ede9fe; border-color: #ddd6fe;">&approx; e_queen (99%)</span>
+            <span class="llm-math-symbol" style="color: #6d28d9; font-size: 0.96rem;">{{ transform.ToMath `\mathbf{e}_{\text{king}} - \mathbf{e}_{\text{man}} + \mathbf{e}_{\text{woman}}` $m }}</span>
+            <span class="llm-math-shape" id="emb-analogy-pct" style="color: #6d28d9; background: #ede9fe; border-color: #ddd6fe;">+0.990</span>
           </div>
-          <div class="llm-math-body" style="padding: 0.65rem 1rem; font-size: 0.92rem;">
-            <strong>Linear Analogy:</strong> Parallel dashed offset vectors connect <code>man &rarr; woman</code> and <code>king &rarr; queen</code>.
+          <div class="llm-math-body" style="padding: 0.65rem 1rem;">
+            <strong>Linear Analogy ({{ transform.ToMath `\approx \mathbf{e}_{\text{queen}}` $m }}):</strong> Parallel offset vectors connect <code>man &rarr; woman</code> and <code>king &rarr; queen</code>.
           </div>
         </div>
       </div>
@@ -118,7 +121,7 @@
   const progVal = document.getElementById('emb-progress-val');
   const simCat = document.getElementById('emb-sim-cat');
   const simUnrel = document.getElementById('emb-sim-unrel');
-  const analogyMatch = document.getElementById('emb-analogy-match');
+  const analogyPct = document.getElementById('emb-analogy-pct');
   const captionEl = document.getElementById('emb-caption-text');
   const badgeEl = document.getElementById('emb-stage-badge');
   const playBtn = document.getElementById('emb-play-btn');
@@ -166,10 +169,10 @@
 
     const cCat = (0.04 + 0.942 * ease).toFixed(3);
     const cUnrel = (-0.08 + 0.22 * ease).toFixed(3);
-    const aPct = Math.round(18 + 81 * ease);
+    const aSim = (0.18 + 0.810 * ease).toFixed(3);
     simCat.textContent = (cCat >= 0 ? '+' : '') + cCat;
     simUnrel.textContent = (cUnrel >= 0 ? '+' : '') + cUnrel;
-    analogyMatch.textContent = '≈ e_queen (' + aPct + '%)';
+    if (analogyPct) analogyPct.textContent = '+' + aSim;
 
     if (p < 20) {
       badgeEl.textContent = 'Random Init';

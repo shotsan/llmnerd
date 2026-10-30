@@ -54,20 +54,13 @@ flowchart LR
 
 Prior to 2017, sequence-to-sequence translation relied on recurrent networks (LSTMs, GRUs) that processed tokens step-by-step. The original Transformer broke this bottleneck by introducing a dual-stack **Encoder-Decoder** architecture built purely on self-attention and cross-attention:
 
-```
-Source Sequence (e.g., French)        Target Sequence (e.g., English)
-           │                                       │
-     ┌─────▼─────┐                           ┌─────▼─────┐
-     │  Encoder  │                           │  Decoder  │
-     │(Bidirect.)│                           │ (Causal)  │
-     └─────┬─────┘                           └─────┬─────┘
-           │                                       │
-           └────────────► [Cross-Attention] ◄──────┘
-                                   │
-                           ┌───────▼───────┐
-                           │   Next-Word   │
-                           │  Prediction   │
-                           └───────────────┘
+```mermaid
+flowchart LR
+    Src["<b>Source Sequence</b><br/>Input Tokens"] --> Enc["<b>Encoder Stack</b><br/>Bidirectional Self-Attention"]
+    Tgt["<b>Target Prefix</b><br/>Generated Tokens"] --> Dec["<b>Decoder Stack</b><br/>Causal Self-Attention"]
+    Enc -->|"Keys K<sub>enc</sub>, Values V<sub>enc</sub>"| Cross["<b>Cross-Attention</b><br/>Conditioning Layer"]
+    Dec -->|"Queries Q<sub>dec</sub>"| Cross
+    Cross --> Out["<b>Output Head</b><br/>Next-Token Logits"]
 ```
 
 ### Cross-Attention Conditioning
@@ -102,7 +95,7 @@ Modern frontier foundation models (LLaMA 3, Mistral, Gemma, Qwen) have converged
 flowchart LR
     subgraph Block["Modern Decoder Block (Pre-RMSNorm)"]
         direction TB
-        In["<b>Hidden State (x_l)</b>"] --> Norm1["<b>RMSNorm</b>"]
+        In["<b>Hidden State (x<sub>l</sub>)</b>"] --> Norm1["<b>RMSNorm</b>"]
         Norm1 --> Attn["<b>GQA with RoPE</b>"]
         In --> Add1["<b>Residual Sum (⊕)</b>"]
         Attn --> Add1
@@ -111,7 +104,7 @@ flowchart LR
         Norm2 --> SwiGLU["<b>SwiGLU MLP</b>"]
         Add1 --> Add2["<b>Residual Sum (⊕)</b>"]
         SwiGLU --> Add2
-        Add2 --> Out["<b>Hidden State (x_{l+1})</b>"]
+        Add2 --> Out["<b>Hidden State (x<sub>l+1</sub>)</b>"]
     end
 ```
 
@@ -161,10 +154,10 @@ Standard Grouped-Query Attention (GQA) reduces KV-cache by sharing key-value hea
 
 ```mermaid
 flowchart LR
-    H["<b>Hidden State (h_t)</b>"] --> Down["<b>Down-Projection</b><br/>W^(DKV)"]
-    Down --> Latent["<b>Compressed Latent c_t^(KV)</b><br/>★ ONLY Vector Stored in KV-Cache"]
-    Latent --> UpK["<b>Up-Project Keys</b><br/>W^(UK)"]
-    Latent --> UpV["<b>Up-Project Values</b><br/>W^(UV)"]
+    H["<b>Hidden State (h<sub>t</sub>)</b>"] --> Down["<b>Down-Projection</b><br/>W<sup>DKV</sup>"]
+    Down --> Latent["<b>Compressed Latent c<sub>t</sub><sup>KV</sup></b><br/>★ ONLY Vector Stored in KV-Cache"]
+    Latent --> UpK["<b>Up-Project Keys</b><br/>W<sup>UK</sup>"]
+    Latent --> UpV["<b>Up-Project Values</b><br/>W<sup>UV</sup>"]
     UpK --> Attn["<b>Attention Core</b>"]
     UpV --> Attn
     RoPE["<b>Decoupled RoPE Key</b>"] --> Attn

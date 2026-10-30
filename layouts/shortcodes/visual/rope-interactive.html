@@ -1,10 +1,13 @@
+{{- $m := dict "output" "html" "displayMode" false -}}
+{{- $.Page.Store.Set "hasMath" true -}}
+
 <div class="llm-motion-player not-prose" id="rope-motion-root">
   <!-- Header -->
   <div class="llm-motion-header">
     <div>
       <h3 class="llm-blueprint-title">Rotary Position Embedding (RoPE) Relative Invariance Simulator</h3>
       <p class="llm-motion-goal">
-        Shift both tokens forward in a sentence (m &rarr; m+&Delta;, n &rarr; n+&Delta;) to see how the relative angle (n&minus;m)&theta; and dot product stay 100% constant.
+        Shift both tokens forward in a sentence ({{ transform.ToMath `m \to m+\Delta,\; n \to n+\Delta` $m }}) to see how the relative angle {{ transform.ToMath `(n-m)\theta` $m }} and dot product stay 100% constant.
       </p>
     </div>
 
@@ -54,11 +57,11 @@
 
           <!-- Query Vector q_m -->
           <line id="rope-vec-q" x1="0" y1="0" x2="100" y2="0" stroke="#4f46e5" stroke-width="3" marker-end="url(#rope-arr-q)" />
-          <text id="rope-lbl-q" x="108" y="4" fill="#4f46e5" font-size="12" font-weight="700" font-family="monospace">q_m</text>
+          <text id="rope-lbl-q" x="108" y="4" fill="#4f46e5" font-size="12" font-weight="700" font-family="monospace">q<tspan dy="3" font-size="9">m</tspan></text>
 
           <!-- Key Vector k_n -->
           <line id="rope-vec-k" x1="0" y1="0" x2="0" y2="-100" stroke="#059669" stroke-width="3" marker-end="url(#rope-arr-k)" />
-          <text id="rope-lbl-k" x="8" y="-108" fill="#059669" font-size="12" font-weight="700" font-family="monospace">k_n</text>
+          <text id="rope-lbl-k" x="8" y="-108" fill="#059669" font-size="12" font-weight="700" font-family="monospace">k<tspan dy="3" font-size="9">n</tspan></text>
 
           <circle cx="0" cy="0" r="3.5" fill="#0f172a" />
         </svg>
@@ -68,32 +71,32 @@
       <div style="display: flex; flex-direction: column; gap: 0.75rem; justify-content: center;">
         <div class="llm-math-card">
           <div class="llm-math-header">
-            <span class="llm-math-symbol" style="font-size: 0.96rem; color: #4f46e5;">Query Angle (m &middot; &theta;)</span>
+            <span class="llm-math-symbol" style="color: #4f46e5;">Query Angle ({{ transform.ToMath `m \cdot \theta` $m }})</span>
             <span class="llm-math-shape" id="rope-read-q">30.0&deg;</span>
           </div>
-          <div class="llm-math-body" style="padding: 0.65rem 1rem; font-size: 0.92rem;">
-            Token at position <strong>m</strong> rotates counterclockwise by <code>m&theta;</code>.
+          <div class="llm-math-body" style="padding: 0.65rem 1rem;">
+            Token at position {{ transform.ToMath `m` $m }} rotates counterclockwise by {{ transform.ToMath `m\theta` $m }}.
           </div>
         </div>
 
         <div class="llm-math-card">
           <div class="llm-math-header">
-            <span class="llm-math-symbol" style="font-size: 0.96rem; color: #059669;">Key Angle (n &middot; &theta;)</span>
+            <span class="llm-math-symbol" style="color: #059669;">Key Angle ({{ transform.ToMath `n \cdot \theta` $m }})</span>
             <span class="llm-math-shape" id="rope-read-k" style="color: #047857; background: #d1fae5; border-color: #a7f3d0;">90.0&deg;</span>
           </div>
-          <div class="llm-math-body" style="padding: 0.65rem 1rem; font-size: 0.92rem;">
-            Token at position <strong>n</strong> rotates counterclockwise by <code>n&theta;</code>.
+          <div class="llm-math-body" style="padding: 0.65rem 1rem;">
+            Token at position {{ transform.ToMath `n` $m }} rotates counterclockwise by {{ transform.ToMath `n\theta` $m }}.
           </div>
         </div>
 
         <div class="llm-math-card" style="border-color: #c4b5fd;">
           <div class="llm-math-header" style="background: #f5f3ff;">
-            <span class="llm-math-symbol" style="font-size: 0.96rem; color: #6d28d9;">Relative Angle &Delta;&phi;</span>
+            <span class="llm-math-symbol" style="color: #6d28d9;">Relative Angle {{ transform.ToMath `\Delta\phi` $m }}</span>
             <span class="llm-math-shape" id="rope-read-diff" style="color: #6d28d9; background: #ede9fe; border-color: #ddd6fe;">60.0&deg; (n&minus;m = 2.0)</span>
           </div>
-          <div class="llm-math-body" style="padding: 0.7rem 1rem; font-size: 0.92rem;">
+          <div class="llm-math-body" style="padding: 0.7rem 1rem;">
             <div style="display: flex; align-items: center; justify-content: space-between;">
-              <strong>Dot Product &langle;R<sub>m</sub>q, R<sub>n</sub>k&rangle;:</strong>
+              <strong>Dot Product {{ transform.ToMath `\langle \mathbf{R}_m\mathbf{q}, \mathbf{R}_n\mathbf{k} \rangle` $m }}:</strong>
               <span id="rope-read-dot" style="font-family: monospace; font-size: 1.05rem; font-weight: 700; color: #6d28d9;">+0.500</span>
             </div>
           </div>
