@@ -134,58 +134,6 @@ where $\odot$ represents element-wise multiplication. By using a multiplicative 
 
 ---
 
-## PyTorch Implementation
-
-Here is how a modern Pre-RMSNorm Transformer block is constructed in PyTorch:
-
-```python
-import torch
-import torch.nn as nn
-import torch.nn.functional as F
-
-class RMSNorm(nn.Module):
-    def __init__(self, dim: int, eps: float = 1e-6):
-        super().__init__()
-        self.eps = eps
-        self.weight = nn.Parameter(torch.ones(dim))
-
-    def forward(self, x: torch.Tensor) -> torch.Tensor:
-        # Root Mean Square normalization (no mean-centering)
-        rms = torch.rsqrt(x.pow(2).mean(-1, keepdim=True) + self.eps)
-        return x * rms * self.weight
-
-class SwiGLUMLP(nn.Module):
-    def __init__(self, dim: int, hidden_dim: int):
-        super().__init__()
-        self.w_gate = nn.Linear(dim, hidden_dim, bias=False)
-        self.w_up = nn.Linear(dim, hidden_dim, bias=False)
-        self.w_down = nn.Linear(hidden_dim, dim, bias=False)
-
-    def forward(self, x: torch.Tensor) -> torch.Tensor:
-        # Swish(x * W_gate) * (x * W_up) -> W_down
-        return self.w_down(F.silu(self.w_gate(x)) * self.w_up(x))
-
-class ModernDecoderBlock(nn.Module):
-    def __init__(self, dim: int, num_heads: int, mlp_hidden_dim: int):
-        super().__init__()
-        self.norm1 = RMSNorm(dim)
-        self.attn = nn.MultiheadAttention(dim, num_heads, batch_first=True)
-        self.norm2 = RMSNorm(dim)
-        self.mlp = SwiGLUMLP(dim, mlp_hidden_dim)
-
-    def forward(self, x: torch.Tensor, mask: torch.Tensor = None) -> torch.Tensor:
-        # 1. Pre-Norm Attention + Residual Highway
-        normed = self.norm1(x)
-        attn_out, _ = self.attn(normed, normed, normed, attn_mask=mask)
-        x = x + attn_out
-        
-        # 2. Pre-Norm SwiGLU + Residual Highway
-        x = x + self.mlp(self.norm2(x))
-        return x
-```
-
----
-
 ## 4. Sparse Mixture of Experts (MoE)
 
 In standard dense models, every parameter is activated for every token. Scaling capacity to hundreds of billions of parameters linearly multiplies floating-point operations (FLOPs) and compute costs.

@@ -2,12 +2,9 @@
   <!-- Header -->
   <div class="llm-motion-header">
     <div>
-      <div class="llm-blueprint-title-wrap">
-        <span class="llm-badge llm-badge-amber">Motion Canvas &amp; Experiment</span>
-        <h3 class="llm-blueprint-title">Sparse Mixture-of-Experts (MoE) Top-2 Router Animator</h3>
-      </div>
+      <h3 class="llm-blueprint-title">Sparse Mixture-of-Experts (MoE) Top-2 Router Simulator</h3>
       <p class="llm-motion-goal">
-        <strong>Learning Goal:</strong> Watch how the Gating Router dynamically activates only K = 2 out of E = 8 SwiGLU expert networks per token, achieving 8&times; parameter capacity at 25% active FLOPs.
+        Step through how the Gating Router dynamically activates only k = 2 out of E = 8 SwiGLU expert networks per token, achieving 8&times; parameter capacity at 25% active FLOPs.
       </p>
     </div>
 
@@ -21,24 +18,24 @@
 
   <!-- Stage -->
   <div class="llm-motion-stage">
-    <svg id="moe-svg" viewBox="0 0 820 225" width="100%" style="max-width: 820px; height: auto; display: block;" xmlns="http://www.w3.org/2000/svg">
-      <rect x="2" y="2" width="816" height="221" rx="10" fill="#f8fafc" stroke="#e2e8f0" stroke-width="1.5" />
+    <svg id="moe-svg" viewBox="0 0 820 232" width="100%" style="max-width: 820px; height: auto; display: block;" xmlns="http://www.w3.org/2000/svg">
+      <rect x="2" y="2" width="816" height="228" rx="10" fill="#f8fafc" stroke="#e2e8f0" stroke-width="1.5" />
 
       <!-- Input Token Box -->
-      <g transform="translate(22, 82)">
-        <rect width="128" height="60" rx="8" fill="#1e293b" />
-        <text x="64" y="24" text-anchor="middle" fill="#94a3b8" font-size="10" font-weight="700" font-family="sans-serif">INPUT TOKEN x</text>
-        <text id="moe-tok-text" x="64" y="45" text-anchor="middle" fill="#ffffff" font-size="14" font-weight="700" font-family="monospace">"def"</text>
+      <g transform="translate(22, 84)">
+        <rect width="128" height="62" rx="8" fill="#1e293b" />
+        <text x="64" y="24" text-anchor="middle" fill="#94a3b8" font-size="10.5" font-weight="700" font-family="sans-serif">INPUT TOKEN x</text>
+        <text id="moe-tok-text" x="64" y="46" text-anchor="middle" fill="#ffffff" font-size="14.5" font-weight="700" font-family="monospace">def</text>
       </g>
 
-      <line x1="150" y1="112" x2="195" y2="112" stroke="#64748b" stroke-width="2.2" />
+      <line x1="150" y1="115" x2="195" y2="115" stroke="#64748b" stroke-width="2.2" />
 
       <!-- Gating Router Box -->
-      <g transform="translate(196, 76)">
-        <rect width="134" height="72" rx="9" fill="#4f46e5" />
-        <text x="67" y="26" text-anchor="middle" fill="#ffffff" font-size="12" font-weight="700" font-family="sans-serif">Gating Router</text>
-        <text x="67" y="44" text-anchor="middle" fill="#e0e7ff" font-size="10" font-family="monospace">TopK(x · W_g, k=2)</text>
-        <text x="67" y="60" text-anchor="middle" fill="#c7d2fe" font-size="9.5" font-family="monospace">Softmax Gate g_i</text>
+      <g transform="translate(196, 78)">
+        <rect width="134" height="74" rx="9" fill="#4f46e5" />
+        <text x="67" y="26" text-anchor="middle" fill="#ffffff" font-size="12.5" font-weight="700" font-family="sans-serif">Gating Router</text>
+        <text x="67" y="45" text-anchor="middle" fill="#e0e7ff" font-size="10.5" font-family="monospace">TopK(x · W_g, k=2)</text>
+        <text x="67" y="62" text-anchor="middle" fill="#c7d2fe" font-size="10" font-family="monospace">Softmax Gate g_i</text>
       </g>
 
       <!-- Dynamic Routing Wires & 8 Expert Boxes -->
@@ -46,11 +43,11 @@
       <g id="moe-experts-layer"></g>
 
       <!-- Output Weighted Sum Box -->
-      <g transform="translate(658, 76)">
-        <rect width="140" height="72" rx="9" fill="#059669" />
-        <text x="70" y="26" text-anchor="middle" fill="#ffffff" font-size="12" font-weight="700" font-family="sans-serif">MoE Output y</text>
-        <text id="moe-out-formula" x="70" y="45" text-anchor="middle" fill="#d1fae5" font-size="10" font-family="monospace">0.64·E₂ + 0.36·E₇</text>
-        <text x="70" y="61" text-anchor="middle" fill="#a7f3d0" font-size="9.5" font-family="sans-serif">6 Experts Dormant (0 FLOPs)</text>
+      <g transform="translate(658, 78)">
+        <rect width="140" height="74" rx="9" fill="#059669" />
+        <text x="70" y="26" text-anchor="middle" fill="#ffffff" font-size="12.5" font-weight="700" font-family="sans-serif">MoE Output y</text>
+        <text id="moe-out-formula" x="70" y="46" text-anchor="middle" fill="#d1fae5" font-size="10.5" font-family="monospace">0.64·E₂ + 0.36·E₇</text>
+        <text x="70" y="62" text-anchor="middle" fill="#a7f3d0" font-size="10" font-family="sans-serif">6 Experts Dormant (0 FLOPs)</text>
       </g>
     </svg>
   </div>
@@ -94,32 +91,32 @@
 
   const samples = [
     {
-      token: '"def"',
+      token: 'def',
       top: [1, 6],
       weights: [0.64, 0.36],
       formula: '0.64·E₂ + 0.36·E₇',
-      caption: '<strong>Token <code>"def"</code> (Python Keyword):</strong> Router activates <strong>Expert #2 (Code)</strong> with weight 0.64 and <strong>Expert #7 (Algorithms)</strong> with weight 0.36. The other 6 experts consume zero compute.'
+      caption: '<strong>Token <code>def</code> (Python Keyword):</strong> Router activates <strong>Expert #2 (Code)</strong> with weight 0.64 and <strong>Expert #7 (Algorithms)</strong> with weight 0.36. The other 6 experts consume zero compute.'
     },
     {
-      token: '"∫xdx"',
+      token: '∫xdx',
       top: [2, 6],
       weights: [0.72, 0.28],
       formula: '0.72·E₃ + 0.28·E₇',
-      caption: '<strong>Token <code>"∫xdx"</code> (Calculus Expression):</strong> Router dispatches token to <strong>Expert #3 (Math/Logic)</strong> (0.72) and <strong>Expert #7 (Algorithms)</strong> (0.28).'
+      caption: '<strong>Token <code>∫xdx</code> (Calculus Expression):</strong> Router dispatches token to <strong>Expert #3 (Math/Logic)</strong> (0.72) and <strong>Expert #7 (Algorithms)</strong> (0.28).'
     },
     {
-      token: '"Shakespeare"',
+      token: 'Shakespeare',
       top: [3, 4],
       weights: [0.58, 0.42],
       formula: '0.58·E₄ + 0.42·E₅',
-      caption: '<strong>Token <code>"Shakespeare"</code> (Named Entity):</strong> Router selects <strong>Expert #4 (Entities)</strong> (0.58) and <strong>Expert #5 (Prose/Style)</strong> (0.42).'
+      caption: '<strong>Token <code>Shakespeare</code> (Named Entity):</strong> Router selects <strong>Expert #4 (Entities)</strong> (0.58) and <strong>Expert #5 (Prose/Style)</strong> (0.42).'
     },
     {
-      token: '"bonjour"',
+      token: 'bonjour',
       top: [5, 0],
       weights: [0.69, 0.31],
       formula: '0.69·E₆ + 0.31·E₁',
-      caption: '<strong>Token <code>"bonjour"</code> (French Greeting):</strong> Router routes to <strong>Expert #6 (Multilingual)</strong> (0.69) and <strong>Expert #1 (Syntax)</strong> (0.31).'
+      caption: '<strong>Token <code>bonjour</code> (French Greeting):</strong> Router routes to <strong>Expert #6 (Multilingual)</strong> (0.69) and <strong>Expert #1 (Syntax)</strong> (0.31).'
     }
   ];
 
@@ -150,8 +147,8 @@
     let expHtml = '';
 
     for (let i = 0; i < 8; i++) {
-      const y = 14 + i * 25;
-      const centerY = y + 10;
+      const y = 14 + i * 26;
+      const centerY = y + 11;
       const topPos = s.top.indexOf(i);
       const isSelected = topPos !== -1;
       const w = isSelected ? s.weights[topPos] : 0;
@@ -161,24 +158,22 @@
       const dash = isSelected ? '' : 'stroke-dasharray="3 3"';
       const op = isSelected ? '1' : '0.45';
 
-      // Wire from Router (x=330, y=112) to Expert (x=420, y=centerY)
-      wiresHtml += '<path d="M 330 112 L 420 ' + centerY + '" stroke="' + strokeCol + '" stroke-width="' + strokeW + '" ' + dash + ' opacity="' + op + '" fill="none" />';
-      // Wire from Expert (x=570, y=centerY) to Output (x=658, y=112)
+      wiresHtml += '<path d="M 330 115 L 415 ' + centerY + '" stroke="' + strokeCol + '" stroke-width="' + strokeW + '" ' + dash + ' opacity="' + op + '" fill="none" />';
       if (isSelected) {
-        wiresHtml += '<path d="M 570 ' + centerY + ' L 658 112" stroke="#059669" stroke-width="2.4" fill="none" />';
+        wiresHtml += '<path d="M 575 ' + centerY + ' L 658 115" stroke="#059669" stroke-width="2.4" fill="none" />';
       } else {
-        wiresHtml += '<path d="M 570 ' + centerY + ' L 658 112" stroke="#cbd5e1" stroke-width="1" stroke-dasharray="3 3" opacity="0.35" fill="none" />';
+        wiresHtml += '<path d="M 575 ' + centerY + ' L 658 115" stroke="#cbd5e1" stroke-width="1" stroke-dasharray="3 3" opacity="0.35" fill="none" />';
       }
 
       const bg = isSelected ? '#d1fae5' : '#ffffff';
       const bdr = isSelected ? '#059669' : '#cbd5e1';
-      const txtCol = isSelected ? '#065f46' : '#64748b';
+      const txtCol = isSelected ? '#065f46' : '#475569';
       const badgeTxt = isSelected ? ('g=' + w.toFixed(2)) : '0.00';
 
-      expHtml += '<g transform="translate(420, ' + y + ')">';
-      expHtml += '<rect width="150" height="21" rx="4" fill="' + bg + '" stroke="' + bdr + '" stroke-width="' + (isSelected ? '1.8' : '1') + '" />';
-      expHtml += '<text x="8" y="14" fill="' + txtCol + '" font-size="9.5" font-weight="700" font-family="sans-serif">' + expertNames[i] + '</text>';
-      expHtml += '<text x="142" y="14" text-anchor="end" fill="' + txtCol + '" font-size="9" font-weight="700" font-family="monospace">' + badgeTxt + '</text>';
+      expHtml += '<g transform="translate(415, ' + y + ')">';
+      expHtml += '<rect width="160" height="22" rx="4" fill="' + bg + '" stroke="' + bdr + '" stroke-width="' + (isSelected ? '1.8' : '1') + '" />';
+      expHtml += '<text x="9" y="15" fill="' + txtCol + '" font-size="10.5" font-weight="700" font-family="sans-serif">' + expertNames[i] + '</text>';
+      expHtml += '<text x="151" y="15" text-anchor="end" fill="' + txtCol + '" font-size="10" font-weight="700" font-family="monospace">' + badgeTxt + '</text>';
       expHtml += '</g>';
     }
 

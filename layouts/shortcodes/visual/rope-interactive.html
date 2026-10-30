@@ -2,29 +2,26 @@
   <!-- Header -->
   <div class="llm-motion-header">
     <div>
-      <div class="llm-blueprint-title-wrap">
-        <span class="llm-badge llm-badge-indigo">Motion Canvas &amp; Experiment</span>
-        <h3 class="llm-blueprint-title">Rotary Position Embedding (RoPE) Relative Invariance Animator</h3>
-      </div>
+      <h3 class="llm-blueprint-title">Rotary Position Embedding (RoPE) Relative Invariance Simulator</h3>
       <p class="llm-motion-goal">
-        <strong>Learning Goal:</strong> Press <em>Play Shift Animation</em> to watch both tokens shift forward in a sentence (m &rarr; m+&Delta;, n &rarr; n+&Delta;). Even as both vectors rotate, the relative angle (n&minus;m)&theta; and dot product stay 100% constant.
+        Shift both tokens forward in a sentence (m &rarr; m+&Delta;, n &rarr; n+&Delta;) to see how the relative angle (n&minus;m)&theta; and dot product stay 100% constant.
       </p>
     </div>
 
     <div class="llm-param-bar">
       <div class="llm-param-item">
         <label for="rope-pos-m" class="llm-param-label" style="color: #4f46e5;">Query m:</label>
-        <input type="range" id="rope-pos-m" min="0" max="8" step="0.05" value="1" style="width: 70px; accent-color: #4f46e5; cursor: pointer;">
+        <input type="range" id="rope-pos-m" min="0" max="8" step="0.05" value="1" style="width: 75px; accent-color: #4f46e5; cursor: pointer;">
         <span id="rope-val-m" class="llm-param-val" style="color: #4f46e5;">1.0</span>
       </div>
-      <div class="llm-param-item" style="padding-left: 0.65rem; border-left: 1px solid #cbd5e1;">
+      <div class="llm-param-item" style="padding-left: 0.75rem; border-left: 1px solid #cbd5e1;">
         <label for="rope-pos-n" class="llm-param-label" style="color: #059669;">Key n:</label>
-        <input type="range" id="rope-pos-n" min="0" max="8" step="0.05" value="3" style="width: 70px; accent-color: #059669; cursor: pointer;">
+        <input type="range" id="rope-pos-n" min="0" max="8" step="0.05" value="3" style="width: 75px; accent-color: #059669; cursor: pointer;">
         <span id="rope-val-n" class="llm-param-val" style="color: #059669;">3.0</span>
       </div>
-      <div class="llm-param-item" style="padding-left: 0.65rem; border-left: 1px solid #cbd5e1;">
+      <div class="llm-param-item" style="padding-left: 0.75rem; border-left: 1px solid #cbd5e1;">
         <label for="rope-theta" class="llm-param-label">&theta;:</label>
-        <input type="range" id="rope-theta" min="15" max="45" step="5" value="30" style="width: 60px; accent-color: #7c3aed; cursor: pointer;">
+        <input type="range" id="rope-theta" min="15" max="45" step="5" value="30" style="width: 65px; accent-color: #7c3aed; cursor: pointer;">
         <span id="rope-val-theta" class="llm-param-val" style="color: #7c3aed;">30&deg;</span>
       </div>
     </div>
@@ -34,8 +31,8 @@
   <div class="llm-motion-stage">
     <div class="llm-math-grid" style="width: 100%; margin: 0; align-items: stretch;">
       <!-- Left: 2D Complex Unit Circle -->
-      <div class="llm-math-card" style="align-items: center; justify-content: center; padding: 1rem;">
-        <svg id="rope-canvas" viewBox="-140 -140 280 280" width="260" height="260" style="max-width: 260px; height: auto; display: block; user-select: none;" xmlns="http://www.w3.org/2000/svg">
+      <div class="llm-math-card" style="align-items: center; justify-content: center; padding: 1.1rem;">
+        <svg id="rope-canvas" viewBox="-140 -140 280 280" width="275" height="275" style="max-width: 275px; height: auto; display: block; user-select: none;" xmlns="http://www.w3.org/2000/svg">
           <defs>
             <marker id="rope-arr-q" viewBox="0 0 10 10" refX="7" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
               <path d="M 0 1.5 L 8 5 L 0 8.5 z" fill="#4f46e5" />
@@ -49,55 +46,55 @@
           <circle cx="0" cy="0" r="102" fill="#f8fafc" stroke="#cbd5e1" stroke-width="1.5" stroke-dasharray="4 3" />
           <line x1="-125" y1="0" x2="125" y2="0" stroke="#cbd5e1" stroke-width="1.2" />
           <line x1="0" y1="-125" x2="0" y2="125" stroke="#cbd5e1" stroke-width="1.2" />
-          <text x="112" y="-6" fill="#64748b" font-size="9.5" font-family="monospace">Re</text>
-          <text x="-22" y="-116" fill="#64748b" font-size="9.5" font-family="monospace">Im</text>
+          <text x="110" y="-7" fill="#475569" font-size="11" font-weight="600" font-family="monospace">Re</text>
+          <text x="-24" y="-115" fill="#475569" font-size="11" font-weight="600" font-family="monospace">Im</text>
 
           <!-- Shaded Relative Angle Wedge -->
           <path id="rope-wedge" d="" fill="rgba(124, 58, 237, 0.16)" stroke="#7c3aed" stroke-width="1.5" />
 
           <!-- Query Vector q_m -->
           <line id="rope-vec-q" x1="0" y1="0" x2="100" y2="0" stroke="#4f46e5" stroke-width="3" marker-end="url(#rope-arr-q)" />
-          <text id="rope-lbl-q" x="108" y="4" fill="#4f46e5" font-size="11" font-weight="700" font-family="monospace">q_m</text>
+          <text id="rope-lbl-q" x="108" y="4" fill="#4f46e5" font-size="12" font-weight="700" font-family="monospace">q_m</text>
 
           <!-- Key Vector k_n -->
           <line id="rope-vec-k" x1="0" y1="0" x2="0" y2="-100" stroke="#059669" stroke-width="3" marker-end="url(#rope-arr-k)" />
-          <text id="rope-lbl-k" x="6" y="-108" fill="#059669" font-size="11" font-weight="700" font-family="monospace">k_n</text>
+          <text id="rope-lbl-k" x="8" y="-108" fill="#059669" font-size="12" font-weight="700" font-family="monospace">k_n</text>
 
           <circle cx="0" cy="0" r="3.5" fill="#0f172a" />
         </svg>
       </div>
 
       <!-- Right: Live Mathematical Readouts -->
-      <div style="display: flex; flex-direction: column; gap: 0.7rem; justify-content: center;">
+      <div style="display: flex; flex-direction: column; gap: 0.75rem; justify-content: center;">
         <div class="llm-math-card">
           <div class="llm-math-header">
-            <span class="llm-math-symbol" style="font-size: 0.86rem; color: #4f46e5;">Query Rotation Angle (m &middot; &theta;)</span>
+            <span class="llm-math-symbol" style="font-size: 0.96rem; color: #4f46e5;">Query Angle (m &middot; &theta;)</span>
             <span class="llm-math-shape" id="rope-read-q">30.0&deg;</span>
           </div>
-          <div class="llm-math-body" style="padding: 0.55rem 1rem; font-size: 0.8rem;">
+          <div class="llm-math-body" style="padding: 0.65rem 1rem; font-size: 0.92rem;">
             Token at position <strong>m</strong> rotates counterclockwise by <code>m&theta;</code>.
           </div>
         </div>
 
         <div class="llm-math-card">
           <div class="llm-math-header">
-            <span class="llm-math-symbol" style="font-size: 0.86rem; color: #059669;">Key Rotation Angle (n &middot; &theta;)</span>
+            <span class="llm-math-symbol" style="font-size: 0.96rem; color: #059669;">Key Angle (n &middot; &theta;)</span>
             <span class="llm-math-shape" id="rope-read-k" style="color: #047857; background: #d1fae5; border-color: #a7f3d0;">90.0&deg;</span>
           </div>
-          <div class="llm-math-body" style="padding: 0.55rem 1rem; font-size: 0.8rem;">
+          <div class="llm-math-body" style="padding: 0.65rem 1rem; font-size: 0.92rem;">
             Token at position <strong>n</strong> rotates counterclockwise by <code>n&theta;</code>.
           </div>
         </div>
 
         <div class="llm-math-card" style="border-color: #c4b5fd;">
           <div class="llm-math-header" style="background: #f5f3ff;">
-            <span class="llm-math-symbol" style="font-size: 0.86rem; color: #6d28d9;">Relative Angle &Delta;&phi;</span>
+            <span class="llm-math-symbol" style="font-size: 0.96rem; color: #6d28d9;">Relative Angle &Delta;&phi;</span>
             <span class="llm-math-shape" id="rope-read-diff" style="color: #6d28d9; background: #ede9fe; border-color: #ddd6fe;">60.0&deg; (n&minus;m = 2.0)</span>
           </div>
-          <div class="llm-math-body" style="padding: 0.65rem 1rem; font-size: 0.82rem;">
+          <div class="llm-math-body" style="padding: 0.7rem 1rem; font-size: 0.92rem;">
             <div style="display: flex; align-items: center; justify-content: space-between;">
-              <strong>Attention Dot Product &langle;R<sub>m</sub>q, R<sub>n</sub>k&rangle;:</strong>
-              <span id="rope-read-dot" style="font-family: monospace; font-size: 0.95rem; font-weight: 700; color: #6d28d9;">+0.500</span>
+              <strong>Dot Product &langle;R<sub>m</sub>q, R<sub>n</sub>k&rangle;:</strong>
+              <span id="rope-read-dot" style="font-family: monospace; font-size: 1.05rem; font-weight: 700; color: #6d28d9;">+0.500</span>
             </div>
           </div>
         </div>
@@ -108,7 +105,7 @@
   <!-- Live Narration Caption -->
   <div class="llm-motion-caption">
     <span id="rope-caption-text">
-      <strong>Relative Distance Principle:</strong> Because &langle;R(m&theta;)q, R(n&theta;)k&rangle; = &langle;q, R((n&minus;m)&theta;)k&rangle;, shifting both tokens by the same offset preserves the purple wedge angle and dot product!
+      <strong>Relative Distance Principle:</strong> Because &langle;R(m&theta;)q, R(n&theta;)k&rangle; = &langle;q, R((n&minus;m)&theta;)k&rangle;, shifting both tokens by the same offset preserves the purple wedge angle and dot product.
     </span>
     <span class="llm-badge llm-badge-indigo" id="rope-dist-badge">&Delta;pos = 2.0</span>
   </div>
@@ -118,7 +115,7 @@
     <div class="llm-btn-group">
       <button type="button" class="llm-btn-play" id="rope-play-btn">
         <span id="rope-play-icon">&#9654;</span>
-        <span id="rope-play-label">Play Shift Animation (m+&Delta;, n+&Delta;)</span>
+        <span id="rope-play-label">Play Position Shift (m+&Delta;, n+&Delta;)</span>
       </button>
       <button type="button" class="llm-btn-step" id="rope-reset-btn">Reset Positions</button>
     </div>
@@ -186,15 +183,14 @@
 
     vecQ.setAttribute('x2', qx.toFixed(1));
     vecQ.setAttribute('y2', qy.toFixed(1));
-    lblQ.setAttribute('x', (1.17 * qx - 8).toFixed(1));
-    lblQ.setAttribute('y', (1.17 * qy + 4).toFixed(1));
+    lblQ.setAttribute('x', (1.18 * qx - 8).toFixed(1));
+    lblQ.setAttribute('y', (1.18 * qy + 4).toFixed(1));
 
     vecK.setAttribute('x2', kx.toFixed(1));
     vecK.setAttribute('y2', ky.toFixed(1));
-    lblK.setAttribute('x', (1.17 * kx - 8).toFixed(1));
-    lblK.setAttribute('y', (1.17 * ky + 4).toFixed(1));
+    lblK.setAttribute('x', (1.18 * kx - 8).toFixed(1));
+    lblK.setAttribute('y', (1.18 * ky + 4).toFixed(1));
 
-    // Draw relative angle wedge arc
     const rArc = 42;
     const sx = rArc * Math.cos(angQ);
     const sy = -rArc * Math.sin(angQ);
@@ -219,7 +215,7 @@
       animId = null;
     }
     playIcon.innerHTML = '&#9654;';
-    playLabel.textContent = 'Play Shift Animation (m+Δ, n+Δ)';
+    playLabel.textContent = 'Play Position Shift (m+Δ, n+Δ)';
   }
 
   function stepFrame() {
@@ -242,7 +238,7 @@
       baseM = 0.5;
       baseN = Math.max(0, Math.min(3.0, baseM + diff));
       playIcon.innerHTML = '&#10074;&#10074;';
-      playLabel.textContent = 'Pause Shift Animation';
+      playLabel.textContent = 'Pause Shift';
       animId = requestAnimationFrame(stepFrame);
     }
   });

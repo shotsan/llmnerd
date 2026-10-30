@@ -127,47 +127,6 @@ Use the interactive simulator below to rotate Query $\mathbf{q}$ and Key $\mathb
 
 ---
 
-## PyTorch Implementation
-
-Here is how Rotary Position Embeddings are implemented in modern LLM architectures:
-
-```python
-import torch
-
-def precompute_freqs_cis(dim: int, max_seq_len: int, theta: float = 10000.0) -> torch.Tensor:
-    """Precomputes complex exponential rotation factors e^(i * m * theta)."""
-    # 1. Frequency bands: theta_i = 1.0 / (theta ** (2i / dim))
-    freqs = 1.0 / (theta ** (torch.arange(0, dim, 2)[: (dim // 2)].float() / dim))
-    
-    # 2. Position indices [0, 1, ..., max_seq_len - 1]
-    positions = torch.arange(max_seq_len)
-    
-    # 3. Outer product: angles m * theta_i
-    angles = torch.outer(positions, freqs)
-    
-    # 4. Complex polar coordinate tensor: e^(i * angle)
-    return torch.polar(torch.ones_like(angles), angles)
-
-def apply_rotary_emb(x: torch.Tensor, freqs_cis: torch.Tensor) -> torch.Tensor:
-    """
-    Applies 2D rotation to consecutive feature pairs of Queries or Keys.
-    x shape: [batch_size, seq_len, num_heads, head_dim]
-    """
-    # View feature pairs as complex numbers: [B, T, H, head_dim // 2]
-    x_complex = torch.view_as_complex(x.float().reshape(*x.shape[:-1], -1, 2))
-    
-    # Broadcast rotation frequencies
-    freqs_cis = freqs_cis[: x.shape[1], None, :]
-    
-    # Rotate via complex multiplication: z_rotated = z * e^(i * m * theta)
-    x_rotated = x_complex * freqs_cis
-    
-    # Flatten back to real coordinates: [B, T, H, head_dim]
-    return torch.view_as_real(x_rotated).flatten(-2)
-```
-
----
-
 ## Extending Context Windows: RoPE Scaling & YaRN
 
 When an LLM trained with RoPE on an $8{,}192$-token context window is asked to evaluate $128{,}000$ tokens, the rotation angles $m\theta$ enter unobserved geometric territory, causing attention entropy to destabilize.

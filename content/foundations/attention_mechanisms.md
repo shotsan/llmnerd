@@ -44,9 +44,9 @@ Each symbol in the governing equation plays a distinct geometric and computation
 ## Forward Pass Walkthrough
 
 To trace the arithmetic mechanics, let us calculate the forward pass for an autoregressive sequence of 3 tokens ($T=3$) with a head dimension of $d_k = 2$:
-* $t_1$: `"The"`
-* $t_2$: `"cat"`
-* $t_3$: `"sat"`
+* $t_1$: `The`
+* $t_2$: `cat`
+* $t_3$: `sat`
 
 ### 1. Projecting Queries, Keys, and Values
 Each token embedding is projected into Query, Key, and Value coordinate matrices $\mathbf{Q}, \mathbf{K}, \mathbf{V} \in \mathbb{R}^{3 \times 2}$:
@@ -105,9 +105,9 @@ $$
 \end{bmatrix}
 $$
 
-* **Row 1 (`"The"`)**: Attends solely to itself ($100\%$).
-* **Row 2 (`"cat"`)**: Distributes attention between `"The"` ($80.4\%$) and `"cat"` ($19.6\%$).
-* **Row 3 (`"sat"`)**: Synthesizes context across `"The"` ($40.1\%$), `"cat"` ($19.8\%$), and `"sat"` ($40.1\%$).
+* **Row 1 (`The`)**: Attends solely to itself ($100\%$).
+* **Row 2 (`cat`)**: Distributes attention between `The` ($80.4\%$) and `cat` ($19.6\%$).
+* **Row 3 (`sat`)**: Synthesizes context across `The` ($40.1\%$), `cat` ($19.8\%$), and `sat` ($40.1\%$).
 
 ### 6. Value Aggregation
 Multiplying attention weights by the Value matrix $\mathbf{V}$ produces the contextual output $\mathbf{O} \in \mathbb{R}^{3 \times 2}$:
@@ -130,7 +130,7 @@ $$
 \end{bmatrix}
 $$
 
-Token 3 (`"sat"`) has synthesized information from `"The"` (40.1%), `"cat"` (19.8%), and itself (40.1%), producing a rich, contextual vector representation.
+Token 3 (`sat`) has synthesized information from `The` (40.1%), `cat` (19.8%), and itself (40.1%), producing a rich, contextual vector representation.
 
 ---
 
@@ -139,50 +139,6 @@ Token 3 (`"sat"`) has synthesized information from `"The"` (40.1%), `"cat"` (19.
 Test the mechanics interactively below. Drag the temperature slider to see how variance scaling influences the sharpness of the probability distribution, or toggle causal masking to compare decoder vs. encoder attention:
 
 {{< visual/attention-interactive >}}
-
----
-
-## PyTorch Implementation
-
-Here is how scaled dot-product attention translates into clean, idiomatic PyTorch:
-
-```python
-import torch
-import torch.nn.functional as F
-import math
-
-def scaled_dot_product_attention(
-    q: torch.Tensor, 
-    k: torch.Tensor, 
-    v: torch.Tensor, 
-    mask: torch.Tensor = None
-) -> tuple[torch.Tensor, torch.Tensor]:
-    """
-    Args:
-        q: Query tensor of shape [batch_size, num_heads, seq_len_q, head_dim]
-        k: Key tensor of shape   [batch_size, num_heads, seq_len_k, head_dim]
-        v: Value tensor of shape [batch_size, num_heads, seq_len_v, head_dim]
-        mask: Optional boolean or additive mask tensor
-    Returns:
-        output: Contextualized output tensor [batch_size, num_heads, seq_len_q, head_dim]
-        attn_weights: Softmax attention map  [batch_size, num_heads, seq_len_q, seq_len_k]
-    """
-    d_k = q.size(-1)
-    
-    # 1. Pairwise compatibility scoring (B, H, T_q, T_k)
-    scores = torch.matmul(q, k.transpose(-2, -1)) / math.sqrt(d_k)
-    
-    # 2. Apply causal mask if provided
-    if mask is not None:
-        scores = scores.masked_fill(mask == 0, float("-inf"))
-        
-    # 3. Probability normalization
-    attn_weights = F.softmax(scores, dim=-1)
-    
-    # 4. Contextual Value aggregation
-    output = torch.matmul(attn_weights, v)
-    return output, attn_weights
-```
 
 ---
 

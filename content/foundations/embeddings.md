@@ -14,7 +14,7 @@ The most basic representation is a **one-hot vector** $e_i \in \{0, 1\}^V$, wher
    $$
    e_i \cdot e_j = 0 \quad (\forall i \neq j)
    $$
-   In one-hot space, `"cat"` is just as distant from `"kitten"` as it is from `"refrigerator"`. The model cannot share statistical learning across semantically related words.
+   In one-hot space, `cat` is just as distant from `kitten` as it is from `refrigerator`. The model cannot share statistical learning across semantically related words.
 2. **The Curse of Dimensionality**: In modern LLMs with vocabulary size $V = 128{,}000$ (e.g. LLaMA 3), a single one-hot vector requires 128,000 sparse dimensions per token, wasting memory and computation.
 
 **Dense embeddings** resolve this by projecting discrete tokens into a continuous coordinate space $\mathbb{R}^d$ (typically $d \in [2048, 8192]$). In this continuous space, tokens become dense vectors whose geometric distances (Euclidean norm) and angular orientations (cosine similarity) reflect linguistic meaning and functional relationships.
@@ -52,7 +52,7 @@ To see how embedding matrices are indexed and how semantic similarity is quantif
 ### 1. Embedding Matrix Structure
 Let our miniature vocabulary be:
 $$
-\mathcal{V} = \{ 0: \text{"the"}, \quad 1: \text{"cat"}, \quad 2: \text{"sat"}, \quad 3: \text{"dog"}, \quad 4: \text{"mat"} \}
+\mathcal{V} = \{ 0: \text{the}, \quad 1: \text{cat}, \quad 2: \text{sat}, \quad 3: \text{dog}, \quad 4: \text{mat} \}
 $$
 
 The model maintains a learned weight matrix $\mathbf{W}_E \in \mathbb{R}^{5 \times 3}$:
@@ -66,16 +66,16 @@ $$
 0.10 & -0.05 &  0.85
 \end{bmatrix}
 \begin{matrix}
-\leftarrow \text{row 0 ("the")} \\
-\leftarrow \text{row 1 ("cat")} \\
-\leftarrow \text{row 2 ("sat")} \\
-\leftarrow \text{row 3 ("dog")} \\
-\leftarrow \text{row 4 ("mat")}
+\leftarrow \text{row 0 (the)} \\
+\leftarrow \text{row 1 (cat)} \\
+\leftarrow \text{row 2 (sat)} \\
+\leftarrow \text{row 3 (dog)} \\
+\leftarrow \text{row 4 (mat)}
 \end{matrix}
 $$
 
 ### 2. Memory Lookup & Gather
-When the sequence `["cat", "dog"]` (token IDs `[1, 3]`) enters the model, the embedding layer retrieves rows 1 and 3:
+When the sequence `[cat, dog]` (token IDs `[1, 3]`) enters the model, the embedding layer retrieves rows 1 and 3:
 
 $$
 \mathbf{e}_{\text{cat}} = \mathbf{W}_E[1] = \begin{bmatrix} 0.80, & 0.10, & -0.50 \end{bmatrix}
@@ -88,10 +88,10 @@ Mathematically, this lookup is equivalent to multiplying a one-hot row vector $e
 $$
 e_1^T \mathbf{W}_E = \mathbf{e}_{\text{cat}}
 $$
-In PyTorch and GPU kernels, this is implemented as an $\mathcal{O}(1)$ direct memory index lookup (`torch.embedding` or `gather`), bypassing full matrix multiplication.
+In GPU kernels, this is implemented as an $\mathcal{O}(1)$ direct memory index lookup, bypassing full matrix multiplication.
 
 ### 3. Measuring Semantic Similarity
-How close are `"cat"` and `"dog"` in this continuous coordinate space?
+How close are `cat` and `dog` in this continuous coordinate space?
 
 1. **Dot Product (Projection Alignment)**:
    $$
@@ -111,48 +111,13 @@ How close are `"cat"` and `"dog"` in this continuous coordinate space?
    \cos(\theta) = \frac{\mathbf{e}_{\text{cat}} \cdot \mathbf{e}_{\text{dog}}}{\|\mathbf{e}_{\text{cat}}\| \|\mathbf{e}_{\text{dog}}\|} = \frac{0.876}{0.9487 \times 0.9237} = \frac{0.876}{0.8763} \approx \mathbf{0.9996}
    $$
 
-A cosine similarity of $\approx 0.9996$ indicates that both coordinate vectors point in nearly identical directions, reflecting their shared linguistic status as animals. In contrast, calculating `"cat"` against the grammatical function word `"the"` yields $\cos(\theta) \approx -0.11$, demonstrating functional orthogonality.
+A cosine similarity of $\approx 0.9996$ indicates that both coordinate vectors point in nearly identical directions, reflecting their shared linguistic status as animals. In contrast, comparing `cat` against the grammatical function word `the` yields $\cos(\theta) \approx -0.11$, demonstrating functional orthogonality.
 
 ---
 
-## Interactive Embedding Space Animator
+## Interactive Embedding Space Simulator
 
 {{< visual/embedding-interactive >}}
-
----
-
-## PyTorch Implementation
-
-Here is how token embeddings, cosine similarity, and weight tying are constructed in PyTorch:
-
-```python
-import torch
-import torch.nn as nn
-import torch.nn.functional as F
-
-class LanguageModelEmbeddings(nn.Module):
-    def __init__(self, vocab_size: int, embed_dim: int):
-        super().__init__()
-        # 1. Learned embedding matrix W_E in R^(V x d)
-        self.embedding = nn.Embedding(vocab_size, embed_dim)
-        
-        # 2. Output projection head (tied to embedding weights)
-        self.output_head = nn.Linear(embed_dim, vocab_size, bias=False)
-        self.output_head.weight = self.embedding.weight  # Weight Tying!
-
-    def forward(self, token_ids: torch.Tensor) -> torch.Tensor:
-        # [batch_size, seq_len] -> [batch_size, seq_len, embed_dim]
-        return self.embedding(token_ids)
-
-# Verification:
-model = LanguageModelEmbeddings(vocab_size=128000, embed_dim=4096)
-input_tokens = torch.tensor([[1, 3]])  # ["cat", "dog"]
-embeds = model(input_tokens)
-
-# Cosine similarity between token 0 ("cat") and token 1 ("dog")
-cos_sim = F.cosine_similarity(embeds[:, 0, :], embeds[:, 1, :])
-print(f"Embedding shape: {embeds.shape}, Cosine similarity: {cos_sim.item():.4f}")
-```
 
 ---
 
@@ -189,16 +154,14 @@ Under standard Gaussian weight initialization (mean 0, variance $1/d_{\text{mode
 
 Embeddings passing through dozens of transformer layers require normalization to stabilize gradient propagation. Modern models have largely migrated from standard LayerNorm to **Root Mean Square Normalization (RMSNorm)**:
 
-```
-Standard LayerNorm (Vaswani 2017):
-  μ = (1/d) Σ x_i
-  σ² = (1/d) Σ (x_i - μ)²
-  y = [(x - μ) / √(σ² + ε)] ⊙ γ + β   (Requires 2 memory passes)
-
-RMSNorm (Zhang & Sennrich 2019; Llama 3, Mistral):
-  RMS(x) = √[(1/d) Σ x_i² + ε]
-  y = [x / RMS(x)] ⊙ γ               (Strips mean-centering; 15-40% faster)
-```
+* **Standard LayerNorm** (Vaswani et al. 2017) requires two reduction passes (mean $\mu$ and variance $\sigma^2$):
+  $$
+  \text{LayerNorm}(\mathbf{x}) = \frac{\mathbf{x} - \mu}{\sqrt{\sigma^2 + \epsilon}} \odot \boldsymbol{\gamma} + \boldsymbol{\beta}
+  $$
+* **RMSNorm** (Zhang & Sennrich 2019; LLaMA 3, Mistral) strips mean-centering, reducing GPU memory bandwidth overhead by $15\text{--}40\%$:
+  $$
+  \text{RMSNorm}(\mathbf{x}) = \frac{\mathbf{x}}{\sqrt{\frac{1}{d}\sum_{i=1}^d x_i^2 + \epsilon}} \odot \boldsymbol{\gamma}
+  $$
 
 By removing the need to compute the mean $\mu$, RMSNorm reduces GPU memory read/write passes (SRAM-to-HBM bandwidth) while delivering identical convergence stability.
 

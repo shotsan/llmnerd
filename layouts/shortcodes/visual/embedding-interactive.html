@@ -2,12 +2,9 @@
   <!-- Header -->
   <div class="llm-motion-header">
     <div>
-      <div class="llm-blueprint-title-wrap">
-        <span class="llm-badge llm-badge-purple">Motion Canvas &amp; Experiment</span>
-        <h3 class="llm-blueprint-title">Embedding Space Training &amp; Vector Analogy Animator</h3>
-      </div>
+      <h3 class="llm-blueprint-title">Embedding Space Training &amp; Vector Analogy Simulator</h3>
       <p class="llm-motion-goal">
-        <strong>Learning Goal:</strong> Watch random initial vectors organize into semantic clusters during training, forming geometric parallelograms where linear offsets encode analogies.
+        Watch random initial vectors organize into semantic clusters during training, forming geometric parallelograms where linear offsets encode analogies.
       </p>
     </div>
 
@@ -23,18 +20,18 @@
   <div class="llm-motion-stage">
     <div class="llm-math-grid" style="width: 100%; margin: 0; align-items: stretch;">
       <!-- Left: 2D Vector Space -->
-      <div class="llm-math-card" style="align-items: center; justify-content: center; padding: 0.85rem;">
+      <div class="llm-math-card" style="align-items: center; justify-content: center; padding: 1rem;">
         <svg id="emb-canvas" viewBox="0 0 340 250" width="100%" style="max-width: 100%; height: auto; display: block; user-select: none;" xmlns="http://www.w3.org/2000/svg">
           <rect x="2" y="2" width="336" height="246" rx="8" fill="#f8fafc" stroke="#cbd5e1" stroke-width="1.2" />
           <!-- Grid lines -->
-          <line x1="35" y1="215" x2="320" y2="215" stroke="#94a3b8" stroke-width="1.5" />
-          <line x1="35" y1="20" x2="35" y2="215" stroke="#94a3b8" stroke-width="1.5" />
-          <text x="232" y="234" fill="#64748b" font-size="9.5" font-family="monospace">Dim 1 (Semantic)</text>
-          <text x="12" y="30" fill="#64748b" font-size="9.5" font-family="monospace">Dim 2</text>
+          <line x1="38" y1="215" x2="320" y2="215" stroke="#94a3b8" stroke-width="1.5" />
+          <line x1="38" y1="20" x2="38" y2="215" stroke="#94a3b8" stroke-width="1.5" />
+          <text x="220" y="236" fill="#475569" font-size="11" font-weight="600" font-family="monospace">Dim 1 (Semantic)</text>
+          <text x="10" y="32" fill="#475569" font-size="11" font-weight="600" font-family="monospace">Dim 2</text>
 
           <!-- Analogy dashed lines -->
-          <line id="emb-line-mw" x1="0" y1="0" x2="0" y2="0" stroke="#7c3aed" stroke-width="1.8" stroke-dasharray="4 3" />
-          <line id="emb-line-kq" x1="0" y1="0" x2="0" y2="0" stroke="#7c3aed" stroke-width="1.8" stroke-dasharray="4 3" />
+          <line id="emb-line-mw" x1="0" y1="0" x2="0" y2="0" stroke="#7c3aed" stroke-width="2" stroke-dasharray="5 3" />
+          <line id="emb-line-kq" x1="0" y1="0" x2="0" y2="0" stroke="#7c3aed" stroke-width="2" stroke-dasharray="5 3" />
 
           <!-- Points group -->
           <g id="emb-points-layer"></g>
@@ -42,33 +39,33 @@
       </div>
 
       <!-- Right: Live Cosine Similarity Cards -->
-      <div style="display: flex; flex-direction: column; gap: 0.65rem; justify-content: center;">
+      <div style="display: flex; flex-direction: column; gap: 0.75rem; justify-content: center;">
         <div class="llm-math-card">
           <div class="llm-math-header">
-            <span class="llm-math-symbol" style="font-size: 0.85rem;">cos("cat", "kitten")</span>
+            <span class="llm-math-symbol" style="font-size: 0.98rem;">cos(cat, kitten)</span>
             <span class="llm-math-shape" id="emb-sim-cat" style="color: #047857; background: #d1fae5; border-color: #a7f3d0;">+0.982</span>
           </div>
-          <div class="llm-math-body" style="padding: 0.5rem 1rem; font-size: 0.8rem;">
+          <div class="llm-math-body" style="padding: 0.65rem 1rem; font-size: 0.92rem;">
             <strong>Same Cluster:</strong> Synonyms and shared contexts pull vectors toward nearly identical angles.
           </div>
         </div>
 
         <div class="llm-math-card">
           <div class="llm-math-header">
-            <span class="llm-math-symbol" style="font-size: 0.85rem;">cos("cat", "king")</span>
+            <span class="llm-math-symbol" style="font-size: 0.98rem;">cos(cat, king)</span>
             <span class="llm-math-shape" id="emb-sim-unrel">+0.140</span>
           </div>
-          <div class="llm-math-body" style="padding: 0.5rem 1rem; font-size: 0.8rem;">
+          <div class="llm-math-body" style="padding: 0.65rem 1rem; font-size: 0.92rem;">
             <strong>Unrelated:</strong> Unrelated concepts remain nearly orthogonal in high-dimensional space.
           </div>
         </div>
 
         <div class="llm-math-card" style="border-color: #c4b5fd;">
           <div class="llm-math-header" style="background: #f5f3ff;">
-            <span class="llm-math-symbol" style="font-size: 0.85rem; color: #6d28d9;"><span>e<sub>king</sub> &minus; e<sub>man</sub> + e<sub>woman</sub></span></span>
+            <span class="llm-math-symbol" style="font-size: 0.98rem; color: #6d28d9;"><span>e<sub>king</sub> &minus; e<sub>man</sub> + e<sub>woman</sub></span></span>
             <span class="llm-math-shape" id="emb-analogy-match" style="color: #6d28d9; background: #ede9fe; border-color: #ddd6fe;">&approx; e_queen (99%)</span>
           </div>
-          <div class="llm-math-body" style="padding: 0.5rem 1rem; font-size: 0.8rem;">
+          <div class="llm-math-body" style="padding: 0.65rem 1rem; font-size: 0.92rem;">
             <strong>Linear Analogy:</strong> Parallel dashed offset vectors connect <code>man &rarr; woman</code> and <code>king &rarr; queen</code>.
           </div>
         </div>
@@ -89,10 +86,10 @@
     <div class="llm-btn-group">
       <button type="button" class="llm-btn-play" id="emb-play-btn">
         <span id="emb-play-icon">&#9654;</span>
-        <span id="emb-play-label">Play Training Animation</span>
+        <span id="emb-play-label">Play Training</span>
       </button>
-      <button type="button" class="llm-btn-step" id="emb-init-btn">Show Random Init (t=0)</button>
-      <button type="button" class="llm-btn-step" id="emb-conv-btn">Show Converged (t=100%)</button>
+      <button type="button" class="llm-btn-step" id="emb-init-btn">Random Init (t=0)</button>
+      <button type="button" class="llm-btn-step" id="emb-conv-btn">Converged (t=100%)</button>
     </div>
 
     <div class="llm-scrubber-group">
@@ -106,12 +103,12 @@
 (function() {
   const words = [
     { label: 'cat',    color: '#059669', x0: 165, y0: 115, x1: 82,  y1: 172 },
-    { label: 'kitten', color: '#059669', x0: 210, y0: 145, x1: 108, y1: 184 },
-    { label: 'dog',    color: '#0284c7', x0: 135, y0: 85,  x1: 122, y1: 150 },
+    { label: 'kitten', color: '#059669', x0: 210, y0: 145, x1: 108, y1: 186 },
+    { label: 'dog',    color: '#0284c7', x0: 135, y0: 85,  x1: 122, y1: 148 },
     { label: 'man',    color: '#4f46e5', x0: 190, y0: 125, x1: 195, y1: 115 },
-    { label: 'woman',  color: '#4f46e5', x0: 145, y0: 155, x1: 265, y1: 100 },
+    { label: 'woman',  color: '#4f46e5', x0: 145, y0: 155, x1: 262, y1: 100 },
     { label: 'king',   color: '#7c3aed', x0: 155, y0: 95,  x1: 205, y1: 52  },
-    { label: 'queen',  color: '#7c3aed', x0: 205, y0: 105, x1: 275, y1: 37  }
+    { label: 'queen',  color: '#7c3aed', x0: 205, y0: 105, x1: 272, y1: 37  }
   ];
 
   const layer = document.getElementById('emb-points-layer');
@@ -134,7 +131,6 @@
   function renderFrame(p) {
     pct = p;
     const t = p / 100;
-    // Smooth ease-in-out
     const ease = t < 0.5 ? 2 * t * t : 1 - Math.pow(-2 * t + 2, 2) / 2;
 
     scrubber.value = Math.round(p);
@@ -149,7 +145,6 @@
       };
     });
 
-    // Update analogy dashed lines (man->woman is idx 3->4, king->queen is idx 5->6)
     lineMW.setAttribute('x1', cur[3].x.toFixed(1));
     lineMW.setAttribute('y1', cur[3].y.toFixed(1));
     lineMW.setAttribute('x2', cur[4].x.toFixed(1));
@@ -163,8 +158,8 @@
     let html = '';
     cur.forEach(function(pt) {
       html += '<g transform="translate(' + pt.x.toFixed(1) + ',' + pt.y.toFixed(1) + ')">';
-      html += '<circle cx="0" cy="0" r="5.5" fill="' + pt.color + '" stroke="#ffffff" stroke-width="1.5" />';
-      html += '<text x="8" y="4" fill="' + pt.color + '" font-size="11" font-weight="700" font-family="monospace">' + pt.label + '</text>';
+      html += '<circle cx="0" cy="0" r="6" fill="' + pt.color + '" stroke="#ffffff" stroke-width="1.5" />';
+      html += '<text x="9" y="4" fill="' + pt.color + '" font-size="12" font-weight="700" font-family="monospace">' + pt.label + '</text>';
       html += '</g>';
     });
     layer.innerHTML = html;
@@ -181,7 +176,7 @@
       captionEl.innerHTML = '<strong>Epoch 0 (Random Initialization):</strong> At initialization, token vectors are scattered near the center with no semantic structure.';
     } else if (p < 85) {
       badgeEl.textContent = 'Training (' + Math.round(p) + '%)';
-      captionEl.innerHTML = '<strong>Gradient Descent in Progress:</strong> Contrastive next-token prediction gradients pull co-occurring tokens together and align relational offsets.';
+      captionEl.innerHTML = '<strong>Gradient Descent in Progress:</strong> Next-token prediction gradients pull co-occurring tokens together and align relational offsets.';
     } else {
       badgeEl.textContent = 'Converged';
       captionEl.innerHTML = '<strong>Converged Manifold (100%):</strong> Feline nouns cluster in the bottom-left while royalty/gender pairs form a geometric parallelogram in the upper-right.';
@@ -194,7 +189,7 @@
       animId = null;
     }
     playIcon.innerHTML = '&#9654;';
-    playLabel.textContent = 'Play Training Animation';
+    playLabel.textContent = 'Play Training';
   }
 
   function tick() {
