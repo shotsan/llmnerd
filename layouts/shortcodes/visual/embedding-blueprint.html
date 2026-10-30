@@ -57,7 +57,7 @@
       <span class="llm-badge llm-badge-blue">Architecture Blueprint</span>
       <h3 class="llm-blueprint-title">Embedding Gather &amp; Input Normalization Pipeline</h3>
     </div>
-    <span class="llm-blueprint-meta">O(1) Memory Gather • Continuous Rᵈ Projection</span>
+    <span class="llm-blueprint-meta">O(1) Memory Gather &bull; Continuous R<sup>d</sup> Projection</span>
   </div>
 
   <div class="llm-blueprint-body">
@@ -74,7 +74,7 @@
       <text x="562" y="24" text-anchor="middle" fill="#64748b" font-size="10.5" font-weight="700" font-family="sans-serif" letter-spacing="0.05em">3. DENSE VECTOR</text>
       <text x="780" y="24" text-anchor="middle" fill="#64748b" font-size="10.5" font-weight="700" font-family="sans-serif" letter-spacing="0.05em">4. RESIDUAL INPUT</text>
 
-      <!-- Box 1: Discrete Token ID -->
+      <!-- Box 1: Discrete Token ID (Slate Dark) -->
       <g transform="translate(18, 42)">
         <rect width="168" height="76" rx="9" fill="#1e293b" />
         <text x="84" y="28" text-anchor="middle" fill="#ffffff" font-size="13.5" font-weight="700" font-family="sans-serif">Token ID</text>
@@ -82,34 +82,34 @@
         <text x="84" y="66" text-anchor="middle" fill="#94a3b8" font-size="10" font-family="monospace">Integer Scalar</text>
       </g>
 
-      <line x1="186" y1="80" x2="226" y2="80" stroke="#64748b" stroke-width="2.2" marker-end="url(#emb-bp-arr)" />
+      <line x1="186" y1="80" x2="226" y2="80" stroke="#64748b" stroke-width="2" marker-end="url(#emb-bp-arr)" />
 
-      <!-- Box 2: Matrix Row Gather -->
+      <!-- Box 2: Matrix Row Gather (Clean White/Slate Card) -->
       <g transform="translate(228, 42)">
-        <rect width="196" height="76" rx="9" fill="#4f46e5" />
-        <text x="98" y="28" text-anchor="middle" fill="#ffffff" font-size="13.5" font-weight="700" font-family="sans-serif">Row Gather</text>
-        <text x="98" y="50" text-anchor="middle" fill="#e0e7ff" font-size="12" font-weight="700" font-family="monospace">W<tspan dy="3" font-size="9.5">E</tspan><tspan dy="-3">[1] ∈ ℝ</tspan><tspan dy="-5" font-size="9.5">1×d</tspan></text>
-        <text x="98" y="66" text-anchor="middle" fill="#c7d2fe" font-size="10" font-family="monospace">O(1) HBM Slice</text>
+        <rect width="196" height="76" rx="9" fill="#f8fafc" stroke="#cbd5e1" stroke-width="1.5" />
+        <text x="98" y="28" text-anchor="middle" fill="#0f172a" font-size="13.5" font-weight="700" font-family="sans-serif">Row Gather</text>
+        <text x="98" y="50" text-anchor="middle" fill="#1d4ed8" font-size="12" font-weight="700" font-family="monospace">W<tspan dy="3" font-size="9.5">E</tspan><tspan dy="-3">[1] ∈ ℝ</tspan><tspan dy="-5" font-size="9.5">1×d</tspan></text>
+        <text x="98" y="66" text-anchor="middle" fill="#64748b" font-size="10" font-family="monospace">O(1) HBM Slice</text>
       </g>
 
-      <line x1="424" y1="80" x2="460" y2="80" stroke="#64748b" stroke-width="2.2" marker-end="url(#emb-bp-arr)" />
+      <line x1="424" y1="80" x2="460" y2="80" stroke="#64748b" stroke-width="2" marker-end="url(#emb-bp-arr)" />
 
-      <!-- Box 3: Dense Coordinate Vector -->
+      <!-- Box 3: Dense Coordinate Vector (Soft Cobalt Highlight Card) -->
       <g transform="translate(462, 42)">
-        <rect width="200" height="76" rx="9" fill="#0284c7" />
-        <text x="100" y="28" text-anchor="middle" fill="#ffffff" font-size="13.5" font-weight="700" font-family="sans-serif">Dense Vector</text>
-        <text x="100" y="50" text-anchor="middle" fill="#e0f2fe" font-size="11.5" font-weight="700" font-family="monospace">e<tspan dy="3" font-size="9">cat</tspan><tspan dy="-3"> = [0.80, 0.10, -0.50]</tspan></text>
-        <text x="100" y="66" text-anchor="middle" fill="#bae6fd" font-size="10" font-family="monospace">Continuous ℝ<tspan dy="-4" font-size="8.5">d</tspan></text>
+        <rect width="200" height="76" rx="9" fill="#eff6ff" stroke="#93c5fd" stroke-width="1.5" />
+        <text x="100" y="28" text-anchor="middle" fill="#0f172a" font-size="13.5" font-weight="700" font-family="sans-serif">Dense Vector</text>
+        <text x="100" y="50" text-anchor="middle" fill="#1d4ed8" font-size="11.5" font-weight="700" font-family="monospace">e<tspan dy="3" font-size="9">cat</tspan><tspan dy="-3"> = [0.80, 0.10, -0.50]</tspan></text>
+        <text x="100" y="66" text-anchor="middle" fill="#3b82f6" font-size="10" font-family="monospace">Continuous ℝ<tspan dy="-4" font-size="8.5">d</tspan></text>
       </g>
 
-      <line x1="662" y1="80" x2="696" y2="80" stroke="#64748b" stroke-width="2.2" marker-end="url(#emb-bp-arr)" />
+      <line x1="662" y1="80" x2="696" y2="80" stroke="#64748b" stroke-width="2" marker-end="url(#emb-bp-arr)" />
 
-      <!-- Box 4: RMSNorm Hidden State -->
+      <!-- Box 4: RMSNorm Hidden State (Primary Cobalt Blue) -->
       <g transform="translate(698, 42)">
-        <rect width="164" height="76" rx="9" fill="#059669" />
+        <rect width="164" height="76" rx="9" fill="#2563eb" />
         <text x="82" y="28" text-anchor="middle" fill="#ffffff" font-size="13.5" font-weight="700" font-family="sans-serif">RMSNorm</text>
-        <text x="82" y="50" text-anchor="middle" fill="#d1fae5" font-size="12" font-weight="700" font-family="monospace">Hidden State h<tspan dy="3" font-size="9.5">0</tspan></text>
-        <text x="82" y="66" text-anchor="middle" fill="#a7f3d0" font-size="10" font-family="monospace">Unit-Variance Stream</text>
+        <text x="82" y="50" text-anchor="middle" fill="#dbeafe" font-size="12" font-weight="700" font-family="monospace">Hidden State h<tspan dy="3" font-size="9.5">0</tspan></text>
+        <text x="82" y="66" text-anchor="middle" fill="#bfdbfe" font-size="10" font-family="monospace">Unit-Variance Stream</text>
       </g>
 
       <!-- Bottom Legend -->

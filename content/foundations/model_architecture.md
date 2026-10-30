@@ -94,17 +94,17 @@ Modern frontier foundation models (LLaMA 3, Mistral, Gemma, Qwen) have converged
 ```mermaid
 flowchart LR
     subgraph Block["Modern Decoder Block (Pre-RMSNorm)"]
-        direction TB
-        In["<b>Hidden State (x<sub>l</sub>)</b>"] --> Norm1["<b>RMSNorm</b>"]
-        Norm1 --> Attn["<b>GQA with RoPE</b>"]
-        In --> Add1["<b>Residual Sum (⊕)</b>"]
-        Attn --> Add1
+        direction LR
+        InB["<b>Hidden State (x<sub>l</sub>)</b>"] --> Norm1["<b>RMSNorm</b>"]
+        Norm1 --> AttnB["<b>GQA with RoPE</b>"]
+        InB --> Add1["<b>Residual Sum (⊕)</b>"]
+        AttnB --> Add1
 
         Add1 --> Norm2["<b>RMSNorm</b>"]
         Norm2 --> SwiGLU["<b>SwiGLU MLP</b>"]
         Add1 --> Add2["<b>Residual Sum (⊕)</b>"]
         SwiGLU --> Add2
-        Add2 --> Out["<b>Hidden State (x<sub>l+1</sub>)</b>"]
+        Add2 --> OutB["<b>Hidden State (x<sub>l+1</sub>)</b>"]
     end
 ```
 

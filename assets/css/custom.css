@@ -261,9 +261,26 @@ html.dark .mermaid .cluster rect {
 
 /* ==========================================================================
    LLMNERD UNIFIED COMPONENT DESIGN SYSTEM (.llm-*)
+   Theme: Disciplined Slate & Cobalt Blue (Zero Rainbow Colors)
    ========================================================================== */
 
-/* --- 1. Component Badges --- */
+:root {
+  --llm-bg-card: #ffffff;
+  --llm-bg-muted: #f8fafc;
+  --llm-bg-subtle: #f1f5f9;
+  --llm-border: #e2e8f0;
+  --llm-border-strong: #cbd5e1;
+  --llm-text-main: #0f172a;
+  --llm-text-body: #334155;
+  --llm-text-muted: #64748b;
+  --llm-accent: #2563eb;
+  --llm-accent-strong: #1d4ed8;
+  --llm-accent-soft: #eff6ff;
+  --llm-accent-border: #bfdbfe;
+  --llm-slate-dark: #1e293b;
+}
+
+/* --- 1. Component Badges (Unified Cobalt & Slate Theme) --- */
 .llm-badge {
   display: inline-flex;
   align-items: center;
@@ -277,59 +294,34 @@ html.dark .mermaid .cluster rect {
   font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Inter", sans-serif;
 }
 
-.llm-badge-blue {
-  background-color: #dbeafe;
+.llm-badge-blue,
+.llm-badge-indigo,
+.llm-badge-emerald,
+.llm-badge-purple {
+  background-color: #eff6ff;
   color: #1d4ed8;
   border: 1px solid #bfdbfe;
 }
-html.dark .llm-badge-blue {
+html.dark .llm-badge-blue,
+html.dark .llm-badge-indigo,
+html.dark .llm-badge-emerald,
+html.dark .llm-badge-purple {
   background-color: rgba(30, 58, 138, 0.45);
   color: #93c5fd;
   border-color: rgba(59, 130, 246, 0.35);
 }
 
-.llm-badge-indigo {
-  background-color: #e0e7ff;
-  color: #4338ca;
-  border: 1px solid #c7d2fe;
+.llm-badge-amber,
+.llm-badge-slate {
+  background-color: #f1f5f9;
+  color: #334155;
+  border: 1px solid #cbd5e1;
 }
-html.dark .llm-badge-indigo {
-  background-color: rgba(49, 46, 129, 0.45);
-  color: #a5b4fc;
-  border-color: rgba(99, 102, 241, 0.35);
-}
-
-.llm-badge-emerald {
-  background-color: #d1fae5;
-  color: #047857;
-  border: 1px solid #a7f3d0;
-}
-html.dark .llm-badge-emerald {
-  background-color: rgba(6, 78, 59, 0.45);
-  color: #6ee7b7;
-  border-color: rgba(16, 185, 129, 0.35);
-}
-
-.llm-badge-amber {
-  background-color: #fef3c7;
-  color: #b45309;
-  border: 1px solid #fde68a;
-}
-html.dark .llm-badge-amber {
-  background-color: rgba(120, 53, 15, 0.45);
-  color: #fcd34d;
-  border-color: rgba(245, 158, 11, 0.35);
-}
-
-.llm-badge-purple {
-  background-color: #f3e8ff;
-  color: #6d28d9;
-  border: 1px solid #e9d5ff;
-}
-html.dark .llm-badge-purple {
-  background-color: rgba(88, 28, 135, 0.45);
-  color: #d8b4fe;
-  border-color: rgba(168, 85, 247, 0.35);
+html.dark .llm-badge-amber,
+html.dark .llm-badge-slate {
+  background-color: rgba(51, 65, 85, 0.45);
+  color: #cbd5e1;
+  border-color: rgba(100, 116, 139, 0.4);
 }
 
 /* --- 2. Mathematical Symbol Glossary Grid Cards (Option 2) --- */
@@ -955,14 +947,14 @@ html.dark .llm-matrix-table td.cell-val {
 }
 
 .llm-matrix-table td.cell-masked {
-  border: 1px solid #fecdd3 !important;
-  background-color: #fff1f2 !important;
-  color: #e11d48 !important;
+  border: 1px dashed #cbd5e1 !important;
+  background-color: #f1f5f9 !important;
+  color: #64748b !important;
   font-weight: 700;
 }
 
 html.dark .llm-matrix-table td.cell-masked {
-  border-color: rgba(225, 29, 72, 0.35) !important;
-  background-color: rgba(136, 19, 55, 0.25) !important;
-  color: #fb7185 !important;
+  border-color: #334155 !important;
+  background-color: #1e293b !important;
+  color: #94a3b8 !important;
 }

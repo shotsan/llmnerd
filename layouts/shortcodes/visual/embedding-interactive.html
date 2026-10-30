@@ -14,7 +14,7 @@
     <div class="llm-param-bar">
       <div class="llm-param-item">
         <span class="llm-param-label">Training Progress:</span>
-        <span id="emb-progress-val" class="llm-param-val" style="color: #6d28d9;">100%</span>
+        <span id="emb-progress-val" class="llm-param-val">100%</span>
       </div>
     </div>
   </div>
@@ -33,8 +33,8 @@
           <text x="10" y="32" fill="#475569" font-size="11" font-weight="600" font-family="monospace">Dim 2</text>
 
           <!-- Analogy dashed lines -->
-          <line id="emb-line-mw" x1="0" y1="0" x2="0" y2="0" stroke="#7c3aed" stroke-width="2" stroke-dasharray="5 3" />
-          <line id="emb-line-kq" x1="0" y1="0" x2="0" y2="0" stroke="#7c3aed" stroke-width="2" stroke-dasharray="5 3" />
+          <line id="emb-line-mw" x1="0" y1="0" x2="0" y2="0" stroke="#2563eb" stroke-width="2" stroke-dasharray="5 3" />
+          <line id="emb-line-kq" x1="0" y1="0" x2="0" y2="0" stroke="#2563eb" stroke-width="2" stroke-dasharray="5 3" />
 
           <!-- Points group -->
           <g id="emb-points-layer"></g>
@@ -46,7 +46,7 @@
         <div class="llm-math-card">
           <div class="llm-math-header">
             <span class="llm-math-symbol">{{ transform.ToMath `\cos(\mathbf{e}_{\text{cat}}, \mathbf{e}_{\text{kitten}})` $m }}</span>
-            <span class="llm-math-shape" id="emb-sim-cat" style="color: #047857; background: #d1fae5; border-color: #a7f3d0;">+0.982</span>
+            <span class="llm-math-shape" id="emb-sim-cat">+0.982</span>
           </div>
           <div class="llm-math-body" style="padding: 0.65rem 1rem;">
             <strong>Same Cluster:</strong> Synonyms and shared contexts pull vectors toward nearly identical angles.
@@ -63,10 +63,10 @@
           </div>
         </div>
 
-        <div class="llm-math-card" style="border-color: #c4b5fd;">
-          <div class="llm-math-header" style="background: #f5f3ff;">
-            <span class="llm-math-symbol" style="color: #6d28d9; font-size: 0.96rem;">{{ transform.ToMath `\mathbf{e}_{\text{king}} - \mathbf{e}_{\text{man}} + \mathbf{e}_{\text{woman}}` $m }}</span>
-            <span class="llm-math-shape" id="emb-analogy-pct" style="color: #6d28d9; background: #ede9fe; border-color: #ddd6fe;">+0.990</span>
+        <div class="llm-math-card">
+          <div class="llm-math-header">
+            <span class="llm-math-symbol" style="font-size: 0.96rem;">{{ transform.ToMath `\mathbf{e}_{\text{king}} - \mathbf{e}_{\text{man}} + \mathbf{e}_{\text{woman}}` $m }}</span>
+            <span class="llm-math-shape" id="emb-analogy-pct">+0.990</span>
           </div>
           <div class="llm-math-body" style="padding: 0.65rem 1rem;">
             <strong>Linear Analogy ({{ transform.ToMath `\approx \mathbf{e}_{\text{queen}}` $m }}):</strong> Parallel offset vectors connect <code>man &rarr; woman</code> and <code>king &rarr; queen</code>.
@@ -81,7 +81,7 @@
     <span id="emb-caption-text">
       <strong>Converged Manifold (100%):</strong> Feline nouns cluster in the bottom-left while royalty/gender pairs form a geometric parallelogram in the upper-right.
     </span>
-    <span class="llm-badge llm-badge-purple" id="emb-stage-badge">Converged</span>
+    <span class="llm-badge llm-badge-blue" id="emb-stage-badge">Converged</span>
   </div>
 
   <!-- Controls -->
@@ -105,13 +105,13 @@
 <script>
 (function() {
   const words = [
-    { label: 'cat',    color: '#059669', x0: 165, y0: 115, x1: 82,  y1: 172 },
-    { label: 'kitten', color: '#059669', x0: 210, y0: 145, x1: 108, y1: 186 },
-    { label: 'dog',    color: '#0284c7', x0: 135, y0: 85,  x1: 122, y1: 148 },
-    { label: 'man',    color: '#4f46e5', x0: 190, y0: 125, x1: 195, y1: 115 },
-    { label: 'woman',  color: '#4f46e5', x0: 145, y0: 155, x1: 262, y1: 100 },
-    { label: 'king',   color: '#7c3aed', x0: 155, y0: 95,  x1: 205, y1: 52  },
-    { label: 'queen',  color: '#7c3aed', x0: 205, y0: 105, x1: 272, y1: 37  }
+    { label: 'cat',    color: '#334155', x0: 165, y0: 115, x1: 82,  y1: 172 },
+    { label: 'kitten', color: '#334155', x0: 210, y0: 145, x1: 108, y1: 186 },
+    { label: 'dog',    color: '#475569', x0: 135, y0: 85,  x1: 122, y1: 148 },
+    { label: 'man',    color: '#2563eb', x0: 190, y0: 125, x1: 195, y1: 115 },
+    { label: 'woman',  color: '#2563eb', x0: 145, y0: 155, x1: 262, y1: 100 },
+    { label: 'king',   color: '#1d4ed8', x0: 155, y0: 95,  x1: 205, y1: 52  },
+    { label: 'queen',  color: '#1d4ed8', x0: 205, y0: 105, x1: 272, y1: 37  }
   ];
 
   const layer = document.getElementById('emb-points-layer');

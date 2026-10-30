@@ -11,7 +11,7 @@
     <div class="llm-param-bar">
       <div class="llm-param-item">
         <span class="llm-param-label">Active Compute:</span>
-        <span class="llm-param-val" style="color: #059669;">2 / 8 Experts (25%)</span>
+        <span class="llm-param-val">2 / 8 Experts (25%)</span>
       </div>
     </div>
   </div>
@@ -32,10 +32,10 @@
 
       <!-- Gating Router Box -->
       <g transform="translate(196, 78)">
-        <rect width="134" height="74" rx="9" fill="#4f46e5" />
+        <rect width="134" height="74" rx="9" fill="#334155" />
         <text x="67" y="26" text-anchor="middle" fill="#ffffff" font-size="12.5" font-weight="700" font-family="sans-serif">Gating Router</text>
-        <text x="67" y="45" text-anchor="middle" fill="#e0e7ff" font-size="10.5" font-family="monospace">TopK(x · W<tspan dy="2.5" font-size="8.5">g</tspan><tspan dy="-2.5">, k=2)</tspan></text>
-        <text x="67" y="62" text-anchor="middle" fill="#c7d2fe" font-size="10" font-family="monospace">Softmax Gate g<tspan dy="2.5" font-size="8.5">i</tspan></text>
+        <text x="67" y="45" text-anchor="middle" fill="#e2e8f0" font-size="10.5" font-family="monospace">TopK(x · W<tspan dy="2.5" font-size="8.5">g</tspan><tspan dy="-2.5">, k=2)</tspan></text>
+        <text x="67" y="62" text-anchor="middle" fill="#cbd5e1" font-size="10" font-family="monospace">Softmax Gate g<tspan dy="2.5" font-size="8.5">i</tspan></text>
       </g>
 
       <!-- Dynamic Routing Wires & 8 Expert Boxes -->
@@ -44,10 +44,10 @@
 
       <!-- Output Weighted Sum Box -->
       <g transform="translate(658, 78)">
-        <rect width="140" height="74" rx="9" fill="#059669" />
+        <rect width="140" height="74" rx="9" fill="#2563eb" />
         <text x="70" y="26" text-anchor="middle" fill="#ffffff" font-size="12.5" font-weight="700" font-family="sans-serif">MoE Output y</text>
-        <text id="moe-out-formula" x="70" y="46" text-anchor="middle" fill="#d1fae5" font-size="10.5" font-family="monospace">0.64·E₂ + 0.36·E₇</text>
-        <text x="70" y="62" text-anchor="middle" fill="#a7f3d0" font-size="10" font-family="sans-serif">6 Experts Dormant (0 FLOPs)</text>
+        <text id="moe-out-formula" x="70" y="46" text-anchor="middle" fill="#dbeafe" font-size="10.5" font-family="monospace">0.64·E₂ + 0.36·E₇</text>
+        <text x="70" y="62" text-anchor="middle" fill="#bfdbfe" font-size="10" font-family="sans-serif">6 Experts Dormant (0 FLOPs)</text>
       </g>
     </svg>
   </div>
@@ -55,7 +55,7 @@
   <!-- Caption -->
   <div class="llm-motion-caption">
     <span id="moe-caption-text"></span>
-    <span class="llm-badge llm-badge-amber" id="moe-token-badge">Token 1 / 4</span>
+    <span class="llm-badge llm-badge-blue" id="moe-token-badge">Token 1 / 4</span>
   </div>
 
   <!-- Controls -->
@@ -153,21 +153,21 @@
       const isSelected = topPos !== -1;
       const w = isSelected ? s.weights[topPos] : 0;
 
-      const strokeCol = isSelected ? '#059669' : '#cbd5e1';
+      const strokeCol = isSelected ? '#2563eb' : '#cbd5e1';
       const strokeW = isSelected ? '2.4' : '1';
       const dash = isSelected ? '' : 'stroke-dasharray="3 3"';
       const op = isSelected ? '1' : '0.45';
 
       wiresHtml += '<path d="M 330 115 L 415 ' + centerY + '" stroke="' + strokeCol + '" stroke-width="' + strokeW + '" ' + dash + ' opacity="' + op + '" fill="none" />';
       if (isSelected) {
-        wiresHtml += '<path d="M 575 ' + centerY + ' L 658 115" stroke="#059669" stroke-width="2.4" fill="none" />';
+        wiresHtml += '<path d="M 575 ' + centerY + ' L 658 115" stroke="#2563eb" stroke-width="2.4" fill="none" />';
       } else {
         wiresHtml += '<path d="M 575 ' + centerY + ' L 658 115" stroke="#cbd5e1" stroke-width="1" stroke-dasharray="3 3" opacity="0.35" fill="none" />';
       }
 
-      const bg = isSelected ? '#d1fae5' : '#ffffff';
-      const bdr = isSelected ? '#059669' : '#cbd5e1';
-      const txtCol = isSelected ? '#065f46' : '#475569';
+      const bg = isSelected ? '#eff6ff' : '#ffffff';
+      const bdr = isSelected ? '#2563eb' : '#cbd5e1';
+      const txtCol = isSelected ? '#1d4ed8' : '#475569';
       const badgeTxt = isSelected ? ('g=' + w.toFixed(2)) : '0.00';
 
       expHtml += '<g transform="translate(415, ' + y + ')">';

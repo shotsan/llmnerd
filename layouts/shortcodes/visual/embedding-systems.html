@@ -4,7 +4,7 @@
 <div class="llm-blueprint not-prose">
   <div class="llm-blueprint-header">
     <div class="llm-blueprint-title-wrap">
-      <span class="llm-badge llm-badge-indigo">Systems &amp; Memory Architecture</span>
+      <span class="llm-badge llm-badge-blue">Systems &amp; Memory Architecture</span>
       <h3 class="llm-blueprint-title">Weight Tying, Variance Scaling &amp; RMSNorm</h3>
     </div>
     <span class="llm-blueprint-meta">VRAM Optimization &amp; Gradient Stabilization</span>
@@ -29,7 +29,7 @@
     <div class="llm-math-card">
       <div class="llm-math-header">
         <div style="display: flex; align-items: center; gap: 0.65rem;">
-          <span class="llm-badge llm-badge-amber">Variance Matching</span>
+          <span class="llm-badge llm-badge-blue">Variance Matching</span>
           <span class="llm-math-symbol">Embedding Scale Factor</span>
         </div>
         <span class="llm-math-shape">{{ transform.ToMath `\mathbf{x}_i = \sqrt{d} \cdot \mathbf{W}_E[t_i] + \mathbf{PE}_i` $m }}</span>
@@ -43,7 +43,7 @@
     <div class="llm-math-card">
       <div class="llm-math-header">
         <div style="display: flex; align-items: center; gap: 0.65rem;">
-          <span class="llm-badge llm-badge-emerald">-40% HBM Traffic</span>
+          <span class="llm-badge llm-badge-blue">-40% HBM Traffic</span>
           <span class="llm-math-symbol">RMSNorm Stabilization</span>
         </div>
         <span class="llm-math-shape">{{ transform.ToMath `\operatorname{RMSNorm}(\mathbf{x}) = \frac{\mathbf{x}}{\sqrt{\frac{1}{d}\sum_{i=1}^d x_i^2 + \epsilon}} \odot \boldsymbol{\gamma}` $m }}</span>

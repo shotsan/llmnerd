@@ -13,19 +13,19 @@
 
     <div class="llm-param-bar">
       <div class="llm-param-item">
-        <label for="rope-pos-m" class="llm-param-label" style="color: #4f46e5;">Query m:</label>
-        <input type="range" id="rope-pos-m" min="0" max="8" step="0.05" value="1" style="width: 75px; accent-color: #4f46e5; cursor: pointer;">
-        <span id="rope-val-m" class="llm-param-val" style="color: #4f46e5;">1.0</span>
+        <label for="rope-pos-m" class="llm-param-label">Query m:</label>
+        <input type="range" id="rope-pos-m" min="0" max="8" step="0.05" value="1" style="width: 75px; accent-color: #2563eb; cursor: pointer;">
+        <span id="rope-val-m" class="llm-param-val">1.0</span>
       </div>
       <div class="llm-param-item" style="padding-left: 0.75rem; border-left: 1px solid #cbd5e1;">
-        <label for="rope-pos-n" class="llm-param-label" style="color: #059669;">Key n:</label>
-        <input type="range" id="rope-pos-n" min="0" max="8" step="0.05" value="3" style="width: 75px; accent-color: #059669; cursor: pointer;">
-        <span id="rope-val-n" class="llm-param-val" style="color: #059669;">3.0</span>
+        <label for="rope-pos-n" class="llm-param-label">Key n:</label>
+        <input type="range" id="rope-pos-n" min="0" max="8" step="0.05" value="3" style="width: 75px; accent-color: #334155; cursor: pointer;">
+        <span id="rope-val-n" class="llm-param-val" style="color: #334155;">3.0</span>
       </div>
       <div class="llm-param-item" style="padding-left: 0.75rem; border-left: 1px solid #cbd5e1;">
         <label for="rope-theta" class="llm-param-label">&theta;:</label>
-        <input type="range" id="rope-theta" min="15" max="45" step="5" value="30" style="width: 65px; accent-color: #7c3aed; cursor: pointer;">
-        <span id="rope-val-theta" class="llm-param-val" style="color: #7c3aed;">30&deg;</span>
+        <input type="range" id="rope-theta" min="15" max="45" step="5" value="30" style="width: 65px; accent-color: #2563eb; cursor: pointer;">
+        <span id="rope-val-theta" class="llm-param-val">30&deg;</span>
       </div>
     </div>
   </div>
@@ -38,10 +38,10 @@
         <svg id="rope-canvas" viewBox="-140 -140 280 280" width="275" height="275" style="max-width: 275px; height: auto; display: block; user-select: none;" xmlns="http://www.w3.org/2000/svg">
           <defs>
             <marker id="rope-arr-q" viewBox="0 0 10 10" refX="7" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
-              <path d="M 0 1.5 L 8 5 L 0 8.5 z" fill="#4f46e5" />
+              <path d="M 0 1.5 L 8 5 L 0 8.5 z" fill="#2563eb" />
             </marker>
             <marker id="rope-arr-k" viewBox="0 0 10 10" refX="7" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
-              <path d="M 0 1.5 L 8 5 L 0 8.5 z" fill="#059669" />
+              <path d="M 0 1.5 L 8 5 L 0 8.5 z" fill="#1e293b" />
             </marker>
           </defs>
 
@@ -53,15 +53,15 @@
           <text x="-24" y="-115" fill="#475569" font-size="11" font-weight="600" font-family="monospace">Im</text>
 
           <!-- Shaded Relative Angle Wedge -->
-          <path id="rope-wedge" d="" fill="rgba(124, 58, 237, 0.16)" stroke="#7c3aed" stroke-width="1.5" />
+          <path id="rope-wedge" d="" fill="rgba(37, 99, 235, 0.14)" stroke="#2563eb" stroke-width="1.5" />
 
           <!-- Query Vector q_m -->
-          <line id="rope-vec-q" x1="0" y1="0" x2="100" y2="0" stroke="#4f46e5" stroke-width="3" marker-end="url(#rope-arr-q)" />
-          <text id="rope-lbl-q" x="108" y="4" fill="#4f46e5" font-size="12" font-weight="700" font-family="monospace">q<tspan dy="3" font-size="9">m</tspan></text>
+          <line id="rope-vec-q" x1="0" y1="0" x2="100" y2="0" stroke="#2563eb" stroke-width="3" marker-end="url(#rope-arr-q)" />
+          <text id="rope-lbl-q" x="108" y="4" fill="#2563eb" font-size="12" font-weight="700" font-family="monospace">q<tspan dy="3" font-size="9">m</tspan></text>
 
           <!-- Key Vector k_n -->
-          <line id="rope-vec-k" x1="0" y1="0" x2="0" y2="-100" stroke="#059669" stroke-width="3" marker-end="url(#rope-arr-k)" />
-          <text id="rope-lbl-k" x="8" y="-108" fill="#059669" font-size="12" font-weight="700" font-family="monospace">k<tspan dy="3" font-size="9">n</tspan></text>
+          <line id="rope-vec-k" x1="0" y1="0" x2="0" y2="-100" stroke="#1e293b" stroke-width="3" marker-end="url(#rope-arr-k)" />
+          <text id="rope-lbl-k" x="8" y="-108" fill="#1e293b" font-size="12" font-weight="700" font-family="monospace">k<tspan dy="3" font-size="9">n</tspan></text>
 
           <circle cx="0" cy="0" r="3.5" fill="#0f172a" />
         </svg>
@@ -71,7 +71,7 @@
       <div style="display: flex; flex-direction: column; gap: 0.75rem; justify-content: center;">
         <div class="llm-math-card">
           <div class="llm-math-header">
-            <span class="llm-math-symbol" style="color: #4f46e5;">Query Angle ({{ transform.ToMath `m \cdot \theta` $m }})</span>
+            <span class="llm-math-symbol">Query Angle ({{ transform.ToMath `m \cdot \theta` $m }})</span>
             <span class="llm-math-shape" id="rope-read-q">30.0&deg;</span>
           </div>
           <div class="llm-math-body" style="padding: 0.65rem 1rem;">
@@ -81,23 +81,23 @@
 
         <div class="llm-math-card">
           <div class="llm-math-header">
-            <span class="llm-math-symbol" style="color: #059669;">Key Angle ({{ transform.ToMath `n \cdot \theta` $m }})</span>
-            <span class="llm-math-shape" id="rope-read-k" style="color: #047857; background: #d1fae5; border-color: #a7f3d0;">90.0&deg;</span>
+            <span class="llm-math-symbol">Key Angle ({{ transform.ToMath `n \cdot \theta` $m }})</span>
+            <span class="llm-math-shape" id="rope-read-k">90.0&deg;</span>
           </div>
           <div class="llm-math-body" style="padding: 0.65rem 1rem;">
             Token at position {{ transform.ToMath `n` $m }} rotates counterclockwise by {{ transform.ToMath `n\theta` $m }}.
           </div>
         </div>
 
-        <div class="llm-math-card" style="border-color: #c4b5fd;">
-          <div class="llm-math-header" style="background: #f5f3ff;">
-            <span class="llm-math-symbol" style="color: #6d28d9;">Relative Angle {{ transform.ToMath `\Delta\phi` $m }}</span>
-            <span class="llm-math-shape" id="rope-read-diff" style="color: #6d28d9; background: #ede9fe; border-color: #ddd6fe;">60.0&deg; (n&minus;m = 2.0)</span>
+        <div class="llm-math-card">
+          <div class="llm-math-header">
+            <span class="llm-math-symbol">Relative Angle {{ transform.ToMath `\Delta\phi` $m }}</span>
+            <span class="llm-math-shape" id="rope-read-diff">60.0&deg; (n&minus;m = 2.0)</span>
           </div>
           <div class="llm-math-body" style="padding: 0.7rem 1rem;">
             <div style="display: flex; align-items: center; justify-content: space-between;">
               <strong>Dot Product {{ transform.ToMath `\langle \mathbf{R}_m\mathbf{q}, \mathbf{R}_n\mathbf{k} \rangle` $m }}:</strong>
-              <span id="rope-read-dot" style="font-family: monospace; font-size: 1.05rem; font-weight: 700; color: #6d28d9;">+0.500</span>
+              <span id="rope-read-dot" style="font-family: monospace; font-size: 1.05rem; font-weight: 700; color: #1d4ed8;">+0.500</span>
             </div>
           </div>
         </div>
@@ -108,7 +108,7 @@
   <!-- Live Narration Caption -->
   <div class="llm-motion-caption">
     <span id="rope-caption-text">
-      <strong>Relative Distance Principle:</strong> Because &langle;R(m&theta;)q, R(n&theta;)k&rangle; = &langle;q, R((n&minus;m)&theta;)k&rangle;, shifting both tokens by the same offset preserves the purple wedge angle and dot product.
+      <strong>Relative Distance Principle:</strong> Because &langle;R(m&theta;)q, R(n&theta;)k&rangle; = &langle;q, R((n&minus;m)&theta;)k&rangle;, shifting both tokens by the same offset preserves the relative wedge angle and dot product.
     </span>
     <span class="llm-badge llm-badge-indigo" id="rope-dist-badge">&Delta;pos = 2.0</span>
   </div>

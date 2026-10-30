@@ -1,7 +1,7 @@
 <div class="llm-blueprint not-prose">
   <div class="llm-blueprint-header">
     <div class="llm-blueprint-title-wrap">
-      <span class="llm-badge llm-badge-indigo">KV-Cache Architecture Blueprint</span>
+      <span class="llm-badge llm-badge-blue">KV-Cache Architecture Blueprint</span>
       <h3 class="llm-blueprint-title">Multi-Head (MHA) vs. Grouped-Query (GQA) vs. Multi-Query (MQA)</h3>
     </div>
     <span class="llm-blueprint-meta">Memory Bandwidth vs. Representational Capacity</span>
@@ -13,10 +13,10 @@
       <!-- ==================== COLUMN 1: MHA ==================== -->
       <div class="llm-variant-card">
         <div class="llm-variant-card-header">
-          <span class="llm-badge llm-badge-blue">1× Cache (Baseline)</span>
+          <span class="llm-badge llm-badge-slate">1&times; Cache (Baseline)</span>
           <div>
             <div class="llm-variant-card-title">Multi-Head (MHA)</div>
-            <span class="llm-variant-card-sub">GPT-3, Llama-1 • 1:1 Dedicated KV</span>
+            <span class="llm-variant-card-sub">GPT-3, Llama-1 &bull; 1:1 Dedicated KV</span>
           </div>
         </div>
 
@@ -25,14 +25,14 @@
             <text x="130" y="15" text-anchor="middle" fill="#64748b" font-size="9.5" font-weight="700" font-family="sans-serif">8 QUERY HEADS (h<tspan dy="2" font-size="7.5">q</tspan><tspan dy="-2"> = 8)</tspan></text>
             <!-- 8 Query boxes -->
             <g transform="translate(12, 22)">
-              <rect x="0"   y="0" width="24" height="24" rx="4" fill="#4f46e5" /><text x="12" y="15" text-anchor="middle" fill="#fff" font-size="8.5" font-weight="700" font-family="monospace">Q1</text>
-              <rect x="30"  y="0" width="24" height="24" rx="4" fill="#4f46e5" /><text x="42" y="15" text-anchor="middle" fill="#fff" font-size="8.5" font-weight="700" font-family="monospace">Q2</text>
-              <rect x="60"  y="0" width="24" height="24" rx="4" fill="#4f46e5" /><text x="72" y="15" text-anchor="middle" fill="#fff" font-size="8.5" font-weight="700" font-family="monospace">Q3</text>
-              <rect x="90"  y="0" width="24" height="24" rx="4" fill="#4f46e5" /><text x="102" y="15" text-anchor="middle" fill="#fff" font-size="8.5" font-weight="700" font-family="monospace">Q4</text>
-              <rect x="120" y="0" width="24" height="24" rx="4" fill="#4f46e5" /><text x="132" y="15" text-anchor="middle" fill="#fff" font-size="8.5" font-weight="700" font-family="monospace">Q5</text>
-              <rect x="150" y="0" width="24" height="24" rx="4" fill="#4f46e5" /><text x="162" y="15" text-anchor="middle" fill="#fff" font-size="8.5" font-weight="700" font-family="monospace">Q6</text>
-              <rect x="180" y="0" width="24" height="24" rx="4" fill="#4f46e5" /><text x="192" y="15" text-anchor="middle" fill="#fff" font-size="8.5" font-weight="700" font-family="monospace">Q7</text>
-              <rect x="210" y="0" width="24" height="24" rx="4" fill="#4f46e5" /><text x="222" y="15" text-anchor="middle" fill="#fff" font-size="8.5" font-weight="700" font-family="monospace">Q8</text>
+              <rect x="0"   y="0" width="24" height="24" rx="4" fill="#334155" /><text x="12" y="15" text-anchor="middle" fill="#fff" font-size="8.5" font-weight="700" font-family="monospace">Q1</text>
+              <rect x="30"  y="0" width="24" height="24" rx="4" fill="#334155" /><text x="42" y="15" text-anchor="middle" fill="#fff" font-size="8.5" font-weight="700" font-family="monospace">Q2</text>
+              <rect x="60"  y="0" width="24" height="24" rx="4" fill="#334155" /><text x="72" y="15" text-anchor="middle" fill="#fff" font-size="8.5" font-weight="700" font-family="monospace">Q3</text>
+              <rect x="90"  y="0" width="24" height="24" rx="4" fill="#334155" /><text x="102" y="15" text-anchor="middle" fill="#fff" font-size="8.5" font-weight="700" font-family="monospace">Q4</text>
+              <rect x="120" y="0" width="24" height="24" rx="4" fill="#334155" /><text x="132" y="15" text-anchor="middle" fill="#fff" font-size="8.5" font-weight="700" font-family="monospace">Q5</text>
+              <rect x="150" y="0" width="24" height="24" rx="4" fill="#334155" /><text x="162" y="15" text-anchor="middle" fill="#fff" font-size="8.5" font-weight="700" font-family="monospace">Q6</text>
+              <rect x="180" y="0" width="24" height="24" rx="4" fill="#334155" /><text x="192" y="15" text-anchor="middle" fill="#fff" font-size="8.5" font-weight="700" font-family="monospace">Q7</text>
+              <rect x="210" y="0" width="24" height="24" rx="4" fill="#334155" /><text x="222" y="15" text-anchor="middle" fill="#fff" font-size="8.5" font-weight="700" font-family="monospace">Q8</text>
             </g>
 
             <!-- 1:1 Vertical Connecting Lines -->
@@ -49,16 +49,16 @@
 
             <!-- 8 KV boxes -->
             <g transform="translate(12, 104)">
-              <rect x="0"   y="0" width="24" height="26" rx="4" fill="#0284c7" /><text x="12" y="16" text-anchor="middle" fill="#fff" font-size="8" font-weight="700" font-family="monospace">KV1</text>
-              <rect x="30"  y="0" width="24" height="26" rx="4" fill="#0284c7" /><text x="42" y="16" text-anchor="middle" fill="#fff" font-size="8" font-weight="700" font-family="monospace">KV2</text>
-              <rect x="60"  y="0" width="24" height="26" rx="4" fill="#0284c7" /><text x="72" y="16" text-anchor="middle" fill="#fff" font-size="8" font-weight="700" font-family="monospace">KV3</text>
-              <rect x="90"  y="0" width="24" height="26" rx="4" fill="#0284c7" /><text x="102" y="16" text-anchor="middle" fill="#fff" font-size="8" font-weight="700" font-family="monospace">KV4</text>
-              <rect x="120" y="0" width="24" height="26" rx="4" fill="#0284c7" /><text x="132" y="16" text-anchor="middle" fill="#fff" font-size="8" font-weight="700" font-family="monospace">KV5</text>
-              <rect x="150" y="0" width="24" height="26" rx="4" fill="#0284c7" /><text x="162" y="16" text-anchor="middle" fill="#fff" font-size="8" font-weight="700" font-family="monospace">KV6</text>
-              <rect x="180" y="0" width="24" height="26" rx="4" fill="#0284c7" /><text x="192" y="16" text-anchor="middle" fill="#fff" font-size="8" font-weight="700" font-family="monospace">KV7</text>
-              <rect x="210" y="0" width="24" height="26" rx="4" fill="#0284c7" /><text x="222" y="16" text-anchor="middle" fill="#fff" font-size="8" font-weight="700" font-family="monospace">KV8</text>
+              <rect x="0"   y="0" width="24" height="26" rx="4" fill="#2563eb" /><text x="12" y="16" text-anchor="middle" fill="#fff" font-size="8" font-weight="700" font-family="monospace">KV1</text>
+              <rect x="30"  y="0" width="24" height="26" rx="4" fill="#2563eb" /><text x="42" y="16" text-anchor="middle" fill="#fff" font-size="8" font-weight="700" font-family="monospace">KV2</text>
+              <rect x="60"  y="0" width="24" height="26" rx="4" fill="#2563eb" /><text x="72" y="16" text-anchor="middle" fill="#fff" font-size="8" font-weight="700" font-family="monospace">KV3</text>
+              <rect x="90"  y="0" width="24" height="26" rx="4" fill="#2563eb" /><text x="102" y="16" text-anchor="middle" fill="#fff" font-size="8" font-weight="700" font-family="monospace">KV4</text>
+              <rect x="120" y="0" width="24" height="26" rx="4" fill="#2563eb" /><text x="132" y="16" text-anchor="middle" fill="#fff" font-size="8" font-weight="700" font-family="monospace">KV5</text>
+              <rect x="150" y="0" width="24" height="26" rx="4" fill="#2563eb" /><text x="162" y="16" text-anchor="middle" fill="#fff" font-size="8" font-weight="700" font-family="monospace">KV6</text>
+              <rect x="180" y="0" width="24" height="26" rx="4" fill="#2563eb" /><text x="192" y="16" text-anchor="middle" fill="#fff" font-size="8" font-weight="700" font-family="monospace">KV7</text>
+              <rect x="210" y="0" width="24" height="26" rx="4" fill="#2563eb" /><text x="222" y="16" text-anchor="middle" fill="#fff" font-size="8" font-weight="700" font-family="monospace">KV8</text>
             </g>
-            <text x="130" y="146" text-anchor="middle" fill="#0284c7" font-size="9.5" font-weight="700" font-family="sans-serif">8 KEY-VALUE HEADS (h<tspan dy="2" font-size="7.5">kv</tspan><tspan dy="-2"> = 8)</tspan></text>
+            <text x="130" y="146" text-anchor="middle" fill="#1d4ed8" font-size="9.5" font-weight="700" font-family="sans-serif">8 KEY-VALUE HEADS (h<tspan dy="2" font-size="7.5">kv</tspan><tspan dy="-2"> = 8)</tspan></text>
           </svg>
         </div>
 
@@ -69,7 +69,7 @@
           </div>
           <div class="llm-variant-stat-row">
             <span class="llm-variant-stat-label">Bandwidth:</span>
-            <span class="llm-variant-stat-val" style="color: #dc2626;">Bottlenecked</span>
+            <span class="llm-variant-stat-val">Memory-Bound</span>
           </div>
         </div>
       </div>
@@ -77,10 +77,10 @@
       <!-- ==================== COLUMN 2: GQA ==================== -->
       <div class="llm-variant-card">
         <div class="llm-variant-card-header">
-          <span class="llm-badge llm-badge-emerald">4× Smaller Cache</span>
+          <span class="llm-badge llm-badge-blue">4&times; Smaller Cache</span>
           <div>
             <div class="llm-variant-card-title">Grouped-Query (GQA)</div>
-            <span class="llm-variant-card-sub">Llama-3, Qwen-2.5 • Group Shared</span>
+            <span class="llm-variant-card-sub">Llama-3, Qwen-2.5 &bull; Group Shared</span>
           </div>
         </div>
 
@@ -89,24 +89,22 @@
             <text x="130" y="15" text-anchor="middle" fill="#64748b" font-size="9.5" font-weight="700" font-family="sans-serif">8 QUERY HEADS (2 GROUPS OF 4)</text>
             <!-- 8 Query boxes -->
             <g transform="translate(12, 22)">
-              <rect x="0"   y="0" width="24" height="24" rx="4" fill="#4f46e5" /><text x="12" y="15" text-anchor="middle" fill="#fff" font-size="8.5" font-weight="700" font-family="monospace">Q1</text>
-              <rect x="30"  y="0" width="24" height="24" rx="4" fill="#4f46e5" /><text x="42" y="15" text-anchor="middle" fill="#fff" font-size="8.5" font-weight="700" font-family="monospace">Q2</text>
-              <rect x="60"  y="0" width="24" height="24" rx="4" fill="#4f46e5" /><text x="72" y="15" text-anchor="middle" fill="#fff" font-size="8.5" font-weight="700" font-family="monospace">Q3</text>
-              <rect x="90"  y="0" width="24" height="24" rx="4" fill="#4f46e5" /><text x="102" y="15" text-anchor="middle" fill="#fff" font-size="8.5" font-weight="700" font-family="monospace">Q4</text>
-              <rect x="120" y="0" width="24" height="24" rx="4" fill="#6366f1" /><text x="132" y="15" text-anchor="middle" fill="#fff" font-size="8.5" font-weight="700" font-family="monospace">Q5</text>
-              <rect x="150" y="0" width="24" height="24" rx="4" fill="#6366f1" /><text x="162" y="15" text-anchor="middle" fill="#fff" font-size="8.5" font-weight="700" font-family="monospace">Q6</text>
-              <rect x="180" y="0" width="24" height="24" rx="4" fill="#6366f1" /><text x="192" y="15" text-anchor="middle" fill="#fff" font-size="8.5" font-weight="700" font-family="monospace">Q7</text>
-              <rect x="210" y="0" width="24" height="24" rx="4" fill="#6366f1" /><text x="222" y="15" text-anchor="middle" fill="#fff" font-size="8.5" font-weight="700" font-family="monospace">Q8</text>
+              <rect x="0"   y="0" width="24" height="24" rx="4" fill="#334155" /><text x="12" y="15" text-anchor="middle" fill="#fff" font-size="8.5" font-weight="700" font-family="monospace">Q1</text>
+              <rect x="30"  y="0" width="24" height="24" rx="4" fill="#334155" /><text x="42" y="15" text-anchor="middle" fill="#fff" font-size="8.5" font-weight="700" font-family="monospace">Q2</text>
+              <rect x="60"  y="0" width="24" height="24" rx="4" fill="#334155" /><text x="72" y="15" text-anchor="middle" fill="#fff" font-size="8.5" font-weight="700" font-family="monospace">Q3</text>
+              <rect x="90"  y="0" width="24" height="24" rx="4" fill="#334155" /><text x="102" y="15" text-anchor="middle" fill="#fff" font-size="8.5" font-weight="700" font-family="monospace">Q4</text>
+              <rect x="120" y="0" width="24" height="24" rx="4" fill="#475569" /><text x="132" y="15" text-anchor="middle" fill="#fff" font-size="8.5" font-weight="700" font-family="monospace">Q5</text>
+              <rect x="150" y="0" width="24" height="24" rx="4" fill="#475569" /><text x="162" y="15" text-anchor="middle" fill="#fff" font-size="8.5" font-weight="700" font-family="monospace">Q6</text>
+              <rect x="180" y="0" width="24" height="24" rx="4" fill="#475569" /><text x="192" y="15" text-anchor="middle" fill="#fff" font-size="8.5" font-weight="700" font-family="monospace">Q7</text>
+              <rect x="210" y="0" width="24" height="24" rx="4" fill="#475569" /><text x="222" y="15" text-anchor="middle" fill="#fff" font-size="8.5" font-weight="700" font-family="monospace">Q8</text>
             </g>
 
             <!-- 4:1 Group Converging Lines -->
-            <g stroke="#059669" stroke-width="1.6" fill="none">
-              <!-- Group 1 -> KV1 (center x=69) -->
+            <g stroke="#2563eb" stroke-width="1.6" fill="none">
               <path d="M 24 46 L 69 104" />
               <path d="M 54 46 L 69 104" />
               <path d="M 84 46 L 69 104" />
               <path d="M 114 46 L 69 104" />
-              <!-- Group 2 -> KV2 (center x=189) -->
               <path d="M 144 46 L 189 104" />
               <path d="M 174 46 L 189 104" />
               <path d="M 204 46 L 189 104" />
@@ -115,13 +113,13 @@
 
             <!-- 2 Shared KV boxes -->
             <g transform="translate(0, 104)">
-              <rect x="35"  y="0" width="68" height="26" rx="5" fill="#059669" />
+              <rect x="35"  y="0" width="68" height="26" rx="5" fill="#2563eb" />
               <text x="69"  y="16" text-anchor="middle" fill="#fff" font-size="9" font-weight="700" font-family="monospace">Shared KV1</text>
 
-              <rect x="155" y="0" width="68" height="26" rx="5" fill="#059669" />
+              <rect x="155" y="0" width="68" height="26" rx="5" fill="#2563eb" />
               <text x="189" y="16" text-anchor="middle" fill="#fff" font-size="9" font-weight="700" font-family="monospace">Shared KV2</text>
             </g>
-            <text x="130" y="146" text-anchor="middle" fill="#059669" font-size="9.5" font-weight="700" font-family="sans-serif">2 GROUPED KV HEADS (h<tspan dy="2" font-size="7.5">kv</tspan><tspan dy="-2"> = 2)</tspan></text>
+            <text x="130" y="146" text-anchor="middle" fill="#1d4ed8" font-size="9.5" font-weight="700" font-family="sans-serif">2 GROUPED KV HEADS (h<tspan dy="2" font-size="7.5">kv</tspan><tspan dy="-2"> = 2)</tspan></text>
           </svg>
         </div>
 
@@ -132,7 +130,7 @@
           </div>
           <div class="llm-variant-stat-row">
             <span class="llm-variant-stat-label">Quality:</span>
-            <span class="llm-variant-stat-val" style="color: #059669;">Near-Lossless</span>
+            <span class="llm-variant-stat-val" style="color: #1d4ed8;">Near-Lossless</span>
           </div>
         </div>
       </div>
@@ -140,10 +138,10 @@
       <!-- ==================== COLUMN 3: MQA ==================== -->
       <div class="llm-variant-card">
         <div class="llm-variant-card-header">
-          <span class="llm-badge llm-badge-amber">8× Smaller Cache</span>
+          <span class="llm-badge llm-badge-slate">8&times; Smaller Cache</span>
           <div>
             <div class="llm-variant-card-title">Multi-Query (MQA)</div>
-            <span class="llm-variant-card-sub">PaLM, Falcon • Single Global KV</span>
+            <span class="llm-variant-card-sub">PaLM, Falcon &bull; Single Global KV</span>
           </div>
         </div>
 
@@ -152,18 +150,18 @@
             <text x="130" y="15" text-anchor="middle" fill="#64748b" font-size="9.5" font-weight="700" font-family="sans-serif">8 QUERY HEADS SHARE 1 KV</text>
             <!-- 8 Query boxes -->
             <g transform="translate(12, 22)">
-              <rect x="0"   y="0" width="24" height="24" rx="4" fill="#4f46e5" /><text x="12" y="15" text-anchor="middle" fill="#fff" font-size="8.5" font-weight="700" font-family="monospace">Q1</text>
-              <rect x="30"  y="0" width="24" height="24" rx="4" fill="#4f46e5" /><text x="42" y="15" text-anchor="middle" fill="#fff" font-size="8.5" font-weight="700" font-family="monospace">Q2</text>
-              <rect x="60"  y="0" width="24" height="24" rx="4" fill="#4f46e5" /><text x="72" y="15" text-anchor="middle" fill="#fff" font-size="8.5" font-weight="700" font-family="monospace">Q3</text>
-              <rect x="90"  y="0" width="24" height="24" rx="4" fill="#4f46e5" /><text x="102" y="15" text-anchor="middle" fill="#fff" font-size="8.5" font-weight="700" font-family="monospace">Q4</text>
-              <rect x="120" y="0" width="24" height="24" rx="4" fill="#4f46e5" /><text x="132" y="15" text-anchor="middle" fill="#fff" font-size="8.5" font-weight="700" font-family="monospace">Q5</text>
-              <rect x="150" y="0" width="24" height="24" rx="4" fill="#4f46e5" /><text x="162" y="15" text-anchor="middle" fill="#fff" font-size="8.5" font-weight="700" font-family="monospace">Q6</text>
-              <rect x="180" y="0" width="24" height="24" rx="4" fill="#4f46e5" /><text x="192" y="15" text-anchor="middle" fill="#fff" font-size="8.5" font-weight="700" font-family="monospace">Q7</text>
-              <rect x="210" y="0" width="24" height="24" rx="4" fill="#4f46e5" /><text x="222" y="15" text-anchor="middle" fill="#fff" font-size="8.5" font-weight="700" font-family="monospace">Q8</text>
+              <rect x="0"   y="0" width="24" height="24" rx="4" fill="#334155" /><text x="12" y="15" text-anchor="middle" fill="#fff" font-size="8.5" font-weight="700" font-family="monospace">Q1</text>
+              <rect x="30"  y="0" width="24" height="24" rx="4" fill="#334155" /><text x="42" y="15" text-anchor="middle" fill="#fff" font-size="8.5" font-weight="700" font-family="monospace">Q2</text>
+              <rect x="60"  y="0" width="24" height="24" rx="4" fill="#334155" /><text x="72" y="15" text-anchor="middle" fill="#fff" font-size="8.5" font-weight="700" font-family="monospace">Q3</text>
+              <rect x="90"  y="0" width="24" height="24" rx="4" fill="#334155" /><text x="102" y="15" text-anchor="middle" fill="#fff" font-size="8.5" font-weight="700" font-family="monospace">Q4</text>
+              <rect x="120" y="0" width="24" height="24" rx="4" fill="#334155" /><text x="132" y="15" text-anchor="middle" fill="#fff" font-size="8.5" font-weight="700" font-family="monospace">Q5</text>
+              <rect x="150" y="0" width="24" height="24" rx="4" fill="#334155" /><text x="162" y="15" text-anchor="middle" fill="#fff" font-size="8.5" font-weight="700" font-family="monospace">Q6</text>
+              <rect x="180" y="0" width="24" height="24" rx="4" fill="#334155" /><text x="192" y="15" text-anchor="middle" fill="#fff" font-size="8.5" font-weight="700" font-family="monospace">Q7</text>
+              <rect x="210" y="0" width="24" height="24" rx="4" fill="#334155" /><text x="222" y="15" text-anchor="middle" fill="#fff" font-size="8.5" font-weight="700" font-family="monospace">Q8</text>
             </g>
 
             <!-- 8:1 Converging Lines -->
-            <g stroke="#d97706" stroke-width="1.5" fill="none">
+            <g stroke="#64748b" stroke-width="1.5" fill="none">
               <path d="M 24 46 L 130 104" />
               <path d="M 54 46 L 130 104" />
               <path d="M 84 46 L 130 104" />
@@ -176,10 +174,10 @@
 
             <!-- 1 Global KV box -->
             <g transform="translate(0, 104)">
-              <rect x="82" y="0" width="96" height="26" rx="5" fill="#d97706" />
+              <rect x="82" y="0" width="96" height="26" rx="5" fill="#1e293b" />
               <text x="130" y="16" text-anchor="middle" fill="#fff" font-size="9" font-weight="700" font-family="monospace">Global Shared KV1</text>
             </g>
-            <text x="130" y="146" text-anchor="middle" fill="#d97706" font-size="9.5" font-weight="700" font-family="sans-serif">1 SINGLE KV HEAD (h<tspan dy="2" font-size="7.5">kv</tspan><tspan dy="-2"> = 1)</tspan></text>
+            <text x="130" y="146" text-anchor="middle" fill="#334155" font-size="9.5" font-weight="700" font-family="sans-serif">1 SINGLE KV HEAD (h<tspan dy="2" font-size="7.5">kv</tspan><tspan dy="-2"> = 1)</tspan></text>
           </svg>
         </div>
 
@@ -190,7 +188,7 @@
           </div>
           <div class="llm-variant-stat-row">
             <span class="llm-variant-stat-label">Tradeoff:</span>
-            <span class="llm-variant-stat-val" style="color: #d97706;">Max Throughput</span>
+            <span class="llm-variant-stat-val">Max Throughput</span>
           </div>
         </div>
       </div>

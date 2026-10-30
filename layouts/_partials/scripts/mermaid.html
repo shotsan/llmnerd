@@ -61,15 +61,15 @@
           darkMode: true,
           background: "transparent",
           mainBkg: "#1e293b",
-          nodeBorder: "#38bdf8",
+          nodeBorder: "#3b82f6",
           primaryColor: "#1e293b",
-          primaryBorderColor: "#38bdf8",
+          primaryBorderColor: "#3b82f6",
           primaryTextColor: "#f8fafc",
           secondaryColor: "#0f172a",
           secondaryBorderColor: "#64748b",
           secondaryTextColor: "#e2e8f0",
-          tertiaryColor: "#1e1b4b",
-          tertiaryBorderColor: "#a855f7",
+          tertiaryColor: "#1e293b",
+          tertiaryBorderColor: "#60a5fa",
           tertiaryTextColor: "#f8fafc",
           lineColor: "#60a5fa",
           textColor: "#f8fafc",
@@ -82,17 +82,17 @@
           darkMode: false,
           background: "transparent",
           mainBkg: "#ffffff",
-          nodeBorder: "#0284c7",
-          primaryColor: "#f0f9ff",
-          primaryBorderColor: "#0284c7",
+          nodeBorder: "#2563eb",
+          primaryColor: "#eff6ff",
+          primaryBorderColor: "#2563eb",
           primaryTextColor: "#0f172a",
           secondaryColor: "#f8fafc",
           secondaryBorderColor: "#64748b",
           secondaryTextColor: "#1e293b",
-          tertiaryColor: "#faf5ff",
-          tertiaryBorderColor: "#9333ea",
+          tertiaryColor: "#f1f5f9",
+          tertiaryBorderColor: "#475569",
           tertiaryTextColor: "#0f172a",
-          lineColor: "#0284c7",
+          lineColor: "#2563eb",
           textColor: "#0f172a",
           fontSize: "14.5px",
           clusterBkg: "#f8fafc",
@@ -115,34 +115,43 @@
 
     elements.forEach((el) => {
       if (!el.dataset.original) {
-        el.dataset.original = el.innerHTML;
+        el.dataset.original = el.textContent;
       }
     });
 
-    function renderDiagrams() {
+    let renderSeq = 0;
+    async function renderDiagrams() {
       if (typeof mermaid === "undefined") {
         setTimeout(renderDiagrams, 50);
         return;
       }
       mermaid.initialize(getMermaidConfig());
-      mermaid.init();
+      const nodes = document.querySelectorAll(".mermaid");
+      for (let i = 0; i < nodes.length; i++) {
+        const el = nodes[i];
+        const graphDef = el.dataset.original || el.textContent;
+        const svgId = "mermaid-svg-" + i + "-" + (++renderSeq);
+        try {
+          const { svg } = await mermaid.render(svgId, graphDef);
+          el.innerHTML = svg;
+          el.setAttribute("data-processed", "true");
+        } catch (err) {
+          console.error("Mermaid render error:", err);
+        }
+      }
     }
 
     renderDiagrams();
 
+    let lastDark = document.documentElement.classList.contains("dark");
     let timeout;
     new MutationObserver(() => {
+      const currentDark = document.documentElement.classList.contains("dark");
+      if (currentDark === lastDark) return;
+      lastDark = currentDark;
       clearTimeout(timeout);
       timeout = setTimeout(() => {
-        if (typeof mermaid === "undefined") return;
-        document.querySelectorAll(".mermaid").forEach((el) => {
-          if (el.dataset.original) {
-            el.innerHTML = el.dataset.original;
-            el.removeAttribute("data-processed");
-          }
-        });
-        mermaid.initialize(getMermaidConfig());
-        mermaid.init();
+        renderDiagrams();
       }, 150);
     }).observe(document.documentElement, {
       attributes: true,

@@ -15,7 +15,7 @@
       </div>
       <div class="llm-param-item" style="padding-left: 0.85rem; border-left: 1px solid #cbd5e1;">
         <span class="llm-param-label">Unseen Word Length:</span>
-        <span id="bpe-unseen-len" class="llm-param-val" style="color: #059669;">7 tokens</span>
+        <span id="bpe-unseen-len" class="llm-param-val">7 tokens</span>
       </div>
     </div>
   </div>
@@ -202,12 +202,13 @@
     let tokHtml = '';
     s.unseen.forEach(function(tok, tIdx) {
       const isHi = s.unseenHighlight.indexOf(tIdx) !== -1;
-      const bg = isHi ? '#059669' : '#2563eb';
-      const bdr = isHi ? '#047857' : '#1d4ed8';
+      const bg = isHi ? '#2563eb' : '#1e293b';
+      const bdr = isHi ? '#1d4ed8' : '#334155';
+      const subCol = isHi ? '#dbeafe' : '#94a3b8';
       const safeTok = tok.replace(/</g, '&lt;').replace(/>/g, '&gt;');
       tokHtml += '<div style="display: inline-flex; flex-direction: column; align-items: center; justify-content: center; min-width: 4.2rem; padding: 0.5rem 0.9rem; border-radius: 0.6rem; background: ' + bg + '; border: 1.5px solid ' + bdr + '; color: #ffffff; box-shadow: 0 2px 4px rgba(15, 23, 42, 0.08);">';
       tokHtml += '<span style="font-family: ui-monospace, SFMono-Regular, monospace; font-size: 1.1rem; font-weight: 700; line-height: 1.2;">' + safeTok + '</span>';
-      tokHtml += '<span style="font-size: 0.78rem; color: #dbeafe; margin-top: 0.2rem; font-weight: 500;">token ' + (tIdx + 1) + '</span>';
+      tokHtml += '<span style="font-size: 0.78rem; color: ' + subCol + '; margin-top: 0.2rem; font-weight: 500;">token ' + (tIdx + 1) + '</span>';
       tokHtml += '</div>';
     });
     unseenBox.innerHTML = tokHtml;
@@ -219,9 +220,9 @@
       cHtml += '<div style="display:flex; flex-wrap:wrap; gap:0.32rem;">';
       row.tokens.forEach(function(t, i) {
         const hi = row.hi.indexOf(i) !== -1;
-        const bg = hi ? '#d1fae5' : '#f1f5f9';
-        const col = hi ? '#065f46' : '#0f172a';
-        const bdr = hi ? '#34d399' : '#cbd5e1';
+        const bg = hi ? '#eff6ff' : '#f1f5f9';
+        const col = hi ? '#1d4ed8' : '#0f172a';
+        const bdr = hi ? '#3b82f6' : '#cbd5e1';
         const safeT = t.replace(/</g, '&lt;').replace(/>/g, '&gt;');
         cHtml += '<span style="padding:0.16rem 0.46rem; border-radius:0.35rem; border:1px solid ' + bdr + '; background:' + bg + '; color:' + col + '; font-size:0.92rem; font-weight:700;">' + safeT + '</span>';
       });
@@ -236,13 +237,13 @@
     rules.forEach(function(r) {
       const active = r.id <= idx;
       const current = r.id === idx;
-      const bg = current ? '#eff6ff' : (active ? 'rgba(16, 185, 129, 0.08)' : 'transparent');
-      const bdr = current ? '#3b82f6' : (active ? '#a7f3d0' : '#e2e8f0');
+      const bg = current ? '#eff6ff' : (active ? '#f8fafc' : 'transparent');
+      const bdr = current ? '#3b82f6' : (active ? '#cbd5e1' : '#e2e8f0');
       const op = active ? '1' : '0.5';
       const safePair = r.pair.replace(/</g, '&lt;').replace(/>/g, '&gt;');
       const safeOut = r.out.replace(/</g, '&lt;').replace(/>/g, '&gt;');
       rHtml += '<div style="display:flex; align-items:center; justify-content:space-between; gap:0.5rem; padding:0.48rem 0.7rem; border-radius:0.5rem; border:1px solid ' + bdr + '; background:' + bg + '; opacity:' + op + '; font-size:0.92rem;">';
-      rHtml += '<span style="white-space:nowrap;"><strong>Rule ' + r.id + ':</strong> ' + safePair + ' &rarr; <strong style="color:#059669;">' + safeOut + '</strong></span>';
+      rHtml += '<span style="white-space:nowrap;"><strong>Rule ' + r.id + ':</strong> ' + safePair + ' &rarr; <strong style="color:#1d4ed8;">' + safeOut + '</strong></span>';
       rHtml += '<span style="font-size:0.84rem; font-weight:600; color:#475569; white-space:nowrap;">&times;' + r.freq + '</span>';
       rHtml += '</div>';
     });
