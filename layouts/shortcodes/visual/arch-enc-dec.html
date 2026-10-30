@@ -25,7 +25,7 @@
       <div class="llm-pipe-step">
         <span class="llm-pipe-tag">2. Cross-Attention Bridge</span>
         <div class="llm-pipe-node is-tint">
-          <span class="llm-pipe-title">Source-Target Alignment</span>
+          <span class="llm-pipe-title">Cross-Attention</span>
           <span class="llm-pipe-formula">{{ transform.ToMath `\operatorname{softmax}\!\left(\frac{\mathbf{Q}_{\mathrm{dec}}\mathbf{K}_{\mathrm{enc}}^T}{\sqrt{d_k}}\right)\mathbf{V}_{\mathrm{enc}}` $m }}</span>
           <span class="llm-pipe-sub">Decoder Queries attend to Encoder Keys</span>
         </div>

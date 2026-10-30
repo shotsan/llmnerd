@@ -12,9 +12,9 @@
       <p class="llm-feature-desc">
         Every Query head {{ transform.ToMath `\mathbf{Q}_1 \dots \mathbf{Q}_h` $m }} maintains its own private Key and Value head ({{ transform.ToMath `n_{kv} = h` $m }}). Maximizes representational capacity (GPT-3, LLaMA 1), but requires streaming {{ transform.ToMath `100\%` $m }} of KV-cache parameters from GPU HBM on every generated token.
       </p>
-      <div class="llm-feature-formula" style="flex-direction: column; gap: 0.45rem;">
+      <div class="llm-feature-formula" style="flex-direction: column; gap: 0.35rem;">
         <div>{{ transform.ToMath `h = 8 \text{ Query Heads} \;\longleftrightarrow\; n_{kv} = 8 \text{ KV Heads}` $m }}</div>
-        <div style="font-size: 0.82rem; color: var(--llm-text-muted); font-family: ui-monospace, monospace;">1:1 Head Mapping &bull; Highest HBM Bandwidth</div>
+        <div style="font-size: 0.82rem; color: var(--llm-text-muted);">1:1 Head Mapping &bull; Highest HBM Bandwidth</div>
       </div>
     </div>
   </div>
@@ -29,9 +29,9 @@
       <p class="llm-feature-desc">
         Query heads are partitioned into {{ transform.ToMath `g` $m }} groups, where all queries in a group share a single Key and Value head ({{ transform.ToMath `1 < n_{kv} < h` $m }}). Adopted by LLaMA 3, Mistral, and Qwen: cuts KV-cache memory by {{ transform.ToMath `4\times\text{--}8\times` $m }} with virtually zero accuracy loss.
       </p>
-      <div class="llm-feature-formula" style="flex-direction: column; gap: 0.45rem;">
+      <div class="llm-feature-formula" style="flex-direction: column; gap: 0.35rem;">
         <div>{{ transform.ToMath `h = 8 \text{ Query Heads} \;\longleftrightarrow\; n_{kv} = 2 \text{ KV Heads}` $m }}</div>
-        <div style="font-size: 0.82rem; color: var(--llm-accent-strong); font-family: ui-monospace, monospace;">4 Queries per KV Group &bull; Modern Frontier Standard</div>
+        <div style="font-size: 0.82rem; color: var(--llm-accent-strong);">4 Queries per KV Group &bull; Modern Frontier Standard</div>
       </div>
     </div>
   </div>
@@ -46,9 +46,9 @@
       <p class="llm-feature-desc">
         All {{ transform.ToMath `h` $m }} Query heads share a single global Key and Value head ({{ transform.ToMath `n_{kv} = 1` $m }}, Shazeer 2019). Achieves maximum possible HBM bandwidth reduction ({{ transform.ToMath `h\times` $m }} smaller cache), trading a slight drop in multi-relation expressivity.
       </p>
-      <div class="llm-feature-formula" style="flex-direction: column; gap: 0.45rem;">
+      <div class="llm-feature-formula" style="flex-direction: column; gap: 0.35rem;">
         <div>{{ transform.ToMath `h = 8 \text{ Query Heads} \;\longleftrightarrow\; n_{kv} = 1 \text{ KV Head}` $m }}</div>
-        <div style="font-size: 0.82rem; color: var(--llm-text-muted); font-family: ui-monospace, monospace;">8:1 Global Sharing &bull; Minimum HBM Footprint</div>
+        <div style="font-size: 0.82rem; color: var(--llm-text-muted);">8:1 Global Sharing &bull; Minimum HBM Footprint</div>
       </div>
     </div>
   </div>

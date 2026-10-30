@@ -38,7 +38,7 @@
           <span class="llm-math-symbol">Corpus</span>
           <span class="llm-math-shape" id="bpe-active-pair-badge">Top: e + s (9)</span>
         </div>
-        <div class="llm-math-body" id="bpe-corpus-list" style="display: flex; flex-direction: column; gap: 0.65rem; font-family: ui-monospace, SFMono-Regular, monospace; font-size: 0.98rem;">
+        <div class="llm-math-body" id="bpe-corpus-list" style="display: flex; flex-direction: column; gap: 0.65rem; font-size: 0.96rem;">
         </div>
       </div>
 
@@ -48,7 +48,7 @@
           <span class="llm-math-symbol">Merge Rules</span>
           <span class="llm-math-shape" id="bpe-rule-count-badge">0 / 5 Active</span>
         </div>
-        <div class="llm-math-body" id="bpe-rules-list" style="display: flex; flex-direction: column; gap: 0.55rem; font-family: ui-monospace, SFMono-Regular, monospace; font-size: 0.95rem;">
+        <div class="llm-math-body" id="bpe-rules-list" style="display: flex; flex-direction: column; gap: 0.55rem; font-size: 0.94rem;">
         </div>
       </div>
     </div>
@@ -207,7 +207,7 @@
       const subCol = isHi ? '#ffedd5' : '#a8a29e';
       const safeTok = tok.replace(/</g, '&lt;').replace(/>/g, '&gt;');
       tokHtml += '<div style="display: inline-flex; flex-direction: column; align-items: center; justify-content: center; min-width: 4.2rem; padding: 0.5rem 0.9rem; border-radius: 0.6rem; background: ' + bg + '; border: 1.5px solid ' + bdr + '; color: #ffffff; box-shadow: 0 2px 4px rgba(28, 25, 23, 0.08);">';
-      tokHtml += '<span style="font-family: ui-monospace, SFMono-Regular, monospace; font-size: 1.1rem; font-weight: 700; line-height: 1.2;">' + safeTok + '</span>';
+      tokHtml += '<span style="font-size: 1.05rem; font-weight: 700; line-height: 1.2;">' + safeTok + '</span>';
       tokHtml += '<span style="font-size: 0.78rem; color: ' + subCol + '; margin-top: 0.2rem; font-weight: 500;">token ' + (tIdx + 1) + '</span>';
       tokHtml += '</div>';
     });

@@ -7,38 +7,33 @@
       <span class="llm-badge llm-badge-accent">Ingestion Pipeline</span>
       <h3 class="llm-blueprint-title">Text-to-Tensor Tokenization Stages</h3>
     </div>
-    <span class="llm-blueprint-meta">UTF-8 Bytes &bull; BPE Merges &bull; Integer IDs</span>
   </div>
   <div class="llm-blueprint-body">
     <div class="llm-pipeline-3">
       <div class="llm-pipe-step">
         <span class="llm-pipe-tag">1. Pre-Tokenization</span>
-        <div class="llm-pipe-node is-dark">
+        <div class="llm-pipe-node">
           <span class="llm-pipe-title">UTF-8 Byte Split</span>
-          <span class="llm-pipe-formula">understanding</span>
-          <span class="llm-pipe-sub">Regex word &amp; byte boundary split</span>
+          <span class="llm-pipe-formula">{{ transform.ToMath `\text{understanding}` $m }}</span>
+          <span class="llm-pipe-sub">Splits raw text along word and UTF-8 byte boundaries.</span>
         </div>
       </div>
-
-      <div class="llm-pipe-arrow">&rarr;</div>
 
       <div class="llm-pipe-step">
         <span class="llm-pipe-tag">2. Subword Segmentation</span>
-        <div class="llm-pipe-node is-tint">
+        <div class="llm-pipe-node">
           <span class="llm-pipe-title">BPE Merge Engine</span>
-          <span class="llm-pipe-formula">[under, stand, ing]</span>
-          <span class="llm-pipe-sub">Iterative highest-frequency pair merges</span>
+          <span class="llm-pipe-formula">{{ transform.ToMath `[\text{under}, \text{stand}, \text{ing}]` $m }}</span>
+          <span class="llm-pipe-sub">Iteratively merges the highest-frequency adjacent symbol pairs.</span>
         </div>
       </div>
 
-      <div class="llm-pipe-arrow">&rarr;</div>
-
       <div class="llm-pipe-step">
         <span class="llm-pipe-tag">3. Numerical Indices</span>
-        <div class="llm-pipe-node is-accent">
+        <div class="llm-pipe-node">
           <span class="llm-pipe-title">Vocabulary Lookup</span>
           <span class="llm-pipe-formula">{{ transform.ToMath `[2104, 3812, 278] \in \mathcal{V}^T` $m }}</span>
-          <span class="llm-pipe-sub">Discrete Token ID Tensor</span>
+          <span class="llm-pipe-sub">Maps each subword to its integer index in vocabulary {{ transform.ToMath `\mathcal{V}` $m }}.</span>
         </div>
       </div>
     </div>
