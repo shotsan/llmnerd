@@ -1,0 +1,46 @@
+{{- $m := dict "output" "html" "displayMode" false -}}
+{{- $.Page.Store.Set "hasMath" true -}}
+
+<div class="llm-blueprint not-prose">
+  <div class="llm-blueprint-header">
+    <div class="llm-blueprint-title-wrap">
+      <span class="llm-badge llm-badge-accent">Ingestion Pipeline</span>
+      <h3 class="llm-blueprint-title">Text-to-Tensor Tokenization Stages</h3>
+    </div>
+    <span class="llm-blueprint-meta">UTF-8 Bytes &bull; BPE Merges &bull; Integer IDs</span>
+  </div>
+  <div class="llm-blueprint-body">
+    <div class="llm-pipeline-3">
+      <div class="llm-pipe-step">
+        <span class="llm-pipe-tag">1. Pre-Tokenization</span>
+        <div class="llm-pipe-node is-dark">
+          <span class="llm-pipe-title">UTF-8 Byte Split</span>
+          <span class="llm-pipe-formula">understanding</span>
+          <span class="llm-pipe-sub">Regex word &amp; byte boundary split</span>
+        </div>
+      </div>
+
+      <div class="llm-pipe-arrow">&rarr;</div>
+
+      <div class="llm-pipe-step">
+        <span class="llm-pipe-tag">2. Subword Segmentation</span>
+        <div class="llm-pipe-node is-tint">
+          <span class="llm-pipe-title">BPE Merge Engine</span>
+          <span class="llm-pipe-formula">[under, stand, ing]</span>
+          <span class="llm-pipe-sub">Iterative highest-frequency pair merges</span>
+        </div>
+      </div>
+
+      <div class="llm-pipe-arrow">&rarr;</div>
+
+      <div class="llm-pipe-step">
+        <span class="llm-pipe-tag">3. Numerical Indices</span>
+        <div class="llm-pipe-node is-accent">
+          <span class="llm-pipe-title">Vocabulary Lookup</span>
+          <span class="llm-pipe-formula">{{ transform.ToMath `[2104, 3812, 278] \in \mathcal{V}^T` $m }}</span>
+          <span class="llm-pipe-sub">Discrete Token ID Tensor</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

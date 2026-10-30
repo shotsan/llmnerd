@@ -1,198 +1,55 @@
-<div class="llm-blueprint not-prose">
-  <div class="llm-blueprint-header">
-    <div class="llm-blueprint-title-wrap">
-      <span class="llm-badge llm-badge-blue">KV-Cache Architecture Blueprint</span>
-      <h3 class="llm-blueprint-title">Multi-Head (MHA) vs. Grouped-Query (GQA) vs. Multi-Query (MQA)</h3>
+{{- $m := dict "output" "html" "displayMode" false -}}
+{{- $.Page.Store.Set "hasMath" true -}}
+
+<div class="llm-feature-list not-prose">
+  <!-- 1. MHA -->
+  <div class="llm-feature-card">
+    <div class="llm-feature-top">
+      <h3 class="llm-feature-title">1. Multi-Head Attention (MHA) &mdash; 1:1 Dedicated KV Heads</h3>
+      <span class="llm-badge llm-badge-slate">1&times; Baseline KV-Cache</span>
     </div>
-    <span class="llm-blueprint-meta">Memory Bandwidth vs. Representational Capacity</span>
+    <div class="llm-feature-body">
+      <p class="llm-feature-desc">
+        Every Query head {{ transform.ToMath `\mathbf{Q}_1 \dots \mathbf{Q}_h` $m }} maintains its own private Key and Value head ({{ transform.ToMath `n_{kv} = h` $m }}). Maximizes representational capacity (GPT-3, LLaMA 1), but requires streaming {{ transform.ToMath `100\%` $m }} of KV-cache parameters from GPU HBM on every generated token.
+      </p>
+      <div class="llm-feature-formula" style="flex-direction: column; gap: 0.45rem;">
+        <div>{{ transform.ToMath `h = 8 \text{ Query Heads} \;\longleftrightarrow\; n_{kv} = 8 \text{ KV Heads}` $m }}</div>
+        <div style="font-size: 0.82rem; color: var(--llm-text-muted); font-family: ui-monospace, monospace;">1:1 Head Mapping &bull; Highest HBM Bandwidth</div>
+      </div>
+    </div>
   </div>
 
-  <div class="llm-blueprint-body">
-    <div class="llm-variant-grid">
-
-      <!-- ==================== COLUMN 1: MHA ==================== -->
-      <div class="llm-variant-card">
-        <div class="llm-variant-card-header">
-          <span class="llm-badge llm-badge-slate">1&times; Cache (Baseline)</span>
-          <div>
-            <div class="llm-variant-card-title">Multi-Head (MHA)</div>
-            <span class="llm-variant-card-sub">GPT-3, Llama-1 &bull; 1:1 Dedicated KV</span>
-          </div>
-        </div>
-
-        <div class="llm-variant-diagram">
-          <svg viewBox="0 0 260 155" width="100%" style="max-width: 260px; height: auto; display: block;" xmlns="http://www.w3.org/2000/svg">
-            <text x="130" y="15" text-anchor="middle" fill="#64748b" font-size="9.5" font-weight="700" font-family="sans-serif">8 QUERY HEADS (h<tspan dy="2" font-size="7.5">q</tspan><tspan dy="-2"> = 8)</tspan></text>
-            <!-- 8 Query boxes -->
-            <g transform="translate(12, 22)">
-              <rect x="0"   y="0" width="24" height="24" rx="4" fill="#334155" /><text x="12" y="15" text-anchor="middle" fill="#fff" font-size="8.5" font-weight="700" font-family="monospace">Q1</text>
-              <rect x="30"  y="0" width="24" height="24" rx="4" fill="#334155" /><text x="42" y="15" text-anchor="middle" fill="#fff" font-size="8.5" font-weight="700" font-family="monospace">Q2</text>
-              <rect x="60"  y="0" width="24" height="24" rx="4" fill="#334155" /><text x="72" y="15" text-anchor="middle" fill="#fff" font-size="8.5" font-weight="700" font-family="monospace">Q3</text>
-              <rect x="90"  y="0" width="24" height="24" rx="4" fill="#334155" /><text x="102" y="15" text-anchor="middle" fill="#fff" font-size="8.5" font-weight="700" font-family="monospace">Q4</text>
-              <rect x="120" y="0" width="24" height="24" rx="4" fill="#334155" /><text x="132" y="15" text-anchor="middle" fill="#fff" font-size="8.5" font-weight="700" font-family="monospace">Q5</text>
-              <rect x="150" y="0" width="24" height="24" rx="4" fill="#334155" /><text x="162" y="15" text-anchor="middle" fill="#fff" font-size="8.5" font-weight="700" font-family="monospace">Q6</text>
-              <rect x="180" y="0" width="24" height="24" rx="4" fill="#334155" /><text x="192" y="15" text-anchor="middle" fill="#fff" font-size="8.5" font-weight="700" font-family="monospace">Q7</text>
-              <rect x="210" y="0" width="24" height="24" rx="4" fill="#334155" /><text x="222" y="15" text-anchor="middle" fill="#fff" font-size="8.5" font-weight="700" font-family="monospace">Q8</text>
-            </g>
-
-            <!-- 1:1 Vertical Connecting Lines -->
-            <g stroke="#94a3b8" stroke-width="1.6">
-              <line x1="24"  y1="46" x2="24"  y2="104" />
-              <line x1="54"  y1="46" x2="54"  y2="104" />
-              <line x1="84"  y1="46" x2="84"  y2="104" />
-              <line x1="114" y1="46" x2="114" y2="104" />
-              <line x1="144" y1="46" x2="144" y2="104" />
-              <line x1="174" y1="46" x2="174" y2="104" />
-              <line x1="204" y1="46" x2="204" y2="104" />
-              <line x1="234" y1="46" x2="234" y2="104" />
-            </g>
-
-            <!-- 8 KV boxes -->
-            <g transform="translate(12, 104)">
-              <rect x="0"   y="0" width="24" height="26" rx="4" fill="#2563eb" /><text x="12" y="16" text-anchor="middle" fill="#fff" font-size="8" font-weight="700" font-family="monospace">KV1</text>
-              <rect x="30"  y="0" width="24" height="26" rx="4" fill="#2563eb" /><text x="42" y="16" text-anchor="middle" fill="#fff" font-size="8" font-weight="700" font-family="monospace">KV2</text>
-              <rect x="60"  y="0" width="24" height="26" rx="4" fill="#2563eb" /><text x="72" y="16" text-anchor="middle" fill="#fff" font-size="8" font-weight="700" font-family="monospace">KV3</text>
-              <rect x="90"  y="0" width="24" height="26" rx="4" fill="#2563eb" /><text x="102" y="16" text-anchor="middle" fill="#fff" font-size="8" font-weight="700" font-family="monospace">KV4</text>
-              <rect x="120" y="0" width="24" height="26" rx="4" fill="#2563eb" /><text x="132" y="16" text-anchor="middle" fill="#fff" font-size="8" font-weight="700" font-family="monospace">KV5</text>
-              <rect x="150" y="0" width="24" height="26" rx="4" fill="#2563eb" /><text x="162" y="16" text-anchor="middle" fill="#fff" font-size="8" font-weight="700" font-family="monospace">KV6</text>
-              <rect x="180" y="0" width="24" height="26" rx="4" fill="#2563eb" /><text x="192" y="16" text-anchor="middle" fill="#fff" font-size="8" font-weight="700" font-family="monospace">KV7</text>
-              <rect x="210" y="0" width="24" height="26" rx="4" fill="#2563eb" /><text x="222" y="16" text-anchor="middle" fill="#fff" font-size="8" font-weight="700" font-family="monospace">KV8</text>
-            </g>
-            <text x="130" y="146" text-anchor="middle" fill="#1d4ed8" font-size="9.5" font-weight="700" font-family="sans-serif">8 KEY-VALUE HEADS (h<tspan dy="2" font-size="7.5">kv</tspan><tspan dy="-2"> = 8)</tspan></text>
-          </svg>
-        </div>
-
-        <div class="llm-variant-footer">
-          <div class="llm-variant-stat-row">
-            <span class="llm-variant-stat-label">KV Cache:</span>
-            <span class="llm-variant-stat-val">100% (8 KV)</span>
-          </div>
-          <div class="llm-variant-stat-row">
-            <span class="llm-variant-stat-label">Bandwidth:</span>
-            <span class="llm-variant-stat-val">Memory-Bound</span>
-          </div>
-        </div>
+  <!-- 2. GQA -->
+  <div class="llm-feature-card">
+    <div class="llm-feature-top">
+      <h3 class="llm-feature-title">2. Grouped-Query Attention (GQA) &mdash; Shared KV Groups</h3>
+      <span class="llm-badge llm-badge-accent">4&times;&ndash;8&times; Smaller KV-Cache</span>
+    </div>
+    <div class="llm-feature-body">
+      <p class="llm-feature-desc">
+        Query heads are partitioned into {{ transform.ToMath `g` $m }} groups, where all queries in a group share a single Key and Value head ({{ transform.ToMath `1 < n_{kv} < h` $m }}). Adopted by LLaMA 3, Mistral, and Qwen: cuts KV-cache memory by {{ transform.ToMath `4\times\text{--}8\times` $m }} with virtually zero accuracy loss.
+      </p>
+      <div class="llm-feature-formula" style="flex-direction: column; gap: 0.45rem;">
+        <div>{{ transform.ToMath `h = 8 \text{ Query Heads} \;\longleftrightarrow\; n_{kv} = 2 \text{ KV Heads}` $m }}</div>
+        <div style="font-size: 0.82rem; color: var(--llm-accent-strong); font-family: ui-monospace, monospace;">4 Queries per KV Group &bull; Modern Frontier Standard</div>
       </div>
+    </div>
+  </div>
 
-      <!-- ==================== COLUMN 2: GQA ==================== -->
-      <div class="llm-variant-card">
-        <div class="llm-variant-card-header">
-          <span class="llm-badge llm-badge-blue">4&times; Smaller Cache</span>
-          <div>
-            <div class="llm-variant-card-title">Grouped-Query (GQA)</div>
-            <span class="llm-variant-card-sub">Llama-3, Qwen-2.5 &bull; Group Shared</span>
-          </div>
-        </div>
-
-        <div class="llm-variant-diagram">
-          <svg viewBox="0 0 260 155" width="100%" style="max-width: 260px; height: auto; display: block;" xmlns="http://www.w3.org/2000/svg">
-            <text x="130" y="15" text-anchor="middle" fill="#64748b" font-size="9.5" font-weight="700" font-family="sans-serif">8 QUERY HEADS (2 GROUPS OF 4)</text>
-            <!-- 8 Query boxes -->
-            <g transform="translate(12, 22)">
-              <rect x="0"   y="0" width="24" height="24" rx="4" fill="#334155" /><text x="12" y="15" text-anchor="middle" fill="#fff" font-size="8.5" font-weight="700" font-family="monospace">Q1</text>
-              <rect x="30"  y="0" width="24" height="24" rx="4" fill="#334155" /><text x="42" y="15" text-anchor="middle" fill="#fff" font-size="8.5" font-weight="700" font-family="monospace">Q2</text>
-              <rect x="60"  y="0" width="24" height="24" rx="4" fill="#334155" /><text x="72" y="15" text-anchor="middle" fill="#fff" font-size="8.5" font-weight="700" font-family="monospace">Q3</text>
-              <rect x="90"  y="0" width="24" height="24" rx="4" fill="#334155" /><text x="102" y="15" text-anchor="middle" fill="#fff" font-size="8.5" font-weight="700" font-family="monospace">Q4</text>
-              <rect x="120" y="0" width="24" height="24" rx="4" fill="#475569" /><text x="132" y="15" text-anchor="middle" fill="#fff" font-size="8.5" font-weight="700" font-family="monospace">Q5</text>
-              <rect x="150" y="0" width="24" height="24" rx="4" fill="#475569" /><text x="162" y="15" text-anchor="middle" fill="#fff" font-size="8.5" font-weight="700" font-family="monospace">Q6</text>
-              <rect x="180" y="0" width="24" height="24" rx="4" fill="#475569" /><text x="192" y="15" text-anchor="middle" fill="#fff" font-size="8.5" font-weight="700" font-family="monospace">Q7</text>
-              <rect x="210" y="0" width="24" height="24" rx="4" fill="#475569" /><text x="222" y="15" text-anchor="middle" fill="#fff" font-size="8.5" font-weight="700" font-family="monospace">Q8</text>
-            </g>
-
-            <!-- 4:1 Group Converging Lines -->
-            <g stroke="#2563eb" stroke-width="1.6" fill="none">
-              <path d="M 24 46 L 69 104" />
-              <path d="M 54 46 L 69 104" />
-              <path d="M 84 46 L 69 104" />
-              <path d="M 114 46 L 69 104" />
-              <path d="M 144 46 L 189 104" />
-              <path d="M 174 46 L 189 104" />
-              <path d="M 204 46 L 189 104" />
-              <path d="M 234 46 L 189 104" />
-            </g>
-
-            <!-- 2 Shared KV boxes -->
-            <g transform="translate(0, 104)">
-              <rect x="35"  y="0" width="68" height="26" rx="5" fill="#2563eb" />
-              <text x="69"  y="16" text-anchor="middle" fill="#fff" font-size="9" font-weight="700" font-family="monospace">Shared KV1</text>
-
-              <rect x="155" y="0" width="68" height="26" rx="5" fill="#2563eb" />
-              <text x="189" y="16" text-anchor="middle" fill="#fff" font-size="9" font-weight="700" font-family="monospace">Shared KV2</text>
-            </g>
-            <text x="130" y="146" text-anchor="middle" fill="#1d4ed8" font-size="9.5" font-weight="700" font-family="sans-serif">2 GROUPED KV HEADS (h<tspan dy="2" font-size="7.5">kv</tspan><tspan dy="-2"> = 2)</tspan></text>
-          </svg>
-        </div>
-
-        <div class="llm-variant-footer">
-          <div class="llm-variant-stat-row">
-            <span class="llm-variant-stat-label">KV Cache:</span>
-            <span class="llm-variant-stat-val">25% (g / h<sub>q</sub>)</span>
-          </div>
-          <div class="llm-variant-stat-row">
-            <span class="llm-variant-stat-label">Quality:</span>
-            <span class="llm-variant-stat-val" style="color: #1d4ed8;">Near-Lossless</span>
-          </div>
-        </div>
+  <!-- 3. MQA -->
+  <div class="llm-feature-card">
+    <div class="llm-feature-top">
+      <h3 class="llm-feature-title">3. Multi-Query Attention (MQA) &mdash; Single Global KV Head</h3>
+      <span class="llm-badge llm-badge-slate">h&times; Smaller KV-Cache</span>
+    </div>
+    <div class="llm-feature-body">
+      <p class="llm-feature-desc">
+        All {{ transform.ToMath `h` $m }} Query heads share a single global Key and Value head ({{ transform.ToMath `n_{kv} = 1` $m }}, Shazeer 2019). Achieves maximum possible HBM bandwidth reduction ({{ transform.ToMath `h\times` $m }} smaller cache), trading a slight drop in multi-relation expressivity.
+      </p>
+      <div class="llm-feature-formula" style="flex-direction: column; gap: 0.45rem;">
+        <div>{{ transform.ToMath `h = 8 \text{ Query Heads} \;\longleftrightarrow\; n_{kv} = 1 \text{ KV Head}` $m }}</div>
+        <div style="font-size: 0.82rem; color: var(--llm-text-muted); font-family: ui-monospace, monospace;">8:1 Global Sharing &bull; Minimum HBM Footprint</div>
       </div>
-
-      <!-- ==================== COLUMN 3: MQA ==================== -->
-      <div class="llm-variant-card">
-        <div class="llm-variant-card-header">
-          <span class="llm-badge llm-badge-slate">8&times; Smaller Cache</span>
-          <div>
-            <div class="llm-variant-card-title">Multi-Query (MQA)</div>
-            <span class="llm-variant-card-sub">PaLM, Falcon &bull; Single Global KV</span>
-          </div>
-        </div>
-
-        <div class="llm-variant-diagram">
-          <svg viewBox="0 0 260 155" width="100%" style="max-width: 260px; height: auto; display: block;" xmlns="http://www.w3.org/2000/svg">
-            <text x="130" y="15" text-anchor="middle" fill="#64748b" font-size="9.5" font-weight="700" font-family="sans-serif">8 QUERY HEADS SHARE 1 KV</text>
-            <!-- 8 Query boxes -->
-            <g transform="translate(12, 22)">
-              <rect x="0"   y="0" width="24" height="24" rx="4" fill="#334155" /><text x="12" y="15" text-anchor="middle" fill="#fff" font-size="8.5" font-weight="700" font-family="monospace">Q1</text>
-              <rect x="30"  y="0" width="24" height="24" rx="4" fill="#334155" /><text x="42" y="15" text-anchor="middle" fill="#fff" font-size="8.5" font-weight="700" font-family="monospace">Q2</text>
-              <rect x="60"  y="0" width="24" height="24" rx="4" fill="#334155" /><text x="72" y="15" text-anchor="middle" fill="#fff" font-size="8.5" font-weight="700" font-family="monospace">Q3</text>
-              <rect x="90"  y="0" width="24" height="24" rx="4" fill="#334155" /><text x="102" y="15" text-anchor="middle" fill="#fff" font-size="8.5" font-weight="700" font-family="monospace">Q4</text>
-              <rect x="120" y="0" width="24" height="24" rx="4" fill="#334155" /><text x="132" y="15" text-anchor="middle" fill="#fff" font-size="8.5" font-weight="700" font-family="monospace">Q5</text>
-              <rect x="150" y="0" width="24" height="24" rx="4" fill="#334155" /><text x="162" y="15" text-anchor="middle" fill="#fff" font-size="8.5" font-weight="700" font-family="monospace">Q6</text>
-              <rect x="180" y="0" width="24" height="24" rx="4" fill="#334155" /><text x="192" y="15" text-anchor="middle" fill="#fff" font-size="8.5" font-weight="700" font-family="monospace">Q7</text>
-              <rect x="210" y="0" width="24" height="24" rx="4" fill="#334155" /><text x="222" y="15" text-anchor="middle" fill="#fff" font-size="8.5" font-weight="700" font-family="monospace">Q8</text>
-            </g>
-
-            <!-- 8:1 Converging Lines -->
-            <g stroke="#64748b" stroke-width="1.5" fill="none">
-              <path d="M 24 46 L 130 104" />
-              <path d="M 54 46 L 130 104" />
-              <path d="M 84 46 L 130 104" />
-              <path d="M 114 46 L 130 104" />
-              <path d="M 144 46 L 130 104" />
-              <path d="M 174 46 L 130 104" />
-              <path d="M 204 46 L 130 104" />
-              <path d="M 234 46 L 130 104" />
-            </g>
-
-            <!-- 1 Global KV box -->
-            <g transform="translate(0, 104)">
-              <rect x="82" y="0" width="96" height="26" rx="5" fill="#1e293b" />
-              <text x="130" y="16" text-anchor="middle" fill="#fff" font-size="9" font-weight="700" font-family="monospace">Global Shared KV1</text>
-            </g>
-            <text x="130" y="146" text-anchor="middle" fill="#334155" font-size="9.5" font-weight="700" font-family="sans-serif">1 SINGLE KV HEAD (h<tspan dy="2" font-size="7.5">kv</tspan><tspan dy="-2"> = 1)</tspan></text>
-          </svg>
-        </div>
-
-        <div class="llm-variant-footer">
-          <div class="llm-variant-stat-row">
-            <span class="llm-variant-stat-label">KV Cache:</span>
-            <span class="llm-variant-stat-val">12.5% (1 / h<sub>q</sub>)</span>
-          </div>
-          <div class="llm-variant-stat-row">
-            <span class="llm-variant-stat-label">Tradeoff:</span>
-            <span class="llm-variant-stat-val">Max Throughput</span>
-          </div>
-        </div>
-      </div>
-
     </div>
   </div>
 </div>

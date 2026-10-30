@@ -1,0 +1,46 @@
+{{- $m := dict "output" "html" "displayMode" false -}}
+{{- $.Page.Store.Set "hasMath" true -}}
+
+<div class="llm-blueprint not-prose">
+  <div class="llm-blueprint-header">
+    <div class="llm-blueprint-title-wrap">
+      <span class="llm-badge llm-badge-accent">Architecture Pipeline</span>
+      <h3 class="llm-blueprint-title">Original Encoder-Decoder Conditioning Flow</h3>
+    </div>
+    <span class="llm-blueprint-meta">Vaswani et al. (2017) &bull; Cross-Attention Bridge</span>
+  </div>
+  <div class="llm-blueprint-body">
+    <div class="llm-pipeline-3">
+      <div class="llm-pipe-step">
+        <span class="llm-pipe-tag">1. Source Encoder</span>
+        <div class="llm-pipe-node is-dark">
+          <span class="llm-pipe-title">Bidirectional Stack</span>
+          <span class="llm-pipe-formula">{{ transform.ToMath `\mathbf{H}_{\mathrm{enc}} \in \mathbb{R}^{S \times d}` $m }}</span>
+          <span class="llm-pipe-sub">Emits Keys {{ transform.ToMath `\mathbf{K}_{\mathrm{enc}}` $m }} &amp; Values {{ transform.ToMath `\mathbf{V}_{\mathrm{enc}}` $m }}</span>
+        </div>
+      </div>
+
+      <div class="llm-pipe-arrow">&rarr;</div>
+
+      <div class="llm-pipe-step">
+        <span class="llm-pipe-tag">2. Cross-Attention Bridge</span>
+        <div class="llm-pipe-node is-tint">
+          <span class="llm-pipe-title">Source-Target Alignment</span>
+          <span class="llm-pipe-formula">{{ transform.ToMath `\operatorname{softmax}\!\left(\frac{\mathbf{Q}_{\mathrm{dec}}\mathbf{K}_{\mathrm{enc}}^T}{\sqrt{d_k}}\right)\mathbf{V}_{\mathrm{enc}}` $m }}</span>
+          <span class="llm-pipe-sub">Decoder Queries attend to Encoder Keys</span>
+        </div>
+      </div>
+
+      <div class="llm-pipe-arrow">&rarr;</div>
+
+      <div class="llm-pipe-step">
+        <span class="llm-pipe-tag">3. Target Decoder</span>
+        <div class="llm-pipe-node is-accent">
+          <span class="llm-pipe-title">Autoregressive Head</span>
+          <span class="llm-pipe-formula">{{ transform.ToMath `p(y_t \mid y_{<t}, \mathbf{H}_{\mathrm{enc}})` $m }}</span>
+          <span class="llm-pipe-sub">Causal Next-Token Logits</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

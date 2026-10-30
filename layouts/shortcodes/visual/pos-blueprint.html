@@ -1,0 +1,28 @@
+{{- $m := dict "output" "html" "displayMode" false -}}
+{{- $.Page.Store.Set "hasMath" true -}}
+
+<div class="llm-math-grid not-prose">
+  <!-- 1. Absolute Additive -->
+  <div class="llm-math-card">
+    <div class="llm-math-header">
+      <span class="llm-math-symbol">{{ transform.ToMath `\tilde{\mathbf{x}}_m = \mathbf{x}_m + \mathbf{p}_m` $m }}</span>
+      <span class="llm-math-shape">Absolute Additive (2017)</span>
+    </div>
+    <div class="llm-math-body">
+      <span class="llm-math-role">Multi-Scale Sinusoidal Waves</span>
+      Adds a deterministic trigonometric vector {{ transform.ToMath `\mathbf{p}_m \in \mathbb{R}^d` $m }} directly to token embedding {{ transform.ToMath `\mathbf{x}_m` $m }} at the input layer before entering the Transformer stack.
+    </div>
+  </div>
+
+  <!-- 2. Rotary Position Embedding (RoPE) -->
+  <div class="llm-math-card">
+    <div class="llm-math-header">
+      <span class="llm-math-symbol">{{ transform.ToMath `\langle \mathbf{R}_m \mathbf{q}_m, \mathbf{R}_n \mathbf{k}_n \rangle = \mathbf{q}_m^T \mathbf{R}_{n-m} \mathbf{k}_n` $m }}</span>
+      <span class="llm-math-shape">Multiplicative Rotary (RoPE)</span>
+    </div>
+    <div class="llm-math-body">
+      <span class="llm-math-role">Relative Angle Invariance</span>
+      Rotates Query and Key 2D feature pairs in the complex plane inside every attention layer so inner products depend strictly on relative distance {{ transform.ToMath `(n - m)\theta` $m }}.
+    </div>
+  </div>
+</div>

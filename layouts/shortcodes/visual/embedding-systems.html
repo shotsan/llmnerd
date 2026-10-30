@@ -1,55 +1,51 @@
 {{- $m := dict "output" "html" "displayMode" false -}}
 {{- $.Page.Store.Set "hasMath" true -}}
 
-<div class="llm-blueprint not-prose">
-  <div class="llm-blueprint-header">
-    <div class="llm-blueprint-title-wrap">
-      <span class="llm-badge llm-badge-blue">Systems &amp; Memory Architecture</span>
-      <h3 class="llm-blueprint-title">Weight Tying, Variance Scaling &amp; RMSNorm</h3>
+<div class="llm-feature-list not-prose">
+  <!-- 1. Weight Tying -->
+  <div class="llm-feature-card">
+    <div class="llm-feature-top">
+      <h3 class="llm-feature-title">1. Weight Tying (Shared Input &amp; Output Matrix)</h3>
+      <span class="llm-badge llm-badge-accent">-524M Params (1.05 GB FP16)</span>
     </div>
-    <span class="llm-blueprint-meta">VRAM Optimization &amp; Gradient Stabilization</span>
+    <div class="llm-feature-body">
+      <p class="llm-feature-desc">
+        Instead of allocating a separate output classifier matrix to project the final hidden state {{ transform.ToMath `\mathbf{h}_L \in \mathbb{R}^d` $m }} back to vocabulary logits, decoders reuse the transposed input embedding table (Press &amp; Wolf 2017). At {{ transform.ToMath `V = 128\text{k}, d = 4096` $m }}, this cuts over 1 GB of model weights.
+      </p>
+      <div class="llm-feature-formula">
+        {{ transform.ToMath `\mathbf{W}_{\mathrm{head}} = \mathbf{W}_E^T, \quad \mathbf{z} = \mathbf{h}_L \mathbf{W}_E^T \in \mathbb{R}^V` $m }}
+      </div>
+    </div>
   </div>
 
-  <div class="llm-blueprint-body" style="align-items: stretch; gap: 1rem;">
-    <!-- 1. Weight Tying -->
-    <div class="llm-math-card">
-      <div class="llm-math-header">
-        <div style="display: flex; align-items: center; gap: 0.65rem;">
-          <span class="llm-badge llm-badge-blue">-524M Params</span>
-          <span class="llm-math-symbol">Weight Tying</span>
-        </div>
-        <span class="llm-math-shape">{{ transform.ToMath `\mathbf{W}_{\text{head}} = \mathbf{W}_E^T` $m }}</span>
-      </div>
-      <div class="llm-math-body">
-        In an autoregressive decoder (Press &amp; Wolf 2017), the final hidden state {{ transform.ToMath `\mathbf{h}_L \in \mathbb{R}^d` $m }} projects back to vocabulary logits via {{ transform.ToMath `\text{logits} = \mathbf{h}_L \mathbf{W}_{\text{head}}` $m }}. Setting {{ transform.ToMath `\mathbf{W}_{\text{head}} = \mathbf{W}_E^T` $m }} reuses the input embedding matrix as the output classifier—saving <strong>524 million parameters</strong> (<strong>1.05 GB FP16</strong> at {{ transform.ToMath `d=4096, V=128\text{k}` $m }}) and enforcing a single shared geometric manifold between token ingestion and token prediction.
+  <!-- 2. Variance Scaling -->
+  <div class="llm-feature-card">
+    <div class="llm-feature-top">
+      <h3 class="llm-feature-title">2. Embedding Variance Scaling</h3>
+      <span class="llm-badge llm-badge-accent">Unit Variance O(1)</span>
+    </div>
+    <div class="llm-feature-body">
+      <p class="llm-feature-desc">
+        Embedding weights initialized with variance {{ transform.ToMath `\sigma^2 = 1/d` $m }} produce small coordinate magnitudes of order {{ transform.ToMath `\mathcal{O}(1/\sqrt{d})` $m }}. Multiplying the gathered row by {{ transform.ToMath `\sqrt{d}` $m }} restores unit variance before adding positional signals.
+      </p>
+      <div class="llm-feature-formula">
+        {{ transform.ToMath `\mathbf{h}_0 = \sqrt{d} \cdot \mathbf{W}_E[t_i] + \mathbf{p}_i` $m }}
       </div>
     </div>
+  </div>
 
-    <!-- 2. Embedding Scale Factor -->
-    <div class="llm-math-card">
-      <div class="llm-math-header">
-        <div style="display: flex; align-items: center; gap: 0.65rem;">
-          <span class="llm-badge llm-badge-blue">Variance Matching</span>
-          <span class="llm-math-symbol">Embedding Scale Factor</span>
-        </div>
-        <span class="llm-math-shape">{{ transform.ToMath `\mathbf{x}_i = \sqrt{d} \cdot \mathbf{W}_E[t_i] + \mathbf{PE}_i` $m }}</span>
-      </div>
-      <div class="llm-math-body">
-        Under standard Gaussian weight initialization (Vaswani et al. 2017) with variance {{ transform.ToMath `\sigma^2 = 1 / d_{\text{model}}` $m }}, individual embedding coordinates have magnitude {{ transform.ToMath `\mathcal{O}(1 / \sqrt{d_{\text{model}}})` $m }}. Multiplying the lookup vector by {{ transform.ToMath `\sqrt{d_{\text{model}}}` $m }} restores unit variance {{ transform.ToMath `\mathcal{O}(1)` $m }} per coordinate before adding positional encodings, ensuring positional waves do not overpower token semantics.
-      </div>
+  <!-- 3. RMSNorm -->
+  <div class="llm-feature-card">
+    <div class="llm-feature-top">
+      <h3 class="llm-feature-title">3. Pre-RMSNorm Stabilization</h3>
+      <span class="llm-badge llm-badge-accent">Single-Pass Reduction</span>
     </div>
-
-    <!-- 3. RMSNorm vs LayerNorm -->
-    <div class="llm-math-card">
-      <div class="llm-math-header">
-        <div style="display: flex; align-items: center; gap: 0.65rem;">
-          <span class="llm-badge llm-badge-blue">-40% HBM Traffic</span>
-          <span class="llm-math-symbol">RMSNorm Stabilization</span>
-        </div>
-        <span class="llm-math-shape">{{ transform.ToMath `\operatorname{RMSNorm}(\mathbf{x}) = \frac{\mathbf{x}}{\sqrt{\frac{1}{d}\sum_{i=1}^d x_i^2 + \epsilon}} \odot \boldsymbol{\gamma}` $m }}</span>
-      </div>
-      <div class="llm-math-body">
-        Standard LayerNorm requires two sequential reduction passes across hidden dimension {{ transform.ToMath `d` $m }} (mean {{ transform.ToMath `\mu` $m }} and variance {{ transform.ToMath `\sigma^2` $m }}). Modern LLMs (Zhang &amp; Sennrich 2019; LLaMA 3, Mistral, Gemma) eliminate mean-centering and normalize strictly by the root-mean-square norm, cutting GPU SRAM-to-HBM memory roundtrips while preserving identical convergence stability.
+    <div class="llm-feature-body">
+      <p class="llm-feature-desc">
+        Modern Transformers (LLaMA 3, Mistral, Gemma) replace LayerNorm with Root Mean Square Normalization (Zhang &amp; Sennrich 2019). Dropping mean-centering eliminates one full reduction pass across dimension {{ transform.ToMath `d` $m }}, reducing GPU memory bandwidth overhead.
+      </p>
+      <div class="llm-feature-formula">
+        {{ transform.ToMath `\operatorname{RMSNorm}(\mathbf{x}) = \frac{\mathbf{x}}{\sqrt{\frac{1}{d}\sum_{j=1}^d x_j^2 + \epsilon}} \odot \boldsymbol{\gamma}` $m }}
       </div>
     </div>
   </div>

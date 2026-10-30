@@ -1,0 +1,57 @@
+{{- $m := dict "output" "html" "displayMode" false -}}
+{{- $.Page.Store.Set "hasMath" true -}}
+
+<div class="llm-blueprint not-prose">
+  <div class="llm-blueprint-header">
+    <div class="llm-blueprint-title-wrap">
+      <span class="llm-badge llm-badge-accent">KV-Cache Compression Pipeline</span>
+      <h3 class="llm-blueprint-title">Multi-Head Latent Attention (MLA)</h3>
+    </div>
+    <span class="llm-blueprint-meta">DeepSeek-V2 / V3 &bull; &gt;85% KV-Cache Reduction</span>
+  </div>
+  <div class="llm-blueprint-body">
+    <div class="llm-pipeline">
+      <div class="llm-pipe-step">
+        <span class="llm-pipe-tag">1. Token Input</span>
+        <div class="llm-pipe-node is-dark">
+          <span class="llm-pipe-title">Hidden State</span>
+          <span class="llm-pipe-formula">{{ transform.ToMath `\mathbf{h}_t \in \mathbb{R}^d` $m }}</span>
+          <span class="llm-pipe-sub">Model Dim {{ transform.ToMath `d` $m }}</span>
+        </div>
+      </div>
+
+      <div class="llm-pipe-arrow">&rarr;</div>
+
+      <div class="llm-pipe-step">
+        <span class="llm-pipe-tag">2. Bottleneck</span>
+        <div class="llm-pipe-node is-tint">
+          <span class="llm-pipe-title">Latent Vector</span>
+          <span class="llm-pipe-formula">{{ transform.ToMath `\mathbf{c}_t^{KV} = \mathbf{h}_t \mathbf{W}^{DKV}` $m }}</span>
+          <span class="llm-pipe-sub">Cached in {{ transform.ToMath `\mathbb{R}^{d_c}` $m }}</span>
+        </div>
+      </div>
+
+      <div class="llm-pipe-arrow">&rarr;</div>
+
+      <div class="llm-pipe-step">
+        <span class="llm-pipe-tag">3. Expand</span>
+        <div class="llm-pipe-node">
+          <span class="llm-pipe-title">Up-Projection</span>
+          <span class="llm-pipe-formula">{{ transform.ToMath `\mathbf{c}_t^{KV}\mathbf{W}^{UK}, \mathbf{W}^{UV}` $m }}</span>
+          <span class="llm-pipe-sub">Fused into Heads</span>
+        </div>
+      </div>
+
+      <div class="llm-pipe-arrow">&rarr;</div>
+
+      <div class="llm-pipe-step">
+        <span class="llm-pipe-tag">4. Output</span>
+        <div class="llm-pipe-node is-accent">
+          <span class="llm-pipe-title">Latent Attention</span>
+          <span class="llm-pipe-formula">{{ transform.ToMath `\operatorname{Attn}(\mathbf{Q}_t, \mathbf{K}_t, \mathbf{V}_t)` $m }}</span>
+          <span class="llm-pipe-sub">Full Expressivity</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

@@ -21,28 +21,7 @@ The design of every tokenizer is governed by a fundamental tradeoff in sequence 
 
 Modern tokenizers transform raw text into integer tensors through three distinct phases:
 
-```mermaid
-flowchart LR
-    subgraph S1["Character & Byte Ingestion"]
-        direction TB
-        A["<b>Raw Text Input</b><br/><code>understanding</code>"]
-        --> B["<b>Pre-Tokenization</b><br/>Whitespace & byte split"]
-    end
-
-    subgraph S2["Subword Segmentation"]
-        direction TB
-        C["<b>BPE Merge Engine</b><br/>Greedy pair frequency rules"]
-        --> D["<b>Subword Sequence</b><br/><code>[under,&nbsp;stand,&nbsp;ing]</code>"]
-    end
-
-    subgraph S3["Numerical Vectorization"]
-        direction TB
-        E["<b>Vocabulary Lookup</b><br/><code>[2104,&nbsp;3812,&nbsp;278]</code>"]
-        --> F["<b>Model Input Tensor</b><br/>Embedding coordinate lookup"]
-    end
-
-    S1 --> S2 --> S3
-```
+{{< visual/tokenization-blueprint >}}
 
 ---
 

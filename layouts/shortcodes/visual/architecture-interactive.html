@@ -19,23 +19,23 @@
   <!-- Stage -->
   <div class="llm-motion-stage">
     <svg id="moe-svg" viewBox="0 0 820 232" width="100%" style="max-width: 820px; height: auto; display: block;" xmlns="http://www.w3.org/2000/svg">
-      <rect x="2" y="2" width="816" height="228" rx="10" fill="#f8fafc" stroke="#e2e8f0" stroke-width="1.5" />
+      <rect x="2" y="2" width="816" height="228" rx="10" fill="#fafaf9" stroke="#e7e5e4" stroke-width="1.5" />
 
       <!-- Input Token Box -->
       <g transform="translate(22, 84)">
-        <rect width="128" height="62" rx="8" fill="#1e293b" />
-        <text x="64" y="24" text-anchor="middle" fill="#94a3b8" font-size="10.5" font-weight="700" font-family="sans-serif">INPUT TOKEN x</text>
+        <rect width="128" height="62" rx="8" fill="#292524" />
+        <text x="64" y="24" text-anchor="middle" fill="#a8a29e" font-size="10.5" font-weight="700" font-family="sans-serif">INPUT TOKEN x</text>
         <text id="moe-tok-text" x="64" y="46" text-anchor="middle" fill="#ffffff" font-size="14.5" font-weight="700" font-family="monospace">def</text>
       </g>
 
-      <line x1="150" y1="115" x2="195" y2="115" stroke="#64748b" stroke-width="2.2" />
+      <line x1="150" y1="115" x2="195" y2="115" stroke="#78716c" stroke-width="2.2" />
 
       <!-- Gating Router Box -->
       <g transform="translate(196, 78)">
-        <rect width="134" height="74" rx="9" fill="#334155" />
+        <rect width="134" height="74" rx="9" fill="#44403c" />
         <text x="67" y="26" text-anchor="middle" fill="#ffffff" font-size="12.5" font-weight="700" font-family="sans-serif">Gating Router</text>
-        <text x="67" y="45" text-anchor="middle" fill="#e2e8f0" font-size="10.5" font-family="monospace">TopK(x · W<tspan dy="2.5" font-size="8.5">g</tspan><tspan dy="-2.5">, k=2)</tspan></text>
-        <text x="67" y="62" text-anchor="middle" fill="#cbd5e1" font-size="10" font-family="monospace">Softmax Gate g<tspan dy="2.5" font-size="8.5">i</tspan></text>
+        <text x="67" y="45" text-anchor="middle" fill="#e7e5e4" font-size="10.5" font-family="monospace">TopK(x · W<tspan dy="2.5" font-size="8.5">g</tspan><tspan dy="-2.5">, k=2)</tspan></text>
+        <text x="67" y="62" text-anchor="middle" fill="#d6d3d1" font-size="10" font-family="monospace">Softmax Gate g<tspan dy="2.5" font-size="8.5">i</tspan></text>
       </g>
 
       <!-- Dynamic Routing Wires & 8 Expert Boxes -->
@@ -44,10 +44,10 @@
 
       <!-- Output Weighted Sum Box -->
       <g transform="translate(658, 78)">
-        <rect width="140" height="74" rx="9" fill="#2563eb" />
+        <rect width="140" height="74" rx="9" fill="#c2410c" />
         <text x="70" y="26" text-anchor="middle" fill="#ffffff" font-size="12.5" font-weight="700" font-family="sans-serif">MoE Output y</text>
-        <text id="moe-out-formula" x="70" y="46" text-anchor="middle" fill="#dbeafe" font-size="10.5" font-family="monospace">0.64·E₂ + 0.36·E₇</text>
-        <text x="70" y="62" text-anchor="middle" fill="#bfdbfe" font-size="10" font-family="sans-serif">6 Experts Dormant (0 FLOPs)</text>
+        <text id="moe-out-formula" x="70" y="46" text-anchor="middle" fill="#ffedd5" font-size="10.5" font-family="monospace">0.64·E₂ + 0.36·E₇</text>
+        <text x="70" y="62" text-anchor="middle" fill="#fed7aa" font-size="10" font-family="sans-serif">6 Experts Dormant (0 FLOPs)</text>
       </g>
     </svg>
   </div>
@@ -153,21 +153,21 @@
       const isSelected = topPos !== -1;
       const w = isSelected ? s.weights[topPos] : 0;
 
-      const strokeCol = isSelected ? '#2563eb' : '#cbd5e1';
+      const strokeCol = isSelected ? '#c2410c' : '#d6d3d1';
       const strokeW = isSelected ? '2.4' : '1';
       const dash = isSelected ? '' : 'stroke-dasharray="3 3"';
       const op = isSelected ? '1' : '0.45';
 
       wiresHtml += '<path d="M 330 115 L 415 ' + centerY + '" stroke="' + strokeCol + '" stroke-width="' + strokeW + '" ' + dash + ' opacity="' + op + '" fill="none" />';
       if (isSelected) {
-        wiresHtml += '<path d="M 575 ' + centerY + ' L 658 115" stroke="#2563eb" stroke-width="2.4" fill="none" />';
+        wiresHtml += '<path d="M 575 ' + centerY + ' L 658 115" stroke="#c2410c" stroke-width="2.4" fill="none" />';
       } else {
-        wiresHtml += '<path d="M 575 ' + centerY + ' L 658 115" stroke="#cbd5e1" stroke-width="1" stroke-dasharray="3 3" opacity="0.35" fill="none" />';
+        wiresHtml += '<path d="M 575 ' + centerY + ' L 658 115" stroke="#d6d3d1" stroke-width="1" stroke-dasharray="3 3" opacity="0.35" fill="none" />';
       }
 
-      const bg = isSelected ? '#eff6ff' : '#ffffff';
-      const bdr = isSelected ? '#2563eb' : '#cbd5e1';
-      const txtCol = isSelected ? '#1d4ed8' : '#475569';
+      const bg = isSelected ? '#fff7ed' : '#ffffff';
+      const bdr = isSelected ? '#c2410c' : '#d6d3d1';
+      const txtCol = isSelected ? '#9a3412' : '#57534e';
       const badgeTxt = isSelected ? ('g=' + w.toFixed(2)) : '0.00';
 
       expHtml += '<g transform="translate(415, ' + y + ')">';

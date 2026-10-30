@@ -13,7 +13,7 @@
         <span class="llm-param-label">Vocabulary |V|:</span>
         <span id="bpe-vocab-count" class="llm-param-val">11</span>
       </div>
-      <div class="llm-param-item" style="padding-left: 0.85rem; border-left: 1px solid #cbd5e1;">
+      <div class="llm-param-item" style="padding-left: 0.85rem; border-left: 1px solid #d6d3d1;">
         <span class="llm-param-label">Unseen Word Length:</span>
         <span id="bpe-unseen-len" class="llm-param-val">7 tokens</span>
       </div>
@@ -23,9 +23,9 @@
   <!-- Stage -->
   <div class="llm-motion-stage">
     <!-- Top Live Segmentation Box -->
-    <div style="width: 100%; border-radius: 0.75rem; border: 1px solid #e2e8f0; background-color: #f8fafc; padding: 1rem 1.25rem; margin-bottom: 1.15rem;">
-      <div style="font-size: 0.92rem; font-weight: 700; color: #334155; margin-bottom: 0.75rem;">
-        Live Segmentation of Unseen Word: <code style="font-size: 0.95rem; color: #2563eb; background: #eff6ff; padding: 0.15rem 0.5rem; border-radius: 0.35rem;">lowest</code>
+    <div style="width: 100%; border-radius: 0.75rem; border: 1px solid #e7e5e4; background-color: #fafaf9; padding: 1rem 1.25rem; margin-bottom: 1.15rem;">
+      <div style="font-size: 0.92rem; font-weight: 700; color: #44403c; margin-bottom: 0.75rem;">
+        Live Segmentation of Unseen Word: <code style="font-size: 0.95rem; color: #c2410c; background: #fff7ed; padding: 0.15rem 0.5rem; border-radius: 0.35rem;">lowest</code>
       </div>
       <div id="bpe-unseen-tokens" style="display: flex; flex-wrap: wrap; gap: 0.6rem; align-items: center;"></div>
     </div>
@@ -202,11 +202,11 @@
     let tokHtml = '';
     s.unseen.forEach(function(tok, tIdx) {
       const isHi = s.unseenHighlight.indexOf(tIdx) !== -1;
-      const bg = isHi ? '#2563eb' : '#1e293b';
-      const bdr = isHi ? '#1d4ed8' : '#334155';
-      const subCol = isHi ? '#dbeafe' : '#94a3b8';
+      const bg = isHi ? '#c2410c' : '#292524';
+      const bdr = isHi ? '#9a3412' : '#44403c';
+      const subCol = isHi ? '#ffedd5' : '#a8a29e';
       const safeTok = tok.replace(/</g, '&lt;').replace(/>/g, '&gt;');
-      tokHtml += '<div style="display: inline-flex; flex-direction: column; align-items: center; justify-content: center; min-width: 4.2rem; padding: 0.5rem 0.9rem; border-radius: 0.6rem; background: ' + bg + '; border: 1.5px solid ' + bdr + '; color: #ffffff; box-shadow: 0 2px 4px rgba(15, 23, 42, 0.08);">';
+      tokHtml += '<div style="display: inline-flex; flex-direction: column; align-items: center; justify-content: center; min-width: 4.2rem; padding: 0.5rem 0.9rem; border-radius: 0.6rem; background: ' + bg + '; border: 1.5px solid ' + bdr + '; color: #ffffff; box-shadow: 0 2px 4px rgba(28, 25, 23, 0.08);">';
       tokHtml += '<span style="font-family: ui-monospace, SFMono-Regular, monospace; font-size: 1.1rem; font-weight: 700; line-height: 1.2;">' + safeTok + '</span>';
       tokHtml += '<span style="font-size: 0.78rem; color: ' + subCol + '; margin-top: 0.2rem; font-weight: 500;">token ' + (tIdx + 1) + '</span>';
       tokHtml += '</div>';
@@ -216,18 +216,18 @@
     // 2. Render Corpus State
     let cHtml = '';
     s.corpus.forEach(function(row) {
-      cHtml += '<div style="display:flex; align-items:center; justify-content:space-between; gap:0.5rem; padding:0.45rem 0.65rem; border-radius:0.5rem; background:rgba(148,163,184,0.08);">';
+      cHtml += '<div style="display:flex; align-items:center; justify-content:space-between; gap:0.5rem; padding:0.45rem 0.65rem; border-radius:0.5rem; background:rgba(168, 162, 158,0.08);">';
       cHtml += '<div style="display:flex; flex-wrap:wrap; gap:0.32rem;">';
       row.tokens.forEach(function(t, i) {
         const hi = row.hi.indexOf(i) !== -1;
-        const bg = hi ? '#eff6ff' : '#f1f5f9';
-        const col = hi ? '#1d4ed8' : '#0f172a';
-        const bdr = hi ? '#3b82f6' : '#cbd5e1';
+        const bg = hi ? '#fff7ed' : '#f5f5f4';
+        const col = hi ? '#9a3412' : '#1c1917';
+        const bdr = hi ? '#c2410c' : '#d6d3d1';
         const safeT = t.replace(/</g, '&lt;').replace(/>/g, '&gt;');
         cHtml += '<span style="padding:0.16rem 0.46rem; border-radius:0.35rem; border:1px solid ' + bdr + '; background:' + bg + '; color:' + col + '; font-size:0.92rem; font-weight:700;">' + safeT + '</span>';
       });
       cHtml += '</div>';
-      cHtml += '<span style="color:#475569; font-size:0.88rem; font-weight:700; white-space:nowrap;">&times;' + row.freq + '</span>';
+      cHtml += '<span style="color:#57534e; font-size:0.88rem; font-weight:700; white-space:nowrap;">&times;' + row.freq + '</span>';
       cHtml += '</div>';
     });
     corpusList.innerHTML = cHtml;
@@ -237,14 +237,14 @@
     rules.forEach(function(r) {
       const active = r.id <= idx;
       const current = r.id === idx;
-      const bg = current ? '#eff6ff' : (active ? '#f8fafc' : 'transparent');
-      const bdr = current ? '#3b82f6' : (active ? '#cbd5e1' : '#e2e8f0');
+      const bg = current ? '#fff7ed' : (active ? '#fafaf9' : 'transparent');
+      const bdr = current ? '#c2410c' : (active ? '#d6d3d1' : '#e7e5e4');
       const op = active ? '1' : '0.5';
       const safePair = r.pair.replace(/</g, '&lt;').replace(/>/g, '&gt;');
       const safeOut = r.out.replace(/</g, '&lt;').replace(/>/g, '&gt;');
       rHtml += '<div style="display:flex; align-items:center; justify-content:space-between; gap:0.5rem; padding:0.48rem 0.7rem; border-radius:0.5rem; border:1px solid ' + bdr + '; background:' + bg + '; opacity:' + op + '; font-size:0.92rem;">';
-      rHtml += '<span style="white-space:nowrap;"><strong>Rule ' + r.id + ':</strong> ' + safePair + ' &rarr; <strong style="color:#1d4ed8;">' + safeOut + '</strong></span>';
-      rHtml += '<span style="font-size:0.84rem; font-weight:600; color:#475569; white-space:nowrap;">&times;' + r.freq + '</span>';
+      rHtml += '<span style="white-space:nowrap;"><strong>Rule ' + r.id + ':</strong> ' + safePair + ' &rarr; <strong style="color:#9a3412;">' + safeOut + '</strong></span>';
+      rHtml += '<span style="font-size:0.84rem; font-weight:600; color:#57534e; white-space:nowrap;">&times;' + r.freq + '</span>';
       rHtml += '</div>';
     });
     rulesList.innerHTML = rHtml;

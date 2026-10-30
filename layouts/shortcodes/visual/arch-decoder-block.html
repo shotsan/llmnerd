@@ -1,0 +1,36 @@
+{{- $m := dict "output" "html" "displayMode" false -}}
+{{- $.Page.Store.Set "hasMath" true -}}
+
+<div class="llm-feature-list not-prose">
+  <!-- Sublayer 1: Attention -->
+  <div class="llm-feature-card">
+    <div class="llm-feature-top">
+      <h3 class="llm-feature-title">Sublayer 1: Pre-RMSNorm Grouped-Query Attention (GQA + RoPE)</h3>
+      <span class="llm-badge llm-badge-accent">Token-to-Token Mixing</span>
+    </div>
+    <div class="llm-feature-body">
+      <p class="llm-feature-desc">
+        Input state {{ transform.ToMath `\mathbf{x}_l \in \mathbb{R}^d` $m }} is normalized via RMSNorm <em>before</em> entering Grouped-Query Attention with Rotary Position Embeddings, then added directly back onto the unobstructed residual highway.
+      </p>
+      <div class="llm-feature-formula">
+        {{ transform.ToMath `\mathbf{h}_l = \mathbf{x}_l + \operatorname{GQA}\!\left(\operatorname{RMSNorm}(\mathbf{x}_l)\right)` $m }}
+      </div>
+    </div>
+  </div>
+
+  <!-- Sublayer 2: SwiGLU MLP -->
+  <div class="llm-feature-card">
+    <div class="llm-feature-top">
+      <h3 class="llm-feature-title">Sublayer 2: Pre-RMSNorm SwiGLU Feed-Forward Network</h3>
+      <span class="llm-badge llm-badge-accent">Channel-Wise Transformation</span>
+    </div>
+    <div class="llm-feature-body">
+      <p class="llm-feature-desc">
+        Intermediate state {{ transform.ToMath `\mathbf{h}_l` $m }} is normalized again and passed through a gated SwiGLU MLP, depositing the refined representation back onto the residual stream to produce layer output {{ transform.ToMath `\mathbf{x}_{l+1}` $m }}.
+      </p>
+      <div class="llm-feature-formula">
+        {{ transform.ToMath `\mathbf{x}_{l+1} = \mathbf{h}_l + \operatorname{SwiGLU}\!\left(\operatorname{RMSNorm}(\mathbf{h}_l)\right)` $m }}
+      </div>
+    </div>
+  </div>
+</div>

@@ -14,17 +14,17 @@
     <div class="llm-param-bar">
       <div class="llm-param-item">
         <label for="rope-pos-m" class="llm-param-label">Query m:</label>
-        <input type="range" id="rope-pos-m" min="0" max="8" step="0.05" value="1" style="width: 75px; accent-color: #2563eb; cursor: pointer;">
+        <input type="range" id="rope-pos-m" min="0" max="8" step="0.05" value="1" style="width: 75px; accent-color: #c2410c; cursor: pointer;">
         <span id="rope-val-m" class="llm-param-val">1.0</span>
       </div>
-      <div class="llm-param-item" style="padding-left: 0.75rem; border-left: 1px solid #cbd5e1;">
+      <div class="llm-param-item" style="padding-left: 0.75rem; border-left: 1px solid #d6d3d1;">
         <label for="rope-pos-n" class="llm-param-label">Key n:</label>
-        <input type="range" id="rope-pos-n" min="0" max="8" step="0.05" value="3" style="width: 75px; accent-color: #334155; cursor: pointer;">
-        <span id="rope-val-n" class="llm-param-val" style="color: #334155;">3.0</span>
+        <input type="range" id="rope-pos-n" min="0" max="8" step="0.05" value="3" style="width: 75px; accent-color: #44403c; cursor: pointer;">
+        <span id="rope-val-n" class="llm-param-val" style="color: #44403c;">3.0</span>
       </div>
-      <div class="llm-param-item" style="padding-left: 0.75rem; border-left: 1px solid #cbd5e1;">
+      <div class="llm-param-item" style="padding-left: 0.75rem; border-left: 1px solid #d6d3d1;">
         <label for="rope-theta" class="llm-param-label">&theta;:</label>
-        <input type="range" id="rope-theta" min="15" max="45" step="5" value="30" style="width: 65px; accent-color: #2563eb; cursor: pointer;">
+        <input type="range" id="rope-theta" min="15" max="45" step="5" value="30" style="width: 65px; accent-color: #c2410c; cursor: pointer;">
         <span id="rope-val-theta" class="llm-param-val">30&deg;</span>
       </div>
     </div>
@@ -38,32 +38,32 @@
         <svg id="rope-canvas" viewBox="-140 -140 280 280" width="275" height="275" style="max-width: 275px; height: auto; display: block; user-select: none;" xmlns="http://www.w3.org/2000/svg">
           <defs>
             <marker id="rope-arr-q" viewBox="0 0 10 10" refX="7" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
-              <path d="M 0 1.5 L 8 5 L 0 8.5 z" fill="#2563eb" />
+              <path d="M 0 1.5 L 8 5 L 0 8.5 z" fill="#c2410c" />
             </marker>
             <marker id="rope-arr-k" viewBox="0 0 10 10" refX="7" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
-              <path d="M 0 1.5 L 8 5 L 0 8.5 z" fill="#1e293b" />
+              <path d="M 0 1.5 L 8 5 L 0 8.5 z" fill="#292524" />
             </marker>
           </defs>
 
           <!-- Axes & Unit Circle -->
-          <circle cx="0" cy="0" r="102" fill="#f8fafc" stroke="#cbd5e1" stroke-width="1.5" stroke-dasharray="4 3" />
-          <line x1="-125" y1="0" x2="125" y2="0" stroke="#cbd5e1" stroke-width="1.2" />
-          <line x1="0" y1="-125" x2="0" y2="125" stroke="#cbd5e1" stroke-width="1.2" />
-          <text x="110" y="-7" fill="#475569" font-size="11" font-weight="600" font-family="monospace">Re</text>
-          <text x="-24" y="-115" fill="#475569" font-size="11" font-weight="600" font-family="monospace">Im</text>
+          <circle cx="0" cy="0" r="102" fill="#fafaf9" stroke="#d6d3d1" stroke-width="1.5" stroke-dasharray="4 3" />
+          <line x1="-125" y1="0" x2="125" y2="0" stroke="#d6d3d1" stroke-width="1.2" />
+          <line x1="0" y1="-125" x2="0" y2="125" stroke="#d6d3d1" stroke-width="1.2" />
+          <text x="110" y="-7" fill="#57534e" font-size="11" font-weight="600" font-family="monospace">Re</text>
+          <text x="-24" y="-115" fill="#57534e" font-size="11" font-weight="600" font-family="monospace">Im</text>
 
           <!-- Shaded Relative Angle Wedge -->
-          <path id="rope-wedge" d="" fill="rgba(37, 99, 235, 0.14)" stroke="#2563eb" stroke-width="1.5" />
+          <path id="rope-wedge" d="" fill="rgba(194, 65, 12, 0.14)" stroke="#c2410c" stroke-width="1.5" />
 
           <!-- Query Vector q_m -->
-          <line id="rope-vec-q" x1="0" y1="0" x2="100" y2="0" stroke="#2563eb" stroke-width="3" marker-end="url(#rope-arr-q)" />
-          <text id="rope-lbl-q" x="108" y="4" fill="#2563eb" font-size="12" font-weight="700" font-family="monospace">q<tspan dy="3" font-size="9">m</tspan></text>
+          <line id="rope-vec-q" x1="0" y1="0" x2="100" y2="0" stroke="#c2410c" stroke-width="3" marker-end="url(#rope-arr-q)" />
+          <text id="rope-lbl-q" x="108" y="4" fill="#c2410c" font-size="12" font-weight="700" font-family="monospace">q<tspan dy="3" font-size="9">m</tspan></text>
 
           <!-- Key Vector k_n -->
-          <line id="rope-vec-k" x1="0" y1="0" x2="0" y2="-100" stroke="#1e293b" stroke-width="3" marker-end="url(#rope-arr-k)" />
-          <text id="rope-lbl-k" x="8" y="-108" fill="#1e293b" font-size="12" font-weight="700" font-family="monospace">k<tspan dy="3" font-size="9">n</tspan></text>
+          <line id="rope-vec-k" x1="0" y1="0" x2="0" y2="-100" stroke="#292524" stroke-width="3" marker-end="url(#rope-arr-k)" />
+          <text id="rope-lbl-k" x="8" y="-108" fill="#292524" font-size="12" font-weight="700" font-family="monospace">k<tspan dy="3" font-size="9">n</tspan></text>
 
-          <circle cx="0" cy="0" r="3.5" fill="#0f172a" />
+          <circle cx="0" cy="0" r="3.5" fill="#1c1917" />
         </svg>
       </div>
 
@@ -97,7 +97,7 @@
           <div class="llm-math-body" style="padding: 0.7rem 1rem;">
             <div style="display: flex; align-items: center; justify-content: space-between;">
               <strong>Dot Product {{ transform.ToMath `\langle \mathbf{R}_m\mathbf{q}, \mathbf{R}_n\mathbf{k} \rangle` $m }}:</strong>
-              <span id="rope-read-dot" style="font-family: monospace; font-size: 1.05rem; font-weight: 700; color: #1d4ed8;">+0.500</span>
+              <span id="rope-read-dot" style="font-family: monospace; font-size: 1.05rem; font-weight: 700; color: #9a3412;">+0.500</span>
             </div>
           </div>
         </div>

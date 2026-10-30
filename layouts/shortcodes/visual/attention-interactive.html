@@ -12,12 +12,12 @@
     <div class="llm-param-bar">
       <div class="llm-param-item">
         <label for="attn-scale-slider" class="llm-param-label">Scale &radic;d<sub>k</sub>:</label>
-        <input type="range" id="attn-scale-slider" min="0.4" max="4.0" step="0.1" value="1.4" style="width: 90px; accent-color: #2563eb; cursor: pointer;">
+        <input type="range" id="attn-scale-slider" min="0.4" max="4.0" step="0.1" value="1.4" style="width: 90px; accent-color: #c2410c; cursor: pointer;">
         <span id="attn-scale-val" class="llm-param-val">1.41</span>
       </div>
-      <div class="llm-param-item" style="padding-left: 0.85rem; border-left: 1px solid #cbd5e1;">
+      <div class="llm-param-item" style="padding-left: 0.85rem; border-left: 1px solid #d6d3d1;">
         <label style="display: inline-flex; align-items: center; gap: 0.45rem; cursor: pointer; font-weight: 600;">
-          <input type="checkbox" id="attn-mask-toggle" checked style="accent-color: #2563eb; width: 15px; height: 15px; cursor: pointer;">
+          <input type="checkbox" id="attn-mask-toggle" checked style="accent-color: #c2410c; width: 15px; height: 15px; cursor: pointer;">
           <span>Causal Mask (M)</span>
         </label>
       </div>
@@ -28,53 +28,53 @@
   <div class="llm-motion-stage">
     <!-- Top Animated Visual Canvas -->
     <svg id="attn-anim-svg" viewBox="0 0 820 135" width="100%" style="max-width: 820px; height: auto; display: block; margin-bottom: 1.1rem;" xmlns="http://www.w3.org/2000/svg">
-      <rect x="2" y="2" width="816" height="131" rx="10" fill="#f8fafc" stroke="#e2e8f0" stroke-width="1.5" />
+      <rect x="2" y="2" width="816" height="131" rx="10" fill="#fafaf9" stroke="#e7e5e4" stroke-width="1.5" />
 
       <!-- Phase 1..4 Pipeline Nodes -->
       <g id="attn-node-0" transform="translate(24, 20)">
-        <rect width="165" height="48" rx="8" fill="#eff6ff" stroke="#3b82f6" stroke-width="2" />
-        <text x="82" y="21" text-anchor="middle" fill="#1e3a8a" font-size="12" font-weight="700" font-family="sans-serif">Phase 1: Dot Product</text>
-        <text x="82" y="38" text-anchor="middle" fill="#2563eb" font-size="11" font-family="monospace">S = Q · Kᵀ</text>
+        <rect width="165" height="48" rx="8" fill="#fff7ed" stroke="#c2410c" stroke-width="2" />
+        <text x="82" y="21" text-anchor="middle" fill="#7c2d12" font-size="12" font-weight="700" font-family="sans-serif">Phase 1: Dot Product</text>
+        <text x="82" y="38" text-anchor="middle" fill="#c2410c" font-size="11" font-family="monospace">S = Q · Kᵀ</text>
       </g>
-      <line x1="189" y1="44" x2="223" y2="44" stroke="#94a3b8" stroke-width="2" />
+      <line x1="189" y1="44" x2="223" y2="44" stroke="#a8a29e" stroke-width="2" />
 
       <g id="attn-node-1" transform="translate(225, 20)">
-        <rect width="165" height="48" rx="8" fill="#ffffff" stroke="#cbd5e1" stroke-width="1.5" />
-        <text x="82" y="21" text-anchor="middle" fill="#334155" font-size="12" font-weight="700" font-family="sans-serif">Phase 2: Variance Scale</text>
-        <text x="82" y="38" text-anchor="middle" fill="#64748b" font-size="11" font-family="monospace">S / √d<tspan dy="2.5" font-size="8.5">k</tspan></text>
+        <rect width="165" height="48" rx="8" fill="#ffffff" stroke="#d6d3d1" stroke-width="1.5" />
+        <text x="82" y="21" text-anchor="middle" fill="#44403c" font-size="12" font-weight="700" font-family="sans-serif">Phase 2: Variance Scale</text>
+        <text x="82" y="38" text-anchor="middle" fill="#78716c" font-size="11" font-family="monospace">S / √d<tspan dy="2.5" font-size="8.5">k</tspan></text>
       </g>
-      <line x1="390" y1="44" x2="424" y2="44" stroke="#94a3b8" stroke-width="2" />
+      <line x1="390" y1="44" x2="424" y2="44" stroke="#a8a29e" stroke-width="2" />
 
       <g id="attn-node-2" transform="translate(426, 20)">
-        <rect width="165" height="48" rx="8" fill="#ffffff" stroke="#cbd5e1" stroke-width="1.5" />
-        <text x="82" y="21" text-anchor="middle" fill="#334155" font-size="12" font-weight="700" font-family="sans-serif">Phase 3: Causal Mask</text>
-        <text x="82" y="38" text-anchor="middle" fill="#64748b" font-size="11" font-family="monospace">j &gt; i → -∞</text>
+        <rect width="165" height="48" rx="8" fill="#ffffff" stroke="#d6d3d1" stroke-width="1.5" />
+        <text x="82" y="21" text-anchor="middle" fill="#44403c" font-size="12" font-weight="700" font-family="sans-serif">Phase 3: Causal Mask</text>
+        <text x="82" y="38" text-anchor="middle" fill="#78716c" font-size="11" font-family="monospace">j &gt; i → -∞</text>
       </g>
-      <line x1="591" y1="44" x2="625" y2="44" stroke="#94a3b8" stroke-width="2" />
+      <line x1="591" y1="44" x2="625" y2="44" stroke="#a8a29e" stroke-width="2" />
 
       <g id="attn-node-3" transform="translate(627, 20)">
-        <rect width="168" height="48" rx="8" fill="#ffffff" stroke="#cbd5e1" stroke-width="1.5" />
-        <text x="84" y="21" text-anchor="middle" fill="#334155" font-size="12" font-weight="700" font-family="sans-serif">Phase 4: Softmax &amp; O=AV</text>
-        <text x="84" y="38" text-anchor="middle" fill="#64748b" font-size="11" font-family="monospace">Row Σ A<tspan dy="2.5" font-size="8.5">ij</tspan><tspan dy="-2.5"> = 1.0</tspan></text>
+        <rect width="168" height="48" rx="8" fill="#ffffff" stroke="#d6d3d1" stroke-width="1.5" />
+        <text x="84" y="21" text-anchor="middle" fill="#44403c" font-size="12" font-weight="700" font-family="sans-serif">Phase 4: Softmax &amp; O=AV</text>
+        <text x="84" y="38" text-anchor="middle" fill="#78716c" font-size="11" font-family="monospace">Row Σ A<tspan dy="2.5" font-size="8.5">ij</tspan><tspan dy="-2.5"> = 1.0</tspan></text>
       </g>
 
       <!-- Live Attention Distribution Bar for Query Token 3 (sat) -->
-      <text x="26" y="103" fill="#334155" font-size="11.5" font-weight="700" font-family="sans-serif">Query sat Attention Focus:</text>
+      <text x="26" y="103" fill="#44403c" font-size="11.5" font-weight="700" font-family="sans-serif">Query sat Attention Focus:</text>
       <g transform="translate(205, 85)">
         <!-- Bar 1: The -->
-        <rect id="attn-bar-0" x="0" y="0" width="120" height="26" rx="4" fill="#1e293b" />
+        <rect id="attn-bar-0" x="0" y="0" width="120" height="26" rx="4" fill="#292524" />
         <text id="attn-lbl-0" x="60" y="17" text-anchor="middle" fill="#ffffff" font-size="11" font-weight="700" font-family="monospace">The 42%</text>
         <!-- Bar 2: cat -->
-        <rect id="attn-bar-1" x="124" y="0" width="76" height="26" rx="4" fill="#475569" />
+        <rect id="attn-bar-1" x="124" y="0" width="76" height="26" rx="4" fill="#57534e" />
         <text id="attn-lbl-1" x="162" y="17" text-anchor="middle" fill="#ffffff" font-size="11" font-weight="700" font-family="monospace">cat 16%</text>
         <!-- Bar 3: sat -->
-        <rect id="attn-bar-2" x="204" y="0" width="120" height="26" rx="4" fill="#2563eb" />
+        <rect id="attn-bar-2" x="204" y="0" width="120" height="26" rx="4" fill="#c2410c" />
         <text id="attn-lbl-2" x="264" y="17" text-anchor="middle" fill="#ffffff" font-size="11" font-weight="700" font-family="monospace">sat 42%</text>
       </g>
 
       <g transform="translate(555, 85)">
-        <rect width="240" height="26" rx="5" fill="#eff6ff" stroke="#bfdbfe" stroke-width="1" />
-        <text id="attn-out-svg" x="120" y="17" text-anchor="middle" fill="#1d4ed8" font-size="11" font-weight="700" font-family="monospace">Output o₃ = [1.264, 1.472]</text>
+        <rect width="240" height="26" rx="5" fill="#fff7ed" stroke="#fed7aa" stroke-width="1" />
+        <text id="attn-out-svg" x="120" y="17" text-anchor="middle" fill="#9a3412" font-size="11" font-weight="700" font-family="monospace">Output o₃ = [1.264, 1.472]</text>
       </g>
     </svg>
 
@@ -207,17 +207,17 @@
       const rect = node.querySelector('rect');
       const texts = node.querySelectorAll('text');
       if (idx === phase) {
-        rect.setAttribute('fill', '#eff6ff');
-        rect.setAttribute('stroke', '#2563eb');
+        rect.setAttribute('fill', '#fff7ed');
+        rect.setAttribute('stroke', '#c2410c');
         rect.setAttribute('stroke-width', '2.2');
-        texts[0].setAttribute('fill', '#1e3a8a');
-        texts[1].setAttribute('fill', '#2563eb');
+        texts[0].setAttribute('fill', '#7c2d12');
+        texts[1].setAttribute('fill', '#c2410c');
       } else {
         rect.setAttribute('fill', '#ffffff');
-        rect.setAttribute('stroke', '#cbd5e1');
+        rect.setAttribute('stroke', '#d6d3d1');
         rect.setAttribute('stroke-width', '1.5');
-        texts[0].setAttribute('fill', '#334155');
-        texts[1].setAttribute('fill', '#64748b');
+        texts[0].setAttribute('fill', '#44403c');
+        texts[1].setAttribute('fill', '#78716c');
       }
     }
 
@@ -289,7 +289,7 @@
         const pct = (prob * 100).toFixed(0);
         const alpha = prob > 0 ? Math.max(0.12, prob * 0.55) : 0;
         const style = prob > 0
-          ? 'background-color: rgba(37, 99, 235, ' + alpha.toFixed(2) + '); font-weight: 700;'
+          ? 'background-color: rgba(194, 65, 12, ' + alpha.toFixed(2) + '); font-weight: 700;'
           : 'opacity: 0.45;';
         softmaxHtml += '<td class="cell-val" style="' + style + '"><div>' + prob.toFixed(2) + '</div><div style="font-size: 0.76rem; opacity: 0.85;">' + pct + '%</div></td>';
       }
@@ -299,7 +299,7 @@
 
     const totalW = 320;
     let curX = 0;
-    const colors = ['#1e293b', '#475569', '#2563eb'];
+    const colors = ['#292524', '#57534e', '#c2410c'];
     for (let j = 0; j < 3; j++) {
       const p = softmax[2][j];
       const w = Math.max(42, Math.round(p * totalW));
