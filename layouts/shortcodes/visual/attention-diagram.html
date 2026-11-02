@@ -1,58 +1,125 @@
 {{- $m := dict "output" "html" "displayMode" false -}}
 {{- $.Page.Store.Set "hasMath" true -}}
 
-<div class="llm-blueprint not-prose">
-  <div class="llm-blueprint-header">
-    <div class="llm-blueprint-title-wrap">
-      <span class="llm-badge llm-badge-accent">Architecture Pipeline</span>
-      <h3 class="llm-blueprint-title">Scaled Dot-Product Attention Dataflow</h3>
-    </div>
-    <span class="llm-blueprint-meta">O(T<sup>2</sup> &middot; d<sub>k</sub>) Compute &bull; Exact Tensor Shapes</span>
+<div class="llm-figure not-prose">
+  <div class="llm-figure-head">
+    <h3 class="llm-figure-title">Matrix Contraction &amp; Context Aggregation Geometry (T = 3, d<sub>k</sub> = 2)</h3>
   </div>
+  <div class="llm-figure-body">
+    <svg viewBox="0 0 700 205" width="100%" style="max-width: 700px; height: auto; display: block;">
+      <!-- Step 1: Q (3x2) -->
+      <g transform="translate(10, 36)">
+        <text x="38" y="-12" text-anchor="middle" fill="#141413" font-size="14" font-weight="700">Queries Q</text>
+        <text x="38" y="136" text-anchor="middle" fill="#141413" font-size="13" font-weight="600">(3 &times; 2)</text>
+        <rect x="0" y="0" width="76" height="114" rx="4" fill="#ffffff" stroke="#141413" stroke-width="2" />
+        <!-- Highlighted Row 3 -->
+        <rect x="1" y="76" width="74" height="37" fill="#fef2f2" />
+        <line x1="38" y1="0" x2="38" y2="114" stroke="#c2bfb6" stroke-width="1.5" />
+        <line x1="0" y1="38" x2="76" y2="38" stroke="#c2bfb6" stroke-width="1.5" />
+        <line x1="0" y1="76" x2="76" y2="76" stroke="#991b1b" stroke-width="1.5" />
+        <text x="19" y="24" text-anchor="middle" fill="#141413" font-size="13" font-weight="600">1.0</text>
+        <text x="57" y="24" text-anchor="middle" fill="#141413" font-size="13" font-weight="600">0.0</text>
+        <text x="19" y="62" text-anchor="middle" fill="#141413" font-size="13" font-weight="600">0.0</text>
+        <text x="57" y="62" text-anchor="middle" fill="#141413" font-size="13" font-weight="600">1.0</text>
+        <text x="19" y="100" text-anchor="middle" fill="#991b1b" font-size="13" font-weight="700">1.0</text>
+        <text x="57" y="100" text-anchor="middle" fill="#991b1b" font-size="13" font-weight="700">1.0</text>
+      </g>
 
-  <div class="llm-blueprint-body">
-    <div class="llm-pipeline">
-      <div class="llm-pipe-step">
-        <span class="llm-pipe-tag">1. Linear Projections</span>
-        <div class="llm-pipe-node is-dark">
-          <span class="llm-pipe-title">Q, K, V Tensors</span>
-          <span class="llm-pipe-formula">{{ transform.ToMath `\mathbf{Q}, \mathbf{K}, \mathbf{V} \in \mathbb{R}^{T \times d_k}` $m }}</span>
-          <span class="llm-pipe-sub">Input {{ transform.ToMath `\mathbf{X} \in \mathbb{R}^{T \times d}` $m }}</span>
-        </div>
-      </div>
+      <!-- Multiply Symbol -->
+      <text x="106" y="100" text-anchor="middle" fill="#141413" font-size="20" font-weight="700">&times;</text>
 
-      <div class="llm-pipe-arrow">&rarr;</div>
+      <!-- Step 2: K^T (2x3) -->
+      <g transform="translate(126, 55)">
+        <text x="57" y="-12" text-anchor="middle" fill="#141413" font-size="14" font-weight="700">Keys K<tspan baseline-shift="super" font-size="10">T</tspan></text>
+        <text x="57" y="98" text-anchor="middle" fill="#141413" font-size="13" font-weight="600">(2 &times; 3)</text>
+        <rect x="0" y="0" width="114" height="76" rx="4" fill="#ffffff" stroke="#141413" stroke-width="2" />
+        <line x1="38" y1="0" x2="38" y2="76" stroke="#c2bfb6" stroke-width="1.5" />
+        <line x1="76" y1="0" x2="76" y2="76" stroke="#c2bfb6" stroke-width="1.5" />
+        <line x1="0" y1="38" x2="114" y2="38" stroke="#c2bfb6" stroke-width="1.5" />
+        <text x="19" y="24" text-anchor="middle" fill="#141413" font-size="13" font-weight="600">1.0</text>
+        <text x="57" y="24" text-anchor="middle" fill="#141413" font-size="13" font-weight="600">0.0</text>
+        <text x="95" y="24" text-anchor="middle" fill="#141413" font-size="13" font-weight="600">1.0</text>
+        <text x="19" y="62" text-anchor="middle" fill="#141413" font-size="13" font-weight="600">0.0</text>
+        <text x="57" y="62" text-anchor="middle" fill="#141413" font-size="13" font-weight="600">1.0</text>
+        <text x="95" y="62" text-anchor="middle" fill="#141413" font-size="13" font-weight="600">1.0</text>
+      </g>
 
-      <div class="llm-pipe-step">
-        <span class="llm-pipe-tag">2. Scaled Alignment</span>
-        <div class="llm-pipe-node">
-          <span class="llm-pipe-title">Scaled Scores</span>
-          <span class="llm-pipe-formula">{{ transform.ToMath `\hat{\mathbf{S}} = \frac{\mathbf{Q}\mathbf{K}^T}{\sqrt{d_k}} \in \mathbb{R}^{T \times T}` $m }}</span>
-          <span class="llm-pipe-sub">Unit Variance</span>
-        </div>
-      </div>
+      <!-- Arrow: Scale + Mask + Softmax -->
+      <g transform="translate(252, 80)">
+        <line x1="0" y1="13" x2="62" y2="13" stroke="#141413" stroke-width="2" />
+        <polygon points="62,8 72,13 62,18" fill="#141413" />
+        <text x="36" y="2" text-anchor="middle" fill="#991b1b" font-size="13" font-weight="700">softmax</text>
+        <text x="36" y="32" text-anchor="middle" fill="#141413" font-size="13" font-weight="600">&divide;&radic;2 + Mask</text>
+      </g>
 
-      <div class="llm-pipe-arrow">&rarr;</div>
+      <!-- Step 3: Causal Attention Matrix A (3x3) -->
+      <g transform="translate(336, 36)">
+        <text x="57" y="-12" text-anchor="middle" fill="#141413" font-size="14" font-weight="700">Attention Map A</text>
+        <text x="57" y="136" text-anchor="middle" fill="#141413" font-size="13" font-weight="600">(3 &times; 3 Causal)</text>
+        <rect x="0" y="0" width="114" height="114" rx="4" fill="#ffffff" stroke="#141413" stroke-width="2" />
+        <!-- Masked upper triangle cells -->
+        <rect x="38" y="1" width="75" height="37" fill="#f5f4f0" />
+        <rect x="76" y="38" width="37" height="38" fill="#f5f4f0" />
+        <!-- Highlighted Row 3 -->
+        <rect x="1" y="76" width="112" height="37" fill="#fef2f2" />
+        <line x1="38" y1="0" x2="38" y2="114" stroke="#c2bfb6" stroke-width="1.5" />
+        <line x1="76" y1="0" x2="76" y2="114" stroke="#c2bfb6" stroke-width="1.5" />
+        <line x1="0" y1="38" x2="114" y2="38" stroke="#c2bfb6" stroke-width="1.5" />
+        <line x1="0" y1="76" x2="114" y2="76" stroke="#991b1b" stroke-width="1.5" />
+        <!-- Row 1 -->
+        <text x="19" y="24" text-anchor="middle" fill="#141413" font-size="13" font-weight="600">1.00</text>
+        <text x="57" y="24" text-anchor="middle" fill="#141413" font-size="13" font-weight="600">0</text>
+        <text x="95" y="24" text-anchor="middle" fill="#141413" font-size="13" font-weight="600">0</text>
+        <!-- Row 2 -->
+        <text x="19" y="62" text-anchor="middle" fill="#141413" font-size="13" font-weight="600">0.33</text>
+        <text x="57" y="62" text-anchor="middle" fill="#141413" font-size="13" font-weight="600">0.67</text>
+        <text x="95" y="62" text-anchor="middle" fill="#141413" font-size="13" font-weight="600">0</text>
+        <!-- Row 3 -->
+        <text x="19" y="100" text-anchor="middle" fill="#991b1b" font-size="13" font-weight="700">0.24</text>
+        <text x="57" y="100" text-anchor="middle" fill="#991b1b" font-size="13" font-weight="700">0.24</text>
+        <text x="95" y="100" text-anchor="middle" fill="#991b1b" font-size="13" font-weight="700">0.52</text>
+      </g>
 
-      <div class="llm-pipe-step">
-        <span class="llm-pipe-tag">3. Mask &amp; Normalize</span>
-        <div class="llm-pipe-node is-tint">
-          <span class="llm-pipe-title">Causal Softmax</span>
-          <span class="llm-pipe-formula">{{ transform.ToMath `\operatorname{softmax}(\hat{\mathbf{S}} + \mathbf{M})` $m }}</span>
-          <span class="llm-pipe-sub">Rows {{ transform.ToMath `\sum_j A_{ij} = 1` $m }}</span>
-        </div>
-      </div>
+      <!-- Multiply by V -->
+      <text x="470" y="100" text-anchor="middle" fill="#141413" font-size="20" font-weight="700">&times;</text>
 
-      <div class="llm-pipe-arrow">&rarr;</div>
+      <!-- Step 4: V (3x2) -->
+      <g transform="translate(490, 36)">
+        <text x="38" y="-12" text-anchor="middle" fill="#141413" font-size="14" font-weight="700">Values V</text>
+        <text x="38" y="136" text-anchor="middle" fill="#141413" font-size="13" font-weight="600">(3 &times; 2)</text>
+        <rect x="0" y="0" width="76" height="114" rx="4" fill="#ffffff" stroke="#141413" stroke-width="2" />
+        <line x1="38" y1="0" x2="38" y2="114" stroke="#c2bfb6" stroke-width="1.5" />
+        <line x1="0" y1="38" x2="76" y2="38" stroke="#c2bfb6" stroke-width="1.5" />
+        <line x1="0" y1="76" x2="76" y2="76" stroke="#c2bfb6" stroke-width="1.5" />
+        <text x="19" y="24" text-anchor="middle" fill="#141413" font-size="13" font-weight="600">2.0</text>
+        <text x="57" y="24" text-anchor="middle" fill="#141413" font-size="13" font-weight="600">0.0</text>
+        <text x="19" y="62" text-anchor="middle" fill="#141413" font-size="13" font-weight="600">0.0</text>
+        <text x="57" y="62" text-anchor="middle" fill="#141413" font-size="13" font-weight="600">4.0</text>
+        <text x="19" y="100" text-anchor="middle" fill="#141413" font-size="13" font-weight="600">1.0</text>
+        <text x="57" y="100" text-anchor="middle" fill="#141413" font-size="13" font-weight="600">2.0</text>
+      </g>
 
-      <div class="llm-pipe-step">
-        <span class="llm-pipe-tag">4. Aggregation</span>
-        <div class="llm-pipe-node is-accent">
-          <span class="llm-pipe-title">Value Weighted</span>
-          <span class="llm-pipe-formula">{{ transform.ToMath `\mathbf{O} = \mathbf{A}\mathbf{V} \in \mathbb{R}^{T \times d_v}` $m }}</span>
-          <span class="llm-pipe-sub">Context Output</span>
-        </div>
-      </div>
-    </div>
+      <!-- Equals Output O (3x2) -->
+      <text x="586" y="100" text-anchor="middle" fill="#141413" font-size="20" font-weight="700">=</text>
+
+      <g transform="translate(604, 36)">
+        <text x="43" y="-12" text-anchor="middle" fill="#141413" font-size="14" font-weight="700">Output O</text>
+        <text x="43" y="136" text-anchor="middle" fill="#141413" font-size="13" font-weight="600">(3 &times; 2)</text>
+        <rect x="0" y="0" width="86" height="114" rx="4" fill="#ffffff" stroke="#141413" stroke-width="2" />
+        <rect x="1" y="76" width="84" height="37" fill="#fef2f2" />
+        <line x1="43" y1="0" x2="43" y2="114" stroke="#c2bfb6" stroke-width="1.5" />
+        <line x1="0" y1="38" x2="86" y2="38" stroke="#c2bfb6" stroke-width="1.5" />
+        <line x1="0" y1="76" x2="86" y2="76" stroke="#991b1b" stroke-width="1.5" />
+        <text x="21" y="24" text-anchor="middle" fill="#141413" font-size="13" font-weight="600">2.00</text>
+        <text x="64" y="24" text-anchor="middle" fill="#141413" font-size="13" font-weight="600">0.00</text>
+        <text x="21" y="62" text-anchor="middle" fill="#141413" font-size="13" font-weight="600">0.67</text>
+        <text x="64" y="62" text-anchor="middle" fill="#141413" font-size="13" font-weight="600">2.67</text>
+        <text x="21" y="100" text-anchor="middle" fill="#991b1b" font-size="13" font-weight="700">1.00</text>
+        <text x="64" y="100" text-anchor="middle" fill="#991b1b" font-size="13" font-weight="700">2.00</text>
+      </g>
+    </svg>
+  </div>
+  <div class="llm-figure-caption">
+    <strong>Figure 1 (Highlighted Row 3):</strong> Query token 3 ({{ transform.ToMath `\mathbf{q}_3 = [1, 1]` $m }}, highlighted in carmine) computes dot products with all three Keys, producing causal attention weights {{ transform.ToMath `[0.24, 0.24, 0.52]` $m }} that blend the three Value rows into output {{ transform.ToMath `\mathbf{o}_3 = [1.00, 2.00]` $m }}.
   </div>
 </div>

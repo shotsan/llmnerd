@@ -1,46 +1,57 @@
 {{- $m := dict "output" "html" "displayMode" false -}}
 {{- $.Page.Store.Set "hasMath" true -}}
 
-<div class="llm-blueprint not-prose">
-  <div class="llm-blueprint-header">
-    <div class="llm-blueprint-title-wrap">
-      <span class="llm-badge llm-badge-accent">Architecture Pipeline</span>
-      <h3 class="llm-blueprint-title">Original Encoder-Decoder Conditioning Flow</h3>
-    </div>
-    <span class="llm-blueprint-meta">Vaswani et al. (2017) &bull; Cross-Attention Bridge</span>
+<div class="llm-figure not-prose">
+  <div class="llm-figure-head">
+    <h3 class="llm-figure-title">Original Encoder-Decoder Cross-Attention Bridge (Vaswani et al. 2017)</h3>
   </div>
-  <div class="llm-blueprint-body">
-    <div class="llm-pipeline-3">
-      <div class="llm-pipe-step">
-        <span class="llm-pipe-tag">1. Source Encoder</span>
-        <div class="llm-pipe-node is-dark">
-          <span class="llm-pipe-title">Bidirectional Stack</span>
-          <span class="llm-pipe-formula">{{ transform.ToMath `\mathbf{H}_{\mathrm{enc}} \in \mathbb{R}^{S \times d}` $m }}</span>
-          <span class="llm-pipe-sub">Emits Keys {{ transform.ToMath `\mathbf{K}_{\mathrm{enc}}` $m }} &amp; Values {{ transform.ToMath `\mathbf{V}_{\mathrm{enc}}` $m }}</span>
-        </div>
-      </div>
+  <div class="llm-figure-body">
+    <svg viewBox="0 0 700 185" width="100%" style="max-width: 700px; height: auto; display: block;">
+      <!-- Left: Bidirectional Encoder Stack -->
+      <g transform="translate(20, 26)">
+        <rect x="0" y="0" width="184" height="132" rx="5" fill="#f5f4f0" stroke="#141413" stroke-width="2" />
+        <text x="92" y="28" text-anchor="middle" fill="#141413" font-size="14" font-weight="700">1. Source Encoder</text>
+        <line x1="16" y1="40" x2="168" y2="40" stroke="#c2bfb6" stroke-width="1.5" />
+        <text x="92" y="64" text-anchor="middle" fill="#141413" font-size="13" font-weight="600">Bidirectional Self-Attn</text>
+        <text x="92" y="88" text-anchor="middle" fill="#141413" font-size="13" font-weight="700">H<tspan baseline-shift="sub" font-size="10">enc</tspan> &#8712; R<tspan baseline-shift="super" font-size="10">S &times; d</tspan></text>
+        <text x="92" y="114" text-anchor="middle" fill="#141413" font-size="13" font-weight="600">Emits K<tspan baseline-shift="sub" font-size="10">enc</tspan>, V<tspan baseline-shift="sub" font-size="10">enc</tspan></text>
+      </g>
 
-      <div class="llm-pipe-arrow">&rarr;</div>
+      <!-- Arrow 1: K_enc, V_enc to Cross-Attention -->
+      <g transform="translate(204, 72)">
+        <line x1="0" y1="26" x2="54" y2="26" stroke="#991b1b" stroke-width="2.2" />
+        <polygon points="54,21 64,26 54,31" fill="#991b1b" />
+        <text x="32" y="10" text-anchor="middle" fill="#991b1b" font-size="13" font-weight="700">K<tspan baseline-shift="sub" font-size="10">enc</tspan>, V<tspan baseline-shift="sub" font-size="10">enc</tspan></text>
+      </g>
 
-      <div class="llm-pipe-step">
-        <span class="llm-pipe-tag">2. Cross-Attention Bridge</span>
-        <div class="llm-pipe-node is-tint">
-          <span class="llm-pipe-title">Cross-Attention</span>
-          <span class="llm-pipe-formula">{{ transform.ToMath `\operatorname{softmax}\!\left(\frac{\mathbf{Q}_{\mathrm{dec}}\mathbf{K}_{\mathrm{enc}}^T}{\sqrt{d_k}}\right)\mathbf{V}_{\mathrm{enc}}` $m }}</span>
-          <span class="llm-pipe-sub">Decoder Queries attend to Encoder Keys</span>
-        </div>
-      </div>
+      <!-- Middle: Cross-Attention Bridge (Highlighted) -->
+      <g transform="translate(268, 26)">
+        <rect x="0" y="0" width="184" height="132" rx="5" fill="#fef2f2" stroke="#991b1b" stroke-width="2.2" />
+        <text x="92" y="28" text-anchor="middle" fill="#991b1b" font-size="14" font-weight="700">2. Cross-Attention</text>
+        <line x1="16" y1="40" x2="168" y2="40" stroke="#991b1b" stroke-width="1.5" />
+        <text x="92" y="64" text-anchor="middle" fill="#141413" font-size="13" font-weight="700">Q<tspan baseline-shift="sub" font-size="10">dec</tspan> &middot; K<tspan baseline-shift="sub" font-size="10">enc</tspan><tspan baseline-shift="super" font-size="10">T</tspan> / &radic;d<tspan baseline-shift="sub" font-size="10">k</tspan></text>
+        <text x="92" y="90" text-anchor="middle" fill="#991b1b" font-size="13" font-weight="700">Aligns T &times; S Tokens</text>
+        <text x="92" y="114" text-anchor="middle" fill="#141413" font-size="13" font-weight="600">No Causal Mask on S</text>
+      </g>
 
-      <div class="llm-pipe-arrow">&rarr;</div>
+      <!-- Arrow 2: Context into Target Decoder -->
+      <g transform="translate(452, 72)">
+        <line x1="0" y1="20" x2="36" y2="20" stroke="#141413" stroke-width="2" />
+        <polygon points="36,15 46,20 36,25" fill="#141413" />
+      </g>
 
-      <div class="llm-pipe-step">
-        <span class="llm-pipe-tag">3. Target Decoder</span>
-        <div class="llm-pipe-node is-accent">
-          <span class="llm-pipe-title">Autoregressive Head</span>
-          <span class="llm-pipe-formula">{{ transform.ToMath `p(y_t \mid y_{<t}, \mathbf{H}_{\mathrm{enc}})` $m }}</span>
-          <span class="llm-pipe-sub">Causal Next-Token Logits</span>
-        </div>
-      </div>
-    </div>
+      <!-- Right: Autoregressive Target Decoder -->
+      <g transform="translate(498, 26)">
+        <rect x="0" y="0" width="182" height="132" rx="5" fill="#ffffff" stroke="#141413" stroke-width="2" />
+        <text x="91" y="28" text-anchor="middle" fill="#141413" font-size="14" font-weight="700">3. Target Decoder</text>
+        <line x1="16" y1="40" x2="166" y2="40" stroke="#c2bfb6" stroke-width="1.5" />
+        <text x="91" y="64" text-anchor="middle" fill="#141413" font-size="13" font-weight="600">Causal Self-Attn (M)</text>
+        <text x="91" y="88" text-anchor="middle" fill="#141413" font-size="13" font-weight="700">p(y<tspan baseline-shift="sub" font-size="10">t</tspan> | y<tspan baseline-shift="sub" font-size="10">&lt;t</tspan>, H<tspan baseline-shift="sub" font-size="10">enc</tspan>)</text>
+        <text x="91" y="114" text-anchor="middle" fill="#141413" font-size="13" font-weight="600">Next-Token Logits</text>
+      </g>
+    </svg>
+  </div>
+  <div class="llm-figure-caption">
+    <strong>Figure 1:</strong> In the classic Encoder-Decoder architecture (T5, BART), the source prompt of length {{ transform.ToMath `S` $m }} is encoded bidirectionally into {{ transform.ToMath `\mathbf{H}_{\mathrm{enc}}` $m }}, and the autoregressive decoder queries {{ transform.ToMath `\mathbf{Q}_{\mathrm{dec}}` $m }} attend across {{ transform.ToMath `\mathbf{K}_{\mathrm{enc}}, \mathbf{V}_{\mathrm{enc}}` $m }} via a Cross-Attention bridge.
   </div>
 </div>

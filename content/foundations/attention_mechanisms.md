@@ -52,8 +52,8 @@ To trace the arithmetic mechanics, let us calculate the forward pass for an auto
 Each token embedding is projected into Query, Key, and Value coordinate matrices $\mathbf{Q}, \mathbf{K}, \mathbf{V} \in \mathbb{R}^{3 \times 2}$:
 
 $$
-\mathbf{Q} = \begin{bmatrix} 1.0 & 0.0 \\ 0.0 & 2.0 \\ 1.0 & 1.0 \end{bmatrix}, \quad
-\mathbf{K} = \begin{bmatrix} 1.0 & 1.0 \\ 1.0 & 0.0 \\ 0.0 & 2.0 \end{bmatrix}, \quad
+\mathbf{Q} = \begin{bmatrix} 1.0 & 0.0 \\ 0.0 & 1.0 \\ 1.0 & 1.0 \end{bmatrix}, \quad
+\mathbf{K} = \begin{bmatrix} 1.0 & 0.0 \\ 0.0 & 1.0 \\ 1.0 & 1.0 \end{bmatrix}, \quad
 \mathbf{V} = \begin{bmatrix} 2.0 & 0.0 \\ 0.0 & 4.0 \\ 1.0 & 2.0 \end{bmatrix}
 $$
 
@@ -62,9 +62,9 @@ We compute the pairwise dot product $\mathbf{S} = \mathbf{Q}\mathbf{K}^T \in \ma
 
 $$
 \mathbf{S} = \mathbf{Q}\mathbf{K}^T = \begin{bmatrix}
-1.0 & 1.0 & 0.0 \\
-2.0 & 0.0 & 4.0 \\
-2.0 & 1.0 & 2.0
+1.0 & 0.0 & 1.0 \\
+0.0 & 1.0 & 1.0 \\
+1.0 & 1.0 & 2.0
 \end{bmatrix}
 $$
 
@@ -73,9 +73,9 @@ Dividing by $\sqrt{d_k} = \sqrt{2} \approx 1.414$ normalizes score variance to $
 
 $$
 \mathbf{S}_{\text{scaled}} = \frac{\mathbf{S}}{\sqrt{2}} \approx \begin{bmatrix}
-0.71 & 0.71 & 0.00 \\
-1.41 & 0.00 & 2.83 \\
-1.41 & 0.71 & 1.41
+0.71 & 0.00 & 0.71 \\
+0.00 & 0.71 & 0.71 \\
+0.71 & 0.71 & 1.41
 \end{bmatrix}
 $$
 
@@ -89,8 +89,8 @@ In an autoregressive decoder, token $t$ is strictly forbidden from looking into 
 $$
 \mathbf{S}_{\text{masked}} = \begin{bmatrix}
 0.71 & -\infty & -\infty \\
-1.41 & 0.00 & -\infty \\
-1.41 & 0.71 & 1.41
+0.00 & 0.71 & -\infty \\
+0.71 & 0.71 & 1.41
 \end{bmatrix}
 $$
 
@@ -98,25 +98,25 @@ $$
 Applying $\operatorname{softmax}$ row-wise normalizes scores into a valid probability distribution ($\sum_j A_{ij} = 1$):
 
 $$
-\mathbf{A} = \operatorname{softmax}(\mathbf{S}_{\text{masked}}) = \begin{bmatrix}
-1.000 & 0.000 & 0.000 \\
-0.804 & 0.196 & 0.000 \\
-0.401 & 0.198 & 0.401
+\mathbf{A} = \operatorname{softmax}(\mathbf{S}_{\text{masked}}) \approx \begin{bmatrix}
+1.00 & 0.00 & 0.00 \\
+0.33 & 0.67 & 0.00 \\
+0.24 & 0.24 & 0.52
 \end{bmatrix}
 $$
 
 * **Row 1 (`The`)**: Attends solely to itself ($100\%$).
-* **Row 2 (`cat`)**: Distributes attention between `The` ($80.4\%$) and `cat` ($19.6\%$).
-* **Row 3 (`sat`)**: Synthesizes context across `The` ($40.1\%$), `cat` ($19.8\%$), and `sat` ($40.1\%$).
+* **Row 2 (`cat`)**: Distributes attention between `The` ($33\%$) and `cat` ($67\%$).
+* **Row 3 (`sat`)**: Synthesizes context across `The` ($24\%$), `cat` ($24\%$), and `sat` ($52\%$).
 
 ### 6. Value Aggregation
 Multiplying attention weights by the Value matrix $\mathbf{V}$ produces the contextual output $\mathbf{O} \in \mathbb{R}^{3 \times 2}$:
 
 $$
-\mathbf{O} = \mathbf{A}\mathbf{V} = \begin{bmatrix}
-1.000 & 0.000 & 0.000 \\
-0.804 & 0.196 & 0.000 \\
-0.401 & 0.198 & 0.401
+\mathbf{O} = \mathbf{A}\mathbf{V} \approx \begin{bmatrix}
+1.00 & 0.00 & 0.00 \\
+0.33 & 0.67 & 0.00 \\
+0.24 & 0.24 & 0.52
 \end{bmatrix}
 \begin{bmatrix}
 2.0 & 0.0 \\
@@ -124,13 +124,13 @@ $$
 1.0 & 2.0
 \end{bmatrix}
 = \begin{bmatrix}
-2.000 & 0.000 \\
-1.608 & 0.784 \\
-1.203 & 1.594
+2.00 & 0.00 \\
+0.67 & 2.67 \\
+1.00 & 2.00
 \end{bmatrix}
 $$
 
-Token 3 (`sat`) has synthesized information from `The` (40.1%), `cat` (19.8%), and itself (40.1%), producing a rich, contextual vector representation.
+Token 3 (`sat`) has synthesized information from `The` (24%), `cat` (24%), and itself (52%), producing the contextual vector representation $\mathbf{o}_3 = [1.00, 2.00]$.
 
 ---
 

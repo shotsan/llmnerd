@@ -12,12 +12,12 @@
     <div class="llm-param-bar">
       <div class="llm-param-item">
         <label for="attn-scale-slider" class="llm-param-label">Scale &radic;d<sub>k</sub>:</label>
-        <input type="range" id="attn-scale-slider" min="0.4" max="4.0" step="0.1" value="1.4" style="width: 90px; accent-color: #c2410c; cursor: pointer;">
+        <input type="range" id="attn-scale-slider" min="0.4" max="4.0" step="0.1" value="1.4" style="width: 90px; accent-color: #991b1b; cursor: pointer;">
         <span id="attn-scale-val" class="llm-param-val">1.41</span>
       </div>
-      <div class="llm-param-item" style="padding-left: 0.85rem; border-left: 1px solid #d6d3d1;">
-        <label style="display: inline-flex; align-items: center; gap: 0.45rem; cursor: pointer; font-weight: 600;">
-          <input type="checkbox" id="attn-mask-toggle" checked style="accent-color: #c2410c; width: 15px; height: 15px; cursor: pointer;">
+      <div class="llm-param-item" style="padding-left: 0.85rem; border-left: 1px solid #c2bfb6;">
+        <label style="display: inline-flex; align-items: center; gap: 0.45rem; cursor: pointer; font-weight: 700; color: #141413;">
+          <input type="checkbox" id="attn-mask-toggle" checked style="accent-color: #991b1b; width: 15px; height: 15px; cursor: pointer;">
           <span>Causal Mask (M)</span>
         </label>
       </div>
@@ -28,53 +28,52 @@
   <div class="llm-motion-stage">
     <!-- Top Animated Visual Canvas -->
     <svg id="attn-anim-svg" viewBox="0 0 820 135" width="100%" style="max-width: 820px; height: auto; display: block; margin-bottom: 1.1rem;" xmlns="http://www.w3.org/2000/svg">
-      <rect x="2" y="2" width="816" height="131" rx="10" fill="#fafaf9" stroke="#e7e5e4" stroke-width="1.5" />
+      <rect x="2" y="2" width="816" height="131" rx="6" fill="#f5f4f0" stroke="#c2bfb6" stroke-width="1.5" />
 
       <!-- Phase 1..4 Pipeline Nodes -->
-      <g id="attn-node-0" transform="translate(24, 20)">
-        <rect width="165" height="48" rx="8" fill="#fff7ed" stroke="#c2410c" stroke-width="2" />
-        <text x="82" y="21" text-anchor="middle" fill="#7c2d12" font-size="12" font-weight="700" font-family="sans-serif">Phase 1: Dot Product</text>
-        <text x="82" y="38" text-anchor="middle" fill="#c2410c" font-size="11" font-weight="600" font-family="sans-serif">S = Q · Kᵀ</text>
+      <g id="attn-node-0" transform="translate(24, 18)">
+        <rect width="165" height="50" rx="5" fill="#fef2f2" stroke="#991b1b" stroke-width="2" />
+        <text x="82" y="22" text-anchor="middle" fill="#991b1b" font-size="13" font-weight="700">Phase 1: Dot Product</text>
+        <text x="82" y="40" text-anchor="middle" fill="#991b1b" font-size="13" font-weight="600">S = Q &middot; K<tspan baseline-shift="super" font-size="9">T</tspan></text>
       </g>
-      <line x1="189" y1="44" x2="223" y2="44" stroke="#a8a29e" stroke-width="2" />
+      <line x1="189" y1="43" x2="225" y2="43" stroke="#141413" stroke-width="2" />
 
-      <g id="attn-node-1" transform="translate(225, 20)">
-        <rect width="165" height="48" rx="8" fill="#ffffff" stroke="#d6d3d1" stroke-width="1.5" />
-        <text x="82" y="21" text-anchor="middle" fill="#44403c" font-size="12" font-weight="700" font-family="sans-serif">Phase 2: Variance Scale</text>
-        <text x="82" y="38" text-anchor="middle" fill="#78716c" font-size="11" font-weight="600" font-family="sans-serif">S / √d<tspan dy="2.5" font-size="8.5">k</tspan></text>
+      <g id="attn-node-1" transform="translate(225, 18)">
+        <rect width="165" height="50" rx="5" fill="#ffffff" stroke="#141413" stroke-width="1.5" />
+        <text x="82" y="22" text-anchor="middle" fill="#141413" font-size="13" font-weight="700">Phase 2: Scale</text>
+        <text x="82" y="40" text-anchor="middle" fill="#141413" font-size="13" font-weight="600">S / &radic;d<tspan baseline-shift="sub" font-size="9">k</tspan></text>
       </g>
-      <line x1="390" y1="44" x2="424" y2="44" stroke="#a8a29e" stroke-width="2" />
+      <line x1="390" y1="43" x2="426" y2="43" stroke="#141413" stroke-width="2" />
 
-      <g id="attn-node-2" transform="translate(426, 20)">
-        <rect width="165" height="48" rx="8" fill="#ffffff" stroke="#d6d3d1" stroke-width="1.5" />
-        <text x="82" y="21" text-anchor="middle" fill="#44403c" font-size="12" font-weight="700" font-family="sans-serif">Phase 3: Causal Mask</text>
-        <text x="82" y="38" text-anchor="middle" fill="#78716c" font-size="11" font-weight="600" font-family="sans-serif">j &gt; i → -∞</text>
+      <g id="attn-node-2" transform="translate(426, 18)">
+        <rect width="165" height="50" rx="5" fill="#ffffff" stroke="#141413" stroke-width="1.5" />
+        <text x="82" y="22" text-anchor="middle" fill="#141413" font-size="13" font-weight="700">Phase 3: Causal Mask</text>
+        <text x="82" y="40" text-anchor="middle" fill="#141413" font-size="13" font-weight="600">j &gt; i &rarr; &minus;&infin;</text>
       </g>
-      <line x1="591" y1="44" x2="625" y2="44" stroke="#a8a29e" stroke-width="2" />
+      <line x1="591" y1="43" x2="627" y2="43" stroke="#141413" stroke-width="2" />
 
-      <g id="attn-node-3" transform="translate(627, 20)">
-        <rect width="168" height="48" rx="8" fill="#ffffff" stroke="#d6d3d1" stroke-width="1.5" />
-        <text x="84" y="21" text-anchor="middle" fill="#44403c" font-size="12" font-weight="700" font-family="sans-serif">Phase 4: Softmax &amp; O=AV</text>
-        <text x="84" y="38" text-anchor="middle" fill="#78716c" font-size="11" font-weight="600" font-family="sans-serif">Row Σ A<tspan dy="2.5" font-size="8.5">ij</tspan><tspan dy="-2.5"> = 1.0</tspan></text>
+      <g id="attn-node-3" transform="translate(627, 18)">
+        <rect width="168" height="50" rx="5" fill="#ffffff" stroke="#141413" stroke-width="1.5" />
+        <text x="84" y="22" text-anchor="middle" fill="#141413" font-size="13" font-weight="700">Phase 4: Softmax &amp; AV</text>
+        <text x="84" y="40" text-anchor="middle" fill="#141413" font-size="13" font-weight="600">Row &Sigma; A<tspan baseline-shift="sub" font-size="9">ij</tspan> = 1.0</text>
       </g>
 
       <!-- Live Attention Distribution Bar for Query Token 3 (sat) -->
-      <text x="26" y="103" fill="#44403c" font-size="11.5" font-weight="700" font-family="sans-serif">Query sat Attention Focus:</text>
-      <g transform="translate(205, 85)">
-        <!-- Bar 1: The -->
-        <rect id="attn-bar-0" x="0" y="0" width="120" height="26" rx="4" fill="#c2410c" />
-        <text id="attn-lbl-0" x="60" y="17" text-anchor="middle" fill="#ffffff" font-size="11" font-weight="700" font-family="sans-serif">The 42%</text>
-        <!-- Bar 2: cat -->
-        <rect id="attn-bar-1" x="124" y="0" width="76" height="26" rx="4" fill="#ea580c" opacity="0.85" />
-        <text id="attn-lbl-1" x="162" y="17" text-anchor="middle" fill="#ffffff" font-size="11" font-weight="700" font-family="sans-serif">cat 16%</text>
-        <!-- Bar 3: sat -->
-        <rect id="attn-bar-2" x="204" y="0" width="120" height="26" rx="4" fill="#9a3412" />
-        <text id="attn-lbl-2" x="264" y="17" text-anchor="middle" fill="#ffffff" font-size="11" font-weight="700" font-family="sans-serif">sat 42%</text>
+      <text x="24" y="104" fill="#141413" font-size="13" font-weight="700">Query "sat" Attention Weights:</text>
+      <g transform="translate(225, 84)">
+        <rect id="attn-bar-0" x="0" y="0" width="100" height="28" rx="4" fill="#ffffff" stroke="#141413" stroke-width="1.5" />
+        <text id="attn-lbl-0" x="50" y="19" text-anchor="middle" fill="#141413" font-size="13" font-weight="700">The 24%</text>
+
+        <rect id="attn-bar-1" x="104" y="0" width="100" height="28" rx="4" fill="#ffffff" stroke="#141413" stroke-width="1.5" />
+        <text id="attn-lbl-1" x="154" y="19" text-anchor="middle" fill="#141413" font-size="13" font-weight="700">cat 24%</text>
+
+        <rect id="attn-bar-2" x="208" y="0" width="120" height="28" rx="4" fill="#fef2f2" stroke="#991b1b" stroke-width="2" />
+        <text id="attn-lbl-2" x="268" y="19" text-anchor="middle" fill="#991b1b" font-size="13" font-weight="700">sat 52%</text>
       </g>
 
-      <g transform="translate(555, 85)">
-        <rect width="240" height="26" rx="5" fill="#fff7ed" stroke="#fed7aa" stroke-width="1" />
-        <text id="attn-out-svg" x="120" y="17" text-anchor="middle" fill="#9a3412" font-size="11" font-weight="700" font-family="sans-serif">Output o₃ = [1.264, 1.472]</text>
+      <g transform="translate(565, 84)">
+        <rect width="230" height="28" rx="4" fill="#fef2f2" stroke="#991b1b" stroke-width="1.5" />
+        <text id="attn-out-svg" x="115" y="19" text-anchor="middle" fill="#991b1b" font-size="13" font-weight="700">Output o₃ = [1.000, 2.000]</text>
       </g>
     </svg>
 
@@ -83,8 +82,8 @@
       <!-- Panel 1 -->
       <div class="llm-matrix-panel active-stage" id="attn-panel-0">
         <div class="llm-matrix-panel-head">
-          <span>1. Scores (S = Q·Kᵀ)</span>
-          <span class="llm-blueprint-meta">3×3</span>
+          <span>1. Scores (S = Q&middot;K<sup>T</sup>)</span>
+          <span class="llm-shape-pill">3 &times; 3</span>
         </div>
         <table class="llm-matrix-table">
           <thead>
@@ -100,7 +99,7 @@
       <div class="llm-matrix-panel" id="attn-panel-1">
         <div class="llm-matrix-panel-head">
           <span>2. Scaled &amp; Masked</span>
-          <span class="llm-blueprint-meta">S/&radic;d<sub>k</sub>+M</span>
+          <span class="llm-shape-pill">S/&radic;d<sub>k</sub> + M</span>
         </div>
         <table class="llm-matrix-table">
           <thead>
@@ -116,7 +115,7 @@
       <div class="llm-matrix-panel" id="attn-panel-2">
         <div class="llm-matrix-panel-head">
           <span>3. Softmax (A)</span>
-          <span class="llm-blueprint-meta">Row &Sigma;=1</span>
+          <span class="llm-shape-pill">Row &Sigma; = 1</span>
         </div>
         <table class="llm-matrix-table">
           <thead>
@@ -135,7 +134,7 @@
     <span id="attn-caption-text">
       <strong>Phase 1 (Dot Product Sweep):</strong> Each token's Query vector computes inner products against all Key vectors to measure directional alignment.
     </span>
-    <span class="llm-badge llm-badge-blue" id="attn-phase-badge">Phase 1 / 4</span>
+    <span class="llm-focus-pill" id="attn-phase-badge">Phase 1 / 4</span>
   </div>
 
   <!-- Playback Controls -->
@@ -159,10 +158,11 @@
 <script>
 (function() {
   const tokens = ['The', 'cat', 'sat'];
+  // Exact worked example from Section 3: Q * K^T
   const rawQKT = [
-    [1.0, 1.0, 0.0],
-    [2.0, 0.0, 4.0],
-    [2.0, 1.0, 2.0]
+    [1.0, 0.0, 1.0],
+    [0.0, 1.0, 1.0],
+    [1.0, 1.0, 2.0]
   ];
   const V = [
     [2.0, 0.0],
@@ -171,10 +171,10 @@
   ];
 
   const captions = [
-    '<strong>Phase 1 (Dot Product S = QK<sup>T</sup>):</strong> Each Query vector takes the inner product with every Key vector. Unscaled scores grow with head dimension d<sub>k</sub>.',
-    '<strong>Phase 2 (Temperature Scaling &divide; &radic;d<sub>k</sub>):</strong> Dividing raw scores by &radic;d<sub>k</sub> stabilizes variance to 1.0 so large dot products do not push softmax into zero-gradient saturation.',
+    '<strong>Phase 1 (Dot Product S = QK<sup>T</sup>):</strong> Each Query vector takes the inner product with every Key vector. Row 3 ("sat") has raw compatibility scores [1.0, 1.0, 2.0].',
+    '<strong>Phase 2 (Temperature Scaling &divide; &radic;d<sub>k</sub>):</strong> Dividing raw scores by &radic;2 &approx; 1.41 stabilizes variance to 1.0 so large dot products do not push softmax into zero-gradient saturation.',
     '<strong>Phase 3 (Causal Masking + M):</strong> Upper-triangular entries (j &gt; i, where a token would peek into the future) are set to &minus;&infin; before exponentiation.',
-    '<strong>Phase 4 (Softmax &amp; Value Aggregation O = AV):</strong> Exponentiation maps &minus;&infin; to 0.00, normalizing each row into a probability distribution that blends Value vectors V.'
+    '<strong>Phase 4 (Softmax &amp; Value Aggregation O = AV):</strong> Exponentiation maps &minus;&infin; to 0.00, normalizing row 3 into [0.24, 0.24, 0.52] to blend Value rows into o<sub>3</sub> = [1.000, 2.000].'
   ];
 
   let currentPhase = 0;
@@ -207,17 +207,17 @@
       const rect = node.querySelector('rect');
       const texts = node.querySelectorAll('text');
       if (idx === phase) {
-        rect.setAttribute('fill', '#fff7ed');
-        rect.setAttribute('stroke', '#c2410c');
+        rect.setAttribute('fill', '#fef2f2');
+        rect.setAttribute('stroke', '#991b1b');
         rect.setAttribute('stroke-width', '2.2');
-        texts[0].setAttribute('fill', '#7c2d12');
-        texts[1].setAttribute('fill', '#c2410c');
+        texts[0].setAttribute('fill', '#991b1b');
+        texts[1].setAttribute('fill', '#991b1b');
       } else {
         rect.setAttribute('fill', '#ffffff');
-        rect.setAttribute('stroke', '#d6d3d1');
+        rect.setAttribute('stroke', '#141413');
         rect.setAttribute('stroke-width', '1.5');
-        texts[0].setAttribute('fill', '#44403c');
-        texts[1].setAttribute('fill', '#78716c');
+        texts[0].setAttribute('fill', '#141413');
+        texts[1].setAttribute('fill', '#141413');
       }
     }
 
@@ -252,7 +252,7 @@
       for (let j = 0; j < 3; j++) {
         if (applyMask && j > i) {
           scaled[i][j] = -Infinity;
-          scaledHtml += '<td class="cell-masked">-&infin;</td>';
+          scaledHtml += '<td class="cell-masked">&minus;&infin;</td>';
         } else {
           const val = rawQKT[i][j] / scale;
           scaled[i][j] = val;
@@ -287,31 +287,33 @@
         const prob = expSum > 0 ? exps[j] / expSum : 0;
         softmax[i][j] = prob;
         const pct = (prob * 100).toFixed(0);
-        const alpha = prob > 0 ? Math.max(0.12, prob * 0.55) : 0;
-        const style = prob > 0
-          ? 'background-color: rgba(194, 65, 12, ' + alpha.toFixed(2) + '); font-weight: 700;'
-          : 'opacity: 0.45;';
-        softmaxHtml += '<td class="cell-val" style="' + style + '"><div>' + prob.toFixed(2) + '</div><div style="font-size: 0.76rem; opacity: 0.85;">' + pct + '%</div></td>';
+        const isRow3 = (i === 2);
+        const bg = prob === 0 ? '#f5f4f0' : (isRow3 ? '#fef2f2' : '#ffffff');
+        const col = isRow3 && prob > 0 ? '#991b1b' : '#141413';
+        const bdr = isRow3 && prob > 0 ? '#991b1b' : '#c2bfb6';
+        softmaxHtml += '<td class="cell-val" style="background-color: ' + bg + '; color: ' + col + '; border-color: ' + bdr + ' !important; font-weight: 700;"><div>' + prob.toFixed(2) + '</div><div style="font-size: 0.82rem; color: ' + col + ';">' + pct + '%</div></td>';
       }
       softmaxHtml += '</tr>';
     }
     softmaxBody.innerHTML = softmaxHtml;
 
-    const totalW = 320;
+    const totalW = 310;
     let curX = 0;
-    const colors = ['#292524', '#57534e', '#c2410c'];
     for (let j = 0; j < 3; j++) {
       const p = softmax[2][j];
-      const w = Math.max(42, Math.round(p * totalW));
+      const w = Math.max(76, Math.round(p * totalW));
       const bar = document.getElementById('attn-bar-' + j);
       const lbl = document.getElementById('attn-lbl-' + j);
       if (bar && lbl) {
+        const isMax = (j === 2);
         bar.setAttribute('x', curX);
         bar.setAttribute('width', w);
-        bar.setAttribute('fill', colors[j]);
+        bar.setAttribute('fill', isMax ? '#fef2f2' : '#ffffff');
+        bar.setAttribute('stroke', isMax ? '#991b1b' : '#141413');
         lbl.setAttribute('x', curX + w / 2);
+        lbl.setAttribute('fill', isMax ? '#991b1b' : '#141413');
         lbl.textContent = tokens[j] + ' ' + Math.round(p * 100) + '%';
-        curX += w + 4;
+        curX += w + 6;
       }
     }
 
@@ -322,7 +324,7 @@
     }
     const outSvg = document.getElementById('attn-out-svg');
     if (outSvg) {
-      outSvg.textContent = 'Output o₃ = [' + outX.toFixed(3) + ', ' + outY.toFixed(3) + ']';
+      outSvg.textContent = 'Output o₃ = [' + outX.toFixed(2) + ', ' + outY.toFixed(2) + ']';
     }
   }
 

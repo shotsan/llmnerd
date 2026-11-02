@@ -1,41 +1,115 @@
 {{- $m := dict "output" "html" "displayMode" false -}}
 {{- $.Page.Store.Set "hasMath" true -}}
 
-<div class="llm-blueprint not-prose">
-  <div class="llm-blueprint-header">
-    <div class="llm-blueprint-title-wrap">
-      <span class="llm-badge llm-badge-accent">Ingestion Pipeline</span>
-      <h3 class="llm-blueprint-title">Text-to-Tensor Tokenization Stages</h3>
-    </div>
+<div class="llm-figure not-prose">
+  <div class="llm-figure-head">
+    <h3 class="llm-figure-title">Text-to-Tensor Tokenization Geometry ("understanding" &rarr; X &#8712; R<sup>3 &times; d</sup>)</h3>
   </div>
-  <div class="llm-blueprint-body">
-    <div class="llm-pipeline-3">
-      <div class="llm-pipe-step">
-        <span class="llm-pipe-tag">1. Pre-Tokenization</span>
-        <div class="llm-pipe-node">
-          <span class="llm-pipe-title">UTF-8 Byte Split</span>
-          <span class="llm-pipe-formula">{{ transform.ToMath `\text{understanding}` $m }}</span>
-          <span class="llm-pipe-sub">Splits raw text along word and UTF-8 byte boundaries.</span>
-        </div>
-      </div>
+  <div class="llm-figure-body">
+    <svg viewBox="0 0 700 200" width="100%" style="max-width: 700px; height: auto; display: block;" xmlns="http://www.w3.org/2000/svg">
+      <!-- Stage 1: Raw UTF-8 Byte Sequence -->
+      <text x="18" y="24" fill="#141413" font-size="14" font-weight="700">1. UTF-8 Byte Sequence</text>
+      <g transform="translate(18, 34)">
+        <rect x="0" y="0" width="299" height="32" rx="4" fill="#f5f4f0" stroke="#141413" stroke-width="1.5" />
+        <line x1="23" y1="0" x2="23" y2="32" stroke="#c2bfb6" stroke-width="1" />
+        <line x1="46" y1="0" x2="46" y2="32" stroke="#c2bfb6" stroke-width="1" />
+        <line x1="69" y1="0" x2="69" y2="32" stroke="#c2bfb6" stroke-width="1" />
+        <line x1="92" y1="0" x2="92" y2="32" stroke="#c2bfb6" stroke-width="1" />
+        <line x1="115" y1="0" x2="115" y2="32" stroke="#141413" stroke-width="1.5" />
+        <line x1="138" y1="0" x2="138" y2="32" stroke="#c2bfb6" stroke-width="1" />
+        <line x1="161" y1="0" x2="161" y2="32" stroke="#c2bfb6" stroke-width="1" />
+        <line x1="184" y1="0" x2="184" y2="32" stroke="#c2bfb6" stroke-width="1" />
+        <line x1="207" y1="0" x2="207" y2="32" stroke="#c2bfb6" stroke-width="1" />
+        <line x1="230" y1="0" x2="230" y2="32" stroke="#141413" stroke-width="1.5" />
+        <line x1="253" y1="0" x2="253" y2="32" stroke="#c2bfb6" stroke-width="1" />
+        <line x1="276" y1="0" x2="276" y2="32" stroke="#c2bfb6" stroke-width="1" />
+        <text x="11.5" y="21" text-anchor="middle" fill="#141413" font-size="13" font-weight="600">u</text>
+        <text x="34.5" y="21" text-anchor="middle" fill="#141413" font-size="13" font-weight="600">n</text>
+        <text x="57.5" y="21" text-anchor="middle" fill="#141413" font-size="13" font-weight="600">d</text>
+        <text x="80.5" y="21" text-anchor="middle" fill="#141413" font-size="13" font-weight="600">e</text>
+        <text x="103.5" y="21" text-anchor="middle" fill="#141413" font-size="13" font-weight="600">r</text>
+        <text x="126.5" y="21" text-anchor="middle" fill="#141413" font-size="13" font-weight="600">s</text>
+        <text x="149.5" y="21" text-anchor="middle" fill="#141413" font-size="13" font-weight="600">t</text>
+        <text x="172.5" y="21" text-anchor="middle" fill="#141413" font-size="13" font-weight="600">a</text>
+        <text x="195.5" y="21" text-anchor="middle" fill="#141413" font-size="13" font-weight="600">n</text>
+        <text x="218.5" y="21" text-anchor="middle" fill="#141413" font-size="13" font-weight="600">d</text>
+        <text x="241.5" y="21" text-anchor="middle" fill="#141413" font-size="13" font-weight="600">i</text>
+        <text x="264.5" y="21" text-anchor="middle" fill="#141413" font-size="13" font-weight="600">n</text>
+        <text x="287.5" y="21" text-anchor="middle" fill="#141413" font-size="13" font-weight="600">g</text>
+      </g>
 
-      <div class="llm-pipe-step">
-        <span class="llm-pipe-tag">2. Subword Segmentation</span>
-        <div class="llm-pipe-node">
-          <span class="llm-pipe-title">BPE Merge Engine</span>
-          <span class="llm-pipe-formula">{{ transform.ToMath `[\text{under}, \text{stand}, \text{ing}]` $m }}</span>
-          <span class="llm-pipe-sub">Iteratively merges the highest-frequency adjacent symbol pairs.</span>
-        </div>
-      </div>
+      <!-- Downward Merge Arrows -->
+      <line x1="75" y1="68" x2="75" y2="94" stroke="#141413" stroke-width="1.8" />
+      <polygon points="71,92 75,100 79,92" fill="#141413" />
+      <line x1="190" y1="68" x2="190" y2="94" stroke="#991b1b" stroke-width="2" />
+      <polygon points="186,92 190,100 194,92" fill="#991b1b" />
+      <line x1="283" y1="68" x2="283" y2="94" stroke="#141413" stroke-width="1.8" />
+      <polygon points="279,92 283,100 287,92" fill="#141413" />
 
-      <div class="llm-pipe-step">
-        <span class="llm-pipe-tag">3. Numerical Indices</span>
-        <div class="llm-pipe-node">
-          <span class="llm-pipe-title">Vocabulary Lookup</span>
-          <span class="llm-pipe-formula">{{ transform.ToMath `[2104, 3812, 278] \in \mathcal{V}^T` $m }}</span>
-          <span class="llm-pipe-sub">Maps each subword to its integer index in vocabulary {{ transform.ToMath `\mathcal{V}` $m }}.</span>
-        </div>
-      </div>
-    </div>
+      <!-- Stage 2: BPE Merged Subwords & Integer IDs -->
+      <text x="18" y="118" fill="#141413" font-size="14" font-weight="700">2. BPE Merged Subwords &amp; Vocabulary Indices (t &#8712; V<tspan baseline-shift="super" font-size="10">3</tspan>)</text>
+      <g transform="translate(18, 128)">
+        <!-- Subword 1: under -->
+        <rect x="0" y="0" width="96" height="52" rx="4" fill="#ffffff" stroke="#141413" stroke-width="1.75" />
+        <text x="48" y="21" text-anchor="middle" fill="#141413" font-size="14" font-weight="700">"under"</text>
+        <line x1="0" y1="28" x2="96" y2="28" stroke="#c2bfb6" stroke-width="1" />
+        <text x="48" y="45" text-anchor="middle" fill="#141413" font-size="13" font-weight="600">ID: 2104</text>
+
+        <!-- Subword 2: stand (Highlighted Focus) -->
+        <rect x="106" y="0" width="98" height="52" rx="4" fill="#fef2f2" stroke="#991b1b" stroke-width="2" />
+        <text x="155" y="21" text-anchor="middle" fill="#991b1b" font-size="14" font-weight="700">"stand"</text>
+        <line x1="106" y1="28" x2="204" y2="28" stroke="#991b1b" stroke-width="1.2" />
+        <text x="155" y="45" text-anchor="middle" fill="#991b1b" font-size="13" font-weight="700">ID: 3812</text>
+
+        <!-- Subword 3: ing -->
+        <rect x="214" y="0" width="85" height="52" rx="4" fill="#ffffff" stroke="#141413" stroke-width="1.75" />
+        <text x="256.5" y="21" text-anchor="middle" fill="#141413" font-size="14" font-weight="700">"ing"</text>
+        <line x1="214" y1="28" x2="299" y2="28" stroke="#c2bfb6" stroke-width="1" />
+        <text x="256.5" y="45" text-anchor="middle" fill="#141413" font-size="13" font-weight="600">ID: 278</text>
+      </g>
+
+      <!-- Arrow to Stage 3: Embedding Gather -->
+      <g transform="translate(332, 134)">
+        <line x1="0" y1="20" x2="78" y2="20" stroke="#991b1b" stroke-width="2.2" />
+        <polygon points="78,15 88,20 78,25" fill="#991b1b" />
+        <text x="44" y="6" text-anchor="middle" fill="#991b1b" font-size="13" font-weight="700">Gather W<tspan baseline-shift="sub" font-size="10">E</tspan>[t]</text>
+        <text x="44" y="38" text-anchor="middle" fill="#141413" font-size="13" font-weight="600">O(1) Lookup</text>
+      </g>
+
+      <!-- Stage 3: Dense Input Tensor X (3 x d) -->
+      <g transform="translate(436, 42)">
+        <text x="122" y="-14" text-anchor="middle" fill="#141413" font-size="14" font-weight="700">3. Dense Token Tensor X &#8712; R<tspan baseline-shift="super" font-size="10">3 &times; d</tspan></text>
+        <rect x="0" y="0" width="244" height="138" rx="4" fill="#ffffff" stroke="#141413" stroke-width="2" />
+        <!-- Highlighted Row 2 (ID 3812) -->
+        <rect x="1" y="46" width="242" height="46" fill="#fef2f2" />
+        <!-- Grid lines -->
+        <line x1="68" y1="0" x2="68" y2="138" stroke="#c2bfb6" stroke-width="1.5" />
+        <line x1="126" y1="0" x2="126" y2="138" stroke="#c2bfb6" stroke-width="1.5" />
+        <line x1="184" y1="0" x2="184" y2="138" stroke="#c2bfb6" stroke-width="1.5" />
+        <line x1="0" y1="46" x2="244" y2="46" stroke="#991b1b" stroke-width="1.5" />
+        <line x1="0" y1="92" x2="244" y2="92" stroke="#991b1b" stroke-width="1.5" />
+
+        <!-- Row 1: W_E[2104] -->
+        <text x="34" y="28" text-anchor="middle" fill="#141413" font-size="13" font-weight="700">W<tspan baseline-shift="sub" font-size="10">E</tspan>[2104]</text>
+        <text x="97" y="28" text-anchor="middle" fill="#141413" font-size="13" font-weight="600">+0.42</text>
+        <text x="155" y="28" text-anchor="middle" fill="#141413" font-size="13" font-weight="600">-0.18</text>
+        <text x="214" y="28" text-anchor="middle" fill="#141413" font-size="13" font-weight="600">+0.75</text>
+
+        <!-- Row 2: W_E[3812] (Highlighted) -->
+        <text x="34" y="74" text-anchor="middle" fill="#991b1b" font-size="13" font-weight="700">W<tspan baseline-shift="sub" font-size="10">E</tspan>[3812]</text>
+        <text x="97" y="74" text-anchor="middle" fill="#991b1b" font-size="13" font-weight="700">+0.81</text>
+        <text x="155" y="74" text-anchor="middle" fill="#991b1b" font-size="13" font-weight="700">+0.34</text>
+        <text x="214" y="74" text-anchor="middle" fill="#991b1b" font-size="13" font-weight="700">-0.62</text>
+
+        <!-- Row 3: W_E[278] -->
+        <text x="34" y="120" text-anchor="middle" fill="#141413" font-size="13" font-weight="700">W<tspan baseline-shift="sub" font-size="10">E</tspan>[278]</text>
+        <text x="97" y="120" text-anchor="middle" fill="#141413" font-size="13" font-weight="600">-0.15</text>
+        <text x="155" y="120" text-anchor="middle" fill="#141413" font-size="13" font-weight="600">+0.91</text>
+        <text x="214" y="120" text-anchor="middle" fill="#141413" font-size="13" font-weight="600">+0.09</text>
+      </g>
+    </svg>
+  </div>
+  <div class="llm-figure-caption">
+    <strong>Figure 1:</strong> A 13-byte UTF-8 string is compressed by BPE merge rules into {{ transform.ToMath `T = 3` $m }} subword indices {{ transform.ToMath `[2104, 3812, 278]` $m }}, which directly index rows of {{ transform.ToMath `\mathbf{W}_E` $m }} to form the dense input tensor {{ transform.ToMath `\mathbf{X} \in \mathbb{R}^{3 \times d}` $m }}.
   </div>
 </div>

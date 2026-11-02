@@ -1,105 +1,121 @@
 {{- $m := dict "output" "html" "displayMode" false -}}
 {{- $.Page.Store.Set "hasMath" true -}}
 
-<!-- 1. 4-Card Mathematical Definition Grid -->
-<div class="llm-math-grid not-prose">
-  <div class="llm-math-card">
-    <div class="llm-math-header">
-      <span class="llm-math-symbol">{{ transform.ToMath `\mathbf{e}_i` $m }}</span>
-      <span class="llm-math-shape">{{ transform.ToMath `\{0, 1\}^V` $m }}</span>
-    </div>
-    <div class="llm-math-body">
-      <span class="llm-math-role">Sparse One-Hot Basis Vector</span>
-      All-zero vector of length {{ transform.ToMath `V` $m }} with a single {{ transform.ToMath `1` $m }} at index {{ transform.ToMath `i` $m }}. Orthogonal across all distinct tokens ({{ transform.ToMath `\mathbf{e}_i \cdot \mathbf{e}_j = 0` $m }}).
-    </div>
-  </div>
-
-  <div class="llm-math-card">
-    <div class="llm-math-header">
-      <span class="llm-math-symbol">{{ transform.ToMath `\mathbf{W}_E` $m }}</span>
-      <span class="llm-math-shape">{{ transform.ToMath `\mathbb{R}^{V \times d}` $m }}</span>
-    </div>
-    <div class="llm-math-body">
-      <span class="llm-math-role">Learned Embedding Matrix</span>
-      Parameter table storing a {{ transform.ToMath `d` $m }}-dimensional coordinate vector for each of the {{ transform.ToMath `V` $m }} vocabulary tokens.
-    </div>
-  </div>
-
-  <div class="llm-math-card">
-    <div class="llm-math-header">
-      <span class="llm-math-symbol">{{ transform.ToMath `\mathbf{x}_i = \mathbf{W}_E[t_i]` $m }}</span>
-      <span class="llm-math-shape">{{ transform.ToMath `\mathbb{R}^d` $m }}</span>
-    </div>
-    <div class="llm-math-body">
-      <span class="llm-math-role">Dense Token Embedding</span>
-      Retrieved in {{ transform.ToMath `\mathcal{O}(1)` $m }} time via direct row gather (equivalent to {{ transform.ToMath `\mathbf{e}_i^T \mathbf{W}_E` $m }} without sparse multiplication).
-    </div>
-  </div>
-
-  <div class="llm-math-card">
-    <div class="llm-math-header">
-      <span class="llm-math-symbol">{{ transform.ToMath `\cos(\theta) = \frac{\mathbf{u} \cdot \mathbf{v}}{\|\mathbf{u}\| \|\mathbf{v}\|}` $m }}</span>
-      <span class="llm-math-shape">{{ transform.ToMath `[-1, 1]` $m }}</span>
-    </div>
-    <div class="llm-math-body">
-      <span class="llm-math-role">Cosine Similarity</span>
-      Normalized inner product measuring directional alignment between two vectors independent of their magnitude.
-    </div>
-  </div>
+<!-- 1. Notation & Tensor Shape Table -->
+<div class="llm-table-wrap not-prose">
+  <table class="llm-notation-table">
+    <thead>
+      <tr>
+        <th style="width: 24%;">Symbol</th>
+        <th style="width: 20%;">Tensor Shape</th>
+        <th style="width: 56%;">Geometric &amp; Computational Role</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>{{ transform.ToMath `\mathbf{e}_i` $m }}</td>
+        <td><span class="llm-shape-pill">{{ transform.ToMath `\{0, 1\}^V` $m }}</span></td>
+        <td><strong>Sparse One-Hot Basis Vector:</strong> All-zero vector of length {{ transform.ToMath `V` $m }} with a single {{ transform.ToMath `1` $m }} at index {{ transform.ToMath `i` $m }}. Orthogonal across all distinct tokens ({{ transform.ToMath `\mathbf{e}_i \cdot \mathbf{e}_j = 0` $m }}).</td>
+      </tr>
+      <tr>
+        <td>{{ transform.ToMath `\mathbf{W}_E` $m }}</td>
+        <td><span class="llm-shape-pill">{{ transform.ToMath `\mathbb{R}^{V \times d}` $m }}</span></td>
+        <td><strong>Learned Embedding Matrix:</strong> Parameter table storing a {{ transform.ToMath `d` $m }}-dimensional coordinate vector for each of the {{ transform.ToMath `V` $m }} vocabulary tokens.</td>
+      </tr>
+      <tr>
+        <td>{{ transform.ToMath `\mathbf{x}_i = \mathbf{W}_E[t_i]` $m }}</td>
+        <td><span class="llm-shape-pill">{{ transform.ToMath `\mathbb{R}^d` $m }}</span></td>
+        <td><strong>Dense Token Embedding:</strong> Retrieved in {{ transform.ToMath `\mathcal{O}(1)` $m }} time via direct row gather (mathematically identical to {{ transform.ToMath `\mathbf{e}_i^T \mathbf{W}_E` $m }} without sparse matrix multiplication).</td>
+      </tr>
+      <tr>
+        <td>{{ transform.ToMath `\cos(\theta) = \frac{\mathbf{u} \cdot \mathbf{v}}{\|\mathbf{u}\| \|\mathbf{v}\|}` $m }}</td>
+        <td><span class="llm-shape-pill">{{ transform.ToMath `[-1, 1]` $m }}</span></td>
+        <td><strong>Cosine Similarity:</strong> Normalized inner product measuring directional alignment between two vectors independent of their Euclidean magnitude.</td>
+      </tr>
+    </tbody>
+  </table>
 </div>
 
-<!-- 2. Native HTML Architecture Pipeline -->
-<div class="llm-blueprint not-prose">
-  <div class="llm-blueprint-header">
-    <div class="llm-blueprint-title-wrap">
-      <span class="llm-badge llm-badge-accent">Architecture Pipeline</span>
-      <h3 class="llm-blueprint-title">Token Gather &amp; Input Normalization</h3>
-    </div>
-    <span class="llm-blueprint-meta">O(1) Memory Gather &bull; R<sup>d</sup> Projection</span>
+<!-- 2. O(1) Row Gather vs Sparse Projection Tensor Figure -->
+<div class="llm-figure not-prose">
+  <div class="llm-figure-head">
+    <h3 class="llm-figure-title">Equivalence of Sparse One-Hot Multiplication and O(1) Row Gather (V = 4, d = 3)</h3>
   </div>
-  <div class="llm-blueprint-body">
-    <div class="llm-pipeline">
-      <div class="llm-pipe-step">
-        <span class="llm-pipe-tag">1. Discrete Token</span>
-        <div class="llm-pipe-node is-dark">
-          <span class="llm-pipe-title">Token ID</span>
-          <span class="llm-pipe-formula">{{ transform.ToMath `t_i = 1` $m }} (cat)</span>
-          <span class="llm-pipe-sub">Integer Scalar</span>
-        </div>
-      </div>
+  <div class="llm-figure-body">
+    <svg viewBox="0 0 700 185" width="100%" style="max-width: 700px; height: auto; display: block;">
+      <!-- One-hot row vector e_1 (1 x 4) -->
+      <g transform="translate(16, 62)">
+        <text x="72" y="-14" text-anchor="middle" fill="#141413" font-size="14" font-weight="700">One-Hot e<tspan baseline-shift="sub" font-size="10">1</tspan><tspan baseline-shift="super" font-size="10">T</tspan></text>
+        <text x="72" y="54" text-anchor="middle" fill="#141413" font-size="13" font-weight="600">(1 &times; 4)</text>
+        <rect x="0" y="0" width="144" height="36" rx="4" fill="#ffffff" stroke="#141413" stroke-width="2" />
+        <rect x="36" y="1" width="36" height="34" fill="#fef2f2" />
+        <line x1="36" y1="0" x2="36" y2="36" stroke="#991b1b" stroke-width="1.5" />
+        <line x1="72" y1="0" x2="72" y2="36" stroke="#991b1b" stroke-width="1.5" />
+        <line x1="108" y1="0" x2="108" y2="36" stroke="#c2bfb6" stroke-width="1.5" />
+        <text x="18" y="23" text-anchor="middle" fill="#141413" font-size="13" font-weight="600">0</text>
+        <text x="54" y="23" text-anchor="middle" fill="#991b1b" font-size="13" font-weight="700">1</text>
+        <text x="90" y="23" text-anchor="middle" fill="#141413" font-size="13" font-weight="600">0</text>
+        <text x="126" y="23" text-anchor="middle" fill="#141413" font-size="13" font-weight="600">0</text>
+      </g>
 
-      <div class="llm-pipe-arrow">&rarr;</div>
+      <!-- Multiply symbol -->
+      <text x="180" y="86" text-anchor="middle" fill="#141413" font-size="18" font-weight="700">&times;</text>
 
-      <div class="llm-pipe-step">
-        <span class="llm-pipe-tag">2. Table Gather</span>
-        <div class="llm-pipe-node">
-          <span class="llm-pipe-title">Row Indexing</span>
-          <span class="llm-pipe-formula">{{ transform.ToMath `\mathbf{W}_E[1] \in \mathbb{R}^{1 \times d}` $m }}</span>
-          <span class="llm-pipe-sub">Contiguous HBM Slice</span>
-        </div>
-      </div>
+      <!-- Embedding Matrix W_E (4 x 3) -->
+      <g transform="translate(200, 26)">
+        <text x="84" y="-10" text-anchor="middle" fill="#141413" font-size="14" font-weight="700">Embedding Table W<tspan baseline-shift="sub" font-size="10">E</tspan> (4 &times; 3)</text>
+        <rect x="0" y="0" width="168" height="136" rx="4" fill="#ffffff" stroke="#141413" stroke-width="2" />
+        <!-- Highlighted Row 1 (index 1: cat) -->
+        <rect x="1" y="34" width="166" height="34" fill="#fef2f2" />
+        <line x1="56" y1="0" x2="56" y2="136" stroke="#c2bfb6" stroke-width="1.5" />
+        <line x1="112" y1="0" x2="112" y2="136" stroke="#c2bfb6" stroke-width="1.5" />
+        <line x1="0" y1="34" x2="168" y2="34" stroke="#991b1b" stroke-width="1.5" />
+        <line x1="0" y1="68" x2="168" y2="68" stroke="#991b1b" stroke-width="1.5" />
+        <line x1="0" y1="102" x2="168" y2="102" stroke="#c2bfb6" stroke-width="1.5" />
 
-      <div class="llm-pipe-arrow">&rarr;</div>
+        <!-- Row 0 (the) -->
+        <text x="28" y="22" text-anchor="middle" fill="#141413" font-size="13" font-weight="600">+0.10</text>
+        <text x="84" y="22" text-anchor="middle" fill="#141413" font-size="13" font-weight="600">+0.90</text>
+        <text x="140" y="22" text-anchor="middle" fill="#141413" font-size="13" font-weight="600">+0.20</text>
 
-      <div class="llm-pipe-step">
-        <span class="llm-pipe-tag">3. Dense Vector</span>
-        <div class="llm-pipe-node is-tint">
-          <span class="llm-pipe-title">Embedding Vector</span>
-          <span class="llm-pipe-formula">{{ transform.ToMath `[0.80, 0.10, -0.50]` $m }}</span>
-          <span class="llm-pipe-sub">Continuous {{ transform.ToMath `\mathbf{x}_1 \in \mathbb{R}^d` $m }}</span>
-        </div>
-      </div>
+        <!-- Row 1 (cat - highlighted) -->
+        <text x="28" y="56" text-anchor="middle" fill="#991b1b" font-size="13" font-weight="700">+0.80</text>
+        <text x="84" y="56" text-anchor="middle" fill="#991b1b" font-size="13" font-weight="700">+0.10</text>
+        <text x="140" y="56" text-anchor="middle" fill="#991b1b" font-size="13" font-weight="700">-0.50</text>
 
-      <div class="llm-pipe-arrow">&rarr;</div>
+        <!-- Row 2 (kitten) -->
+        <text x="28" y="90" text-anchor="middle" fill="#141413" font-size="13" font-weight="600">+0.75</text>
+        <text x="84" y="90" text-anchor="middle" fill="#141413" font-size="13" font-weight="600">+0.15</text>
+        <text x="140" y="90" text-anchor="middle" fill="#141413" font-size="13" font-weight="600">-0.45</text>
 
-      <div class="llm-pipe-step">
-        <span class="llm-pipe-tag">4. Residual Stream</span>
-        <div class="llm-pipe-node is-accent">
-          <span class="llm-pipe-title">Pre-RMSNorm</span>
-          <span class="llm-pipe-formula">{{ transform.ToMath `\operatorname{RMSNorm}(\mathbf{x}_1)` $m }}</span>
-          <span class="llm-pipe-sub">Unit-Variance {{ transform.ToMath `\mathbf{h}_0` $m }}</span>
-        </div>
-      </div>
-    </div>
+        <!-- Row 3 (sat) -->
+        <text x="28" y="124" text-anchor="middle" fill="#141413" font-size="13" font-weight="600">-0.60</text>
+        <text x="84" y="124" text-anchor="middle" fill="#141413" font-size="13" font-weight="600">+0.40</text>
+        <text x="140" y="124" text-anchor="middle" fill="#141413" font-size="13" font-weight="600">+0.70</text>
+      </g>
+
+      <!-- Direct O(1) Gather Arrow -->
+      <g transform="translate(382, 66)">
+        <line x1="0" y1="14" x2="96" y2="14" stroke="#991b1b" stroke-width="2.2" />
+        <polygon points="96,9 106,14 96,19" fill="#991b1b" />
+        <text x="53" y="0" text-anchor="middle" fill="#991b1b" font-size="13" font-weight="700">W<tspan baseline-shift="sub" font-size="10">E</tspan>[1] Gather</text>
+        <text x="53" y="32" text-anchor="middle" fill="#141413" font-size="13" font-weight="600">O(1) Slice</text>
+      </g>
+
+      <!-- Output Dense Vector x_1 (1 x 3) -->
+      <g transform="translate(502, 62)">
+        <text x="90" y="-14" text-anchor="middle" fill="#141413" font-size="14" font-weight="700">Dense Vector x<tspan baseline-shift="sub" font-size="10">1</tspan> ("cat")</text>
+        <text x="90" y="54" text-anchor="middle" fill="#141413" font-size="13" font-weight="600">(1 &times; 3)</text>
+        <rect x="0" y="0" width="180" height="36" rx="4" fill="#fef2f2" stroke="#991b1b" stroke-width="2" />
+        <line x1="60" y1="0" x2="60" y2="36" stroke="#991b1b" stroke-width="1.5" />
+        <line x1="120" y1="0" x2="120" y2="36" stroke="#991b1b" stroke-width="1.5" />
+        <text x="30" y="23" text-anchor="middle" fill="#991b1b" font-size="13" font-weight="700">+0.80</text>
+        <text x="90" y="23" text-anchor="middle" fill="#991b1b" font-size="13" font-weight="700">+0.10</text>
+        <text x="150" y="23" text-anchor="middle" fill="#991b1b" font-size="13" font-weight="700">-0.50</text>
+      </g>
+    </svg>
+  </div>
+  <div class="llm-figure-caption">
+    <strong>Figure 1 (Direct Row Gather):</strong> Multiplying sparse one-hot row {{ transform.ToMath `\mathbf{e}_1^T = [0, 1, 0, 0]` $m }} by {{ transform.ToMath `\mathbf{W}_E` $m }} zeros out every row except index {{ transform.ToMath `1` $m }}. Hardware kernels bypass the {{ transform.ToMath `V` $m }} multiply-adds entirely and copy contiguous row {{ transform.ToMath `\mathbf{W}_E[1] = [+0.80, +0.10, -0.50]` $m }} in {{ transform.ToMath `\mathcal{O}(1)` $m }} time.
   </div>
 </div>

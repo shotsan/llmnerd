@@ -13,7 +13,7 @@
         <span class="llm-param-label">Vocabulary |V|:</span>
         <span id="bpe-vocab-count" class="llm-param-val">11</span>
       </div>
-      <div class="llm-param-item" style="padding-left: 0.85rem; border-left: 1px solid #d6d3d1;">
+      <div class="llm-param-item" style="padding-left: 0.85rem; border-left: 1px solid #c2bfb6;">
         <span class="llm-param-label">Unseen Word Length:</span>
         <span id="bpe-unseen-len" class="llm-param-val">7 tokens</span>
       </div>
@@ -23,32 +23,32 @@
   <!-- Stage -->
   <div class="llm-motion-stage">
     <!-- Top Live Segmentation Box -->
-    <div style="width: 100%; border-radius: 0.75rem; border: 1px solid #e7e5e4; background-color: #fafaf9; padding: 1rem 1.25rem; margin-bottom: 1.15rem;">
-      <div style="font-size: 0.92rem; font-weight: 700; color: #44403c; margin-bottom: 0.75rem;">
-        Live Segmentation of Unseen Word: <code style="font-size: 0.95rem; color: #c2410c; background: #fff7ed; padding: 0.15rem 0.5rem; border-radius: 0.35rem;">lowest</code>
+    <div style="width: 100%; border-radius: 6px; border: 1px solid #c2bfb6; background-color: #f5f4f0; padding: 1rem 1.25rem; margin-bottom: 1.15rem;">
+      <div style="font-size: 0.95rem; font-weight: 700; color: #141413; margin-bottom: 0.75rem;">
+        Live Segmentation of Unseen Word: <span class="llm-focus-pill">lowest</span>
       </div>
       <div id="bpe-unseen-tokens" style="display: flex; flex-wrap: wrap; gap: 0.6rem; align-items: center;"></div>
     </div>
 
     <!-- 2-Column Corpus & Merge Table -->
-    <div class="llm-math-grid" style="width: 100%; margin: 0;">
+    <div class="llm-sim-grid">
       <!-- Left: Corpus State -->
-      <div class="llm-math-card">
-        <div class="llm-math-header">
-          <span class="llm-math-symbol">Corpus</span>
-          <span class="llm-math-shape" id="bpe-active-pair-badge">Top: e + s (9)</span>
+      <div class="llm-sim-card">
+        <div class="llm-sim-card-head">
+          <span>Corpus Frequencies</span>
+          <span class="llm-focus-pill" id="bpe-active-pair-badge">Top: e + s (9)</span>
         </div>
-        <div class="llm-math-body" id="bpe-corpus-list" style="display: flex; flex-direction: column; gap: 0.65rem; font-size: 0.96rem;">
+        <div class="llm-sim-card-body" id="bpe-corpus-list" style="display: flex; flex-direction: column; gap: 0.65rem;">
         </div>
       </div>
 
       <!-- Right: Merge Rules -->
-      <div class="llm-math-card">
-        <div class="llm-math-header">
-          <span class="llm-math-symbol">Merge Rules</span>
-          <span class="llm-math-shape" id="bpe-rule-count-badge">0 / 5 Active</span>
+      <div class="llm-sim-card">
+        <div class="llm-sim-card-head">
+          <span>Learned Merge Table</span>
+          <span class="llm-shape-pill" id="bpe-rule-count-badge">0 / 5 Active</span>
         </div>
-        <div class="llm-math-body" id="bpe-rules-list" style="display: flex; flex-direction: column; gap: 0.55rem; font-size: 0.94rem;">
+        <div class="llm-sim-card-body" id="bpe-rules-list" style="display: flex; flex-direction: column; gap: 0.55rem;">
         </div>
       </div>
     </div>
@@ -57,7 +57,7 @@
   <!-- Live Narration Caption -->
   <div class="llm-motion-caption">
     <span id="bpe-caption-text"></span>
-    <span class="llm-badge llm-badge-emerald" id="bpe-step-badge">Step 0 / 5</span>
+    <span class="llm-focus-pill" id="bpe-step-badge">Step 0 / 5</span>
   </div>
 
   <!-- Playback Controls -->
@@ -198,17 +198,17 @@
     captionEl.innerHTML = s.caption;
     stepBadge.textContent = 'Step ' + idx + ' / 5';
 
-    // 1. Render Top Unseen Word Tokens as crisp HTML blocks
+    // 1. Render Top Unseen Word Tokens strictly in 4-color palette
     let tokHtml = '';
     s.unseen.forEach(function(tok, tIdx) {
       const isHi = s.unseenHighlight.indexOf(tIdx) !== -1;
-      const bg = isHi ? '#c2410c' : '#292524';
-      const bdr = isHi ? '#9a3412' : '#44403c';
-      const subCol = isHi ? '#ffedd5' : '#a8a29e';
+      const bg = isHi ? '#fef2f2' : '#ffffff';
+      const bdr = isHi ? '#991b1b' : '#141413';
+      const col = isHi ? '#991b1b' : '#141413';
       const safeTok = tok.replace(/</g, '&lt;').replace(/>/g, '&gt;');
-      tokHtml += '<div style="display: inline-flex; flex-direction: column; align-items: center; justify-content: center; min-width: 4.2rem; padding: 0.5rem 0.9rem; border-radius: 0.6rem; background: ' + bg + '; border: 1.5px solid ' + bdr + '; color: #ffffff; box-shadow: 0 2px 4px rgba(28, 25, 23, 0.08);">';
-      tokHtml += '<span style="font-size: 1.05rem; font-weight: 700; line-height: 1.2;">' + safeTok + '</span>';
-      tokHtml += '<span style="font-size: 0.78rem; color: ' + subCol + '; margin-top: 0.2rem; font-weight: 500;">token ' + (tIdx + 1) + '</span>';
+      tokHtml += '<div style="display: inline-flex; flex-direction: column; align-items: center; justify-content: center; min-width: 4.4rem; padding: 0.45rem 0.85rem; border-radius: 5px; background: ' + bg + '; border: 2px solid ' + bdr + '; color: ' + col + ';">';
+      tokHtml += '<span style="font-size: 0.95rem; font-weight: 700; line-height: 1.2;">' + safeTok + '</span>';
+      tokHtml += '<span style="font-size: 0.85rem; color: ' + col + '; margin-top: 0.15rem; font-weight: 600;">token ' + (tIdx + 1) + '</span>';
       tokHtml += '</div>';
     });
     unseenBox.innerHTML = tokHtml;
@@ -216,35 +216,35 @@
     // 2. Render Corpus State
     let cHtml = '';
     s.corpus.forEach(function(row) {
-      cHtml += '<div style="display:flex; align-items:center; justify-content:space-between; gap:0.5rem; padding:0.45rem 0.65rem; border-radius:0.5rem; background:rgba(168, 162, 158,0.08);">';
-      cHtml += '<div style="display:flex; flex-wrap:wrap; gap:0.32rem;">';
+      cHtml += '<div style="display:flex; align-items:center; justify-content:space-between; gap:0.5rem; padding:0.45rem 0.65rem; border-radius:4px; background:#f5f4f0; border:1px solid #c2bfb6;">';
+      cHtml += '<div style="display:flex; flex-wrap:wrap; gap:0.35rem;">';
       row.tokens.forEach(function(t, i) {
         const hi = row.hi.indexOf(i) !== -1;
-        const bg = hi ? '#fff7ed' : '#f5f5f4';
-        const col = hi ? '#9a3412' : '#1c1917';
-        const bdr = hi ? '#c2410c' : '#d6d3d1';
+        const bg = hi ? '#fef2f2' : '#ffffff';
+        const col = hi ? '#991b1b' : '#141413';
+        const bdr = hi ? '#991b1b' : '#141413';
         const safeT = t.replace(/</g, '&lt;').replace(/>/g, '&gt;');
-        cHtml += '<span style="padding:0.16rem 0.46rem; border-radius:0.35rem; border:1px solid ' + bdr + '; background:' + bg + '; color:' + col + '; font-size:0.92rem; font-weight:700;">' + safeT + '</span>';
+        cHtml += '<span style="padding:0.15rem 0.48rem; border-radius:4px; border:1.5px solid ' + bdr + '; background:' + bg + '; color:' + col + '; font-size:0.92rem; font-weight:700;">' + safeT + '</span>';
       });
       cHtml += '</div>';
-      cHtml += '<span style="color:#57534e; font-size:0.88rem; font-weight:700; white-space:nowrap;">&times;' + row.freq + '</span>';
+      cHtml += '<span style="color:#141413; font-size:0.92rem; font-weight:700; white-space:nowrap;">&times;' + row.freq + '</span>';
       cHtml += '</div>';
     });
     corpusList.innerHTML = cHtml;
 
-    // 3. Render Merge Rules
+    // 3. Render Merge Rules (Strictly #141413 or #991b1b, zero grey or low opacity)
     let rHtml = '';
     rules.forEach(function(r) {
-      const active = r.id <= idx;
       const current = r.id === idx;
-      const bg = current ? '#fff7ed' : (active ? '#fafaf9' : 'transparent');
-      const bdr = current ? '#c2410c' : (active ? '#d6d3d1' : '#e7e5e4');
-      const op = active ? '1' : '0.5';
+      const active = r.id < idx;
+      const bg = current ? '#fef2f2' : (active ? '#f5f4f0' : '#ffffff');
+      const bdr = current ? '#991b1b' : '#c2bfb6';
+      const col = current ? '#991b1b' : '#141413';
       const safePair = r.pair.replace(/</g, '&lt;').replace(/>/g, '&gt;');
       const safeOut = r.out.replace(/</g, '&lt;').replace(/>/g, '&gt;');
-      rHtml += '<div style="display:flex; align-items:center; justify-content:space-between; gap:0.5rem; padding:0.48rem 0.7rem; border-radius:0.5rem; border:1px solid ' + bdr + '; background:' + bg + '; opacity:' + op + '; font-size:0.92rem;">';
-      rHtml += '<span style="white-space:nowrap;"><strong>Rule ' + r.id + ':</strong> ' + safePair + ' &rarr; <strong style="color:#9a3412;">' + safeOut + '</strong></span>';
-      rHtml += '<span style="font-size:0.84rem; font-weight:600; color:#57534e; white-space:nowrap;">&times;' + r.freq + '</span>';
+      rHtml += '<div style="display:flex; align-items:center; justify-content:space-between; gap:0.5rem; padding:0.48rem 0.7rem; border-radius:4px; border:1.5px solid ' + bdr + '; background:' + bg + '; color:' + col + '; font-size:0.92rem;">';
+      rHtml += '<span style="white-space:nowrap;"><strong>Rule ' + r.id + ':</strong> ' + safePair + ' &rarr; <strong>' + safeOut + '</strong></span>';
+      rHtml += '<span style="font-size:0.92rem; font-weight:700; color:' + col + '; white-space:nowrap;">&times;' + r.freq + '</span>';
       rHtml += '</div>';
     });
     rulesList.innerHTML = rHtml;

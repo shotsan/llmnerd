@@ -1,36 +1,56 @@
 {{- $m := dict "output" "html" "displayMode" false -}}
 {{- $.Page.Store.Set "hasMath" true -}}
 
-<div class="llm-feature-list not-prose">
-  <!-- Sublayer 1: Attention -->
-  <div class="llm-feature-card">
-    <div class="llm-feature-top">
-      <h3 class="llm-feature-title">Sublayer 1: Pre-RMSNorm Grouped-Query Attention (GQA + RoPE)</h3>
-      <span class="llm-badge llm-badge-accent">Token-to-Token Mixing</span>
-    </div>
-    <div class="llm-feature-body">
-      <p class="llm-feature-desc">
-        Input state {{ transform.ToMath `\mathbf{x}_l \in \mathbb{R}^d` $m }} is normalized via RMSNorm <em>before</em> entering Grouped-Query Attention with Rotary Position Embeddings, then added directly back onto the unobstructed residual highway.
-      </p>
-      <div class="llm-feature-formula">
-        {{ transform.ToMath `\mathbf{h}_l = \mathbf{x}_l + \operatorname{GQA}\!\left(\operatorname{RMSNorm}(\mathbf{x}_l)\right)` $m }}
-      </div>
-    </div>
+<div class="llm-figure not-prose">
+  <div class="llm-figure-head">
+    <h3 class="llm-figure-title">Pre-RMSNorm Decoder Layer Schematic (LLaMA 3 / Mistral / Qwen)</h3>
   </div>
+  <div class="llm-figure-body">
+    <svg viewBox="0 0 700 185" width="100%" style="max-width: 700px; height: auto; display: block;">
+      <!-- Top Residual Highway Line -->
+      <text x="18" y="20" fill="#991b1b" font-size="13" font-weight="700">Residual Stream (Identity Gradient Highway)</text>
+      <line x1="18" y1="56" x2="670" y2="56" stroke="#991b1b" stroke-width="3" />
+      <polygon points="670,50 684,56 670,62" fill="#991b1b" />
 
-  <!-- Sublayer 2: SwiGLU MLP -->
-  <div class="llm-feature-card">
-    <div class="llm-feature-top">
-      <h3 class="llm-feature-title">Sublayer 2: Pre-RMSNorm SwiGLU Feed-Forward Network</h3>
-      <span class="llm-badge llm-badge-accent">Channel-Wise Transformation</span>
-    </div>
-    <div class="llm-feature-body">
-      <p class="llm-feature-desc">
-        Intermediate state {{ transform.ToMath `\mathbf{h}_l` $m }} is normalized again and passed through a gated SwiGLU MLP, depositing the refined representation back onto the residual stream to produce layer output {{ transform.ToMath `\mathbf{x}_{l+1}` $m }}.
-      </p>
-      <div class="llm-feature-formula">
-        {{ transform.ToMath `\mathbf{x}_{l+1} = \mathbf{h}_l + \operatorname{SwiGLU}\!\left(\operatorname{RMSNorm}(\mathbf{h}_l)\right)` $m }}
-      </div>
-    </div>
+      <!-- State Labels on Highway -->
+      <text x="35" y="42" text-anchor="middle" fill="#141413" font-size="14" font-weight="700">x<tspan baseline-shift="sub" font-size="10">l</tspan></text>
+      <text x="354" y="42" text-anchor="middle" fill="#141413" font-size="14" font-weight="700">h<tspan baseline-shift="sub" font-size="10">l</tspan></text>
+      <text x="652" y="42" text-anchor="middle" fill="#141413" font-size="14" font-weight="700">x<tspan baseline-shift="sub" font-size="10">l+1</tspan></text>
+
+      <!-- Branch 1: Attention Sublayer -->
+      <circle cx="66" cy="56" r="4.5" fill="#141413" />
+      <path d="M 66 56 L 66 134 L 86 134" fill="none" stroke="#141413" stroke-width="2" />
+      <rect x="86" y="110" width="88" height="48" rx="5" fill="#f5f4f0" stroke="#141413" stroke-width="1.75" />
+      <text x="130" y="139" text-anchor="middle" fill="#141413" font-size="13" font-weight="700">RMSNorm</text>
+
+      <line x1="174" y1="134" x2="190" y2="134" stroke="#141413" stroke-width="2" />
+      <rect x="190" y="110" width="104" height="48" rx="5" fill="#ffffff" stroke="#141413" stroke-width="2" />
+      <text x="242" y="131" text-anchor="middle" fill="#141413" font-size="13" font-weight="700">GQA + RoPE</text>
+      <text x="242" y="148" text-anchor="middle" fill="#141413" font-size="13" font-weight="600">Token Mixing</text>
+
+      <!-- Add 1 back to Highway -->
+      <path d="M 294 134 L 314 134 L 314 70" fill="none" stroke="#141413" stroke-width="2" />
+      <circle cx="314" cy="56" r="13" fill="#fef2f2" stroke="#991b1b" stroke-width="2.5" />
+      <text x="314" y="61" text-anchor="middle" fill="#991b1b" font-size="17" font-weight="700">+</text>
+
+      <!-- Branch 2: SwiGLU FFN Sublayer -->
+      <circle cx="384" cy="56" r="4.5" fill="#141413" />
+      <path d="M 384 56 L 384 134 L 404 134" fill="none" stroke="#141413" stroke-width="2" />
+      <rect x="404" y="110" width="88" height="48" rx="5" fill="#f5f4f0" stroke="#141413" stroke-width="1.75" />
+      <text x="448" y="139" text-anchor="middle" fill="#141413" font-size="13" font-weight="700">RMSNorm</text>
+
+      <line x1="492" y1="134" x2="508" y2="134" stroke="#141413" stroke-width="2" />
+      <rect x="508" y="110" width="104" height="48" rx="5" fill="#ffffff" stroke="#141413" stroke-width="2" />
+      <text x="560" y="131" text-anchor="middle" fill="#141413" font-size="13" font-weight="700">SwiGLU FFN</text>
+      <text x="560" y="148" text-anchor="middle" fill="#141413" font-size="13" font-weight="600">Channel MLP</text>
+
+      <!-- Add 2 back to Highway -->
+      <path d="M 612 134 L 622 134 L 622 70" fill="none" stroke="#141413" stroke-width="2" />
+      <circle cx="622" cy="56" r="13" fill="#fef2f2" stroke="#991b1b" stroke-width="2.5" />
+      <text x="622" y="61" text-anchor="middle" fill="#991b1b" font-size="17" font-weight="700">+</text>
+    </svg>
+  </div>
+  <div class="llm-figure-caption">
+    <strong>Figure 2 (Pre-RMSNorm Residual Highway):</strong> Because RMSNorm sits on the branch <em>before</em> GQA and SwiGLU rather than on the main highway, gradients during backpropagation flow straight from {{ transform.ToMath `\mathbf{x}_{l+1}` $m }} to {{ transform.ToMath `\mathbf{x}_l` $m }} through the {{ transform.ToMath `+` $m }} nodes with unit Jacobian ({{ transform.ToMath `\partial \mathbf{x}_L / \partial \mathbf{x}_1 = \mathbf{I} + \dots` $m }}).
   </div>
 </div>

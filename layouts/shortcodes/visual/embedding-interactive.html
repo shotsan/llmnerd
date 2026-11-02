@@ -21,20 +21,20 @@
 
   <!-- Stage -->
   <div class="llm-motion-stage">
-    <div class="llm-math-grid" style="width: 100%; margin: 0; align-items: stretch;">
+    <div class="llm-sim-grid" style="align-items: stretch;">
       <!-- Left: 2D Vector Space -->
-      <div class="llm-math-card" style="align-items: center; justify-content: center; padding: 1rem;">
+      <div class="llm-sim-card" style="align-items: center; justify-content: center; padding: 1rem;">
         <svg id="emb-canvas" viewBox="0 0 340 250" width="100%" style="max-width: 100%; height: auto; display: block; user-select: none;" xmlns="http://www.w3.org/2000/svg">
-          <rect x="2" y="2" width="336" height="246" rx="8" fill="#fafaf9" stroke="#d6d3d1" stroke-width="1.2" />
-          <!-- Grid lines -->
-          <line x1="38" y1="215" x2="320" y2="215" stroke="#a8a29e" stroke-width="1.5" />
-          <line x1="38" y1="20" x2="38" y2="215" stroke="#a8a29e" stroke-width="1.5" />
-          <text x="220" y="236" fill="#57534e" font-size="11" font-weight="600" font-family="sans-serif">Dim 1 (Semantic)</text>
-          <text x="10" y="32" fill="#57534e" font-size="11" font-weight="600" font-family="sans-serif">Dim 2</text>
+          <rect x="2" y="2" width="336" height="246" rx="6" fill="#f5f4f0" stroke="#c2bfb6" stroke-width="1.5" />
+          <!-- Axes -->
+          <line x1="42" y1="212" x2="322" y2="212" stroke="#141413" stroke-width="1.5" />
+          <line x1="42" y1="20" x2="42" y2="212" stroke="#141413" stroke-width="1.5" />
+          <text x="195" y="236" fill="#141413" font-size="13" font-weight="700">Dim 1 (Semantic)</text>
+          <text x="8" y="34" fill="#141413" font-size="13" font-weight="700">Dim 2</text>
 
           <!-- Analogy dashed lines -->
-          <line id="emb-line-mw" x1="0" y1="0" x2="0" y2="0" stroke="#c2410c" stroke-width="2" stroke-dasharray="5 3" />
-          <line id="emb-line-kq" x1="0" y1="0" x2="0" y2="0" stroke="#c2410c" stroke-width="2" stroke-dasharray="5 3" />
+          <line id="emb-line-mw" x1="0" y1="0" x2="0" y2="0" stroke="#991b1b" stroke-width="2.2" stroke-dasharray="5 3" />
+          <line id="emb-line-kq" x1="0" y1="0" x2="0" y2="0" stroke="#991b1b" stroke-width="2.2" stroke-dasharray="5 3" />
 
           <!-- Points group -->
           <g id="emb-points-layer"></g>
@@ -43,33 +43,33 @@
 
       <!-- Right: Live Cosine Similarity Cards -->
       <div style="display: flex; flex-direction: column; gap: 0.75rem; justify-content: center;">
-        <div class="llm-math-card">
-          <div class="llm-math-header">
-            <span class="llm-math-symbol">{{ transform.ToMath `\cos(\mathbf{e}_{\text{cat}}, \mathbf{e}_{\text{kitten}})` $m }}</span>
-            <span class="llm-math-shape" id="emb-sim-cat">+0.982</span>
+        <div class="llm-sim-card">
+          <div class="llm-sim-card-head">
+            <span>{{ transform.ToMath `\cos(\mathbf{x}_{\text{cat}}, \mathbf{x}_{\text{kitten}})` $m }}</span>
+            <span class="llm-focus-pill" id="emb-sim-cat">+0.982</span>
           </div>
-          <div class="llm-math-body" style="padding: 0.65rem 1rem;">
+          <div class="llm-sim-card-body" style="padding: 0.65rem 1rem;">
             <strong>Same Cluster:</strong> Synonyms and shared contexts pull vectors toward nearly identical angles.
           </div>
         </div>
 
-        <div class="llm-math-card">
-          <div class="llm-math-header">
-            <span class="llm-math-symbol">{{ transform.ToMath `\cos(\mathbf{e}_{\text{cat}}, \mathbf{e}_{\text{king}})` $m }}</span>
-            <span class="llm-math-shape" id="emb-sim-unrel">+0.140</span>
+        <div class="llm-sim-card">
+          <div class="llm-sim-card-head">
+            <span>{{ transform.ToMath `\cos(\mathbf{x}_{\text{cat}}, \mathbf{x}_{\text{king}})` $m }}</span>
+            <span class="llm-shape-pill" id="emb-sim-unrel">+0.140</span>
           </div>
-          <div class="llm-math-body" style="padding: 0.65rem 1rem;">
+          <div class="llm-sim-card-body" style="padding: 0.65rem 1rem;">
             <strong>Unrelated:</strong> Unrelated concepts remain nearly orthogonal in high-dimensional space.
           </div>
         </div>
 
-        <div class="llm-math-card">
-          <div class="llm-math-header">
-            <span class="llm-math-symbol" style="font-size: 0.96rem;">{{ transform.ToMath `\mathbf{e}_{\text{king}} - \mathbf{e}_{\text{man}} + \mathbf{e}_{\text{woman}}` $m }}</span>
-            <span class="llm-math-shape" id="emb-analogy-pct">+0.990</span>
+        <div class="llm-sim-card">
+          <div class="llm-sim-card-head">
+            <span>{{ transform.ToMath `\mathbf{x}_{\text{king}} - \mathbf{x}_{\text{man}} + \mathbf{x}_{\text{woman}}` $m }}</span>
+            <span class="llm-focus-pill" id="emb-analogy-pct">+0.990</span>
           </div>
-          <div class="llm-math-body" style="padding: 0.65rem 1rem;">
-            <strong>Linear Analogy ({{ transform.ToMath `\approx \mathbf{e}_{\text{queen}}` $m }}):</strong> Parallel offset vectors connect <code>man &rarr; woman</code> and <code>king &rarr; queen</code>.
+          <div class="llm-sim-card-body" style="padding: 0.65rem 1rem;">
+            <strong>Linear Analogy ({{ transform.ToMath `\approx \mathbf{x}_{\text{queen}}` $m }}):</strong> Parallel offset vectors connect <strong>man &rarr; woman</strong> and <strong>king &rarr; queen</strong>.
           </div>
         </div>
       </div>
@@ -81,7 +81,7 @@
     <span id="emb-caption-text">
       <strong>Converged Manifold (100%):</strong> Feline nouns cluster in the bottom-left while royalty/gender pairs form a geometric parallelogram in the upper-right.
     </span>
-    <span class="llm-badge llm-badge-blue" id="emb-stage-badge">Converged</span>
+    <span class="llm-focus-pill" id="emb-stage-badge">Converged</span>
   </div>
 
   <!-- Controls -->
@@ -105,13 +105,13 @@
 <script>
 (function() {
   const words = [
-    { label: 'cat',    color: '#292524', x0: 165, y0: 115, x1: 82,  y1: 172 },
-    { label: 'kitten', color: '#292524', x0: 210, y0: 145, x1: 108, y1: 186 },
-    { label: 'dog',    color: '#57534e', x0: 135, y0: 85,  x1: 122, y1: 148 },
-    { label: 'man',    color: '#c2410c', x0: 190, y0: 125, x1: 195, y1: 115 },
-    { label: 'woman',  color: '#c2410c', x0: 145, y0: 155, x1: 262, y1: 100 },
-    { label: 'king',   color: '#9a3412', x0: 155, y0: 95,  x1: 205, y1: 52  },
-    { label: 'queen',  color: '#9a3412', x0: 205, y0: 105, x1: 272, y1: 37  }
+    { label: 'cat',    color: '#141413', x0: 165, y0: 115, x1: 82,  y1: 172 },
+    { label: 'kitten', color: '#141413', x0: 210, y0: 145, x1: 108, y1: 192 },
+    { label: 'dog',    color: '#141413', x0: 135, y0: 85,  x1: 122, y1: 146 },
+    { label: 'man',    color: '#991b1b', x0: 190, y0: 125, x1: 192, y1: 115 },
+    { label: 'woman',  color: '#991b1b', x0: 145, y0: 155, x1: 258, y1: 100 },
+    { label: 'king',   color: '#991b1b', x0: 155, y0: 95,  x1: 202, y1: 52  },
+    { label: 'queen',  color: '#991b1b', x0: 205, y0: 105, x1: 268, y1: 37  }
   ];
 
   const layer = document.getElementById('emb-points-layer');
@@ -161,8 +161,8 @@
     let html = '';
     cur.forEach(function(pt) {
       html += '<g transform="translate(' + pt.x.toFixed(1) + ',' + pt.y.toFixed(1) + ')">';
-      html += '<circle cx="0" cy="0" r="6" fill="' + pt.color + '" stroke="#ffffff" stroke-width="1.5" />';
-      html += '<text x="9" y="4" fill="' + pt.color + '" font-size="12" font-weight="700" font-family="sans-serif">' + pt.label + '</text>';
+      html += '<circle cx="0" cy="0" r="5.5" fill="' + pt.color + '" stroke="#ffffff" stroke-width="1.5" />';
+      html += '<text x="9" y="4" fill="' + pt.color + '" font-size="13" font-weight="700">' + pt.label + '</text>';
       html += '</g>';
     });
     layer.innerHTML = html;
