@@ -1,0 +1,215 @@
+{{- $m := dict "output" "html" "displayMode" false -}}
+{{- $.Page.Store.Set "hasMath" true -}}
+
+<div class="llm-motion-player not-prose" id="chinchilla-motion-root">
+  <!-- Header -->
+  <div class="llm-motion-header">
+    <div>
+      <h3 class="llm-blueprint-title">Chinchilla IsoFLOP &amp; Inference-Aware Over-Training Simulator</h3>
+      <p class="llm-motion-goal">
+        Explore how a fixed pre-training compute budget {{ transform.ToMath `C = 6ND` $m }} trades off model parameters {{ transform.ToMath `N` $m }} against training tokens {{ transform.ToMath `D` $m }}, and why modern models intentionally over-train to {{ transform.ToMath `D/N > 1000` $m }} to minimize inference cost.
+      </p>
+    </div>
+
+    <div class="llm-param-bar">
+      <div class="llm-param-item">
+        <span class="llm-param-label">Compute C:</span>
+        <span class="llm-param-val">3.4 &times; 10<sup>23</sup> FLOPs</span>
+      </div>
+      <div class="llm-param-item" style="padding-left: 0.75rem; border-left: 1px solid #c2bfb6;">
+        <span class="llm-param-label">Ratio D / N:</span>
+        <span id="chin-ratio-val" class="llm-param-val">20 : 1</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Stage -->
+  <div class="llm-motion-stage">
+    <div class="llm-sim-grid" style="align-items: stretch;">
+      <!-- Left: IsoFLOP Parabola SVG -->
+      <div class="llm-sim-card" style="align-items: center; justify-content: center; padding: 1rem;">
+        <svg id="chin-svg" viewBox="0 0 360 240" width="100%" style="max-width: 100%; height: auto; display: block;" xmlns="http://www.w3.org/2000/svg">
+          <rect x="2" y="2" width="356" height="236" rx="6" fill="#f5f4f0" stroke="#c2bfb6" stroke-width="1.5" />
+          <!-- Axes -->
+          <line x1="48" y1="196" x2="338" y2="196" stroke="#141413" stroke-width="1.5" />
+          <line x1="48" y1="24" x2="48" y2="196" stroke="#141413" stroke-width="1.5" />
+          <text x="193" y="224" text-anchor="middle" fill="#141413" font-size="13" font-weight="700">Model Size N (Billions of Params, log scale)</text>
+          <text x="16" y="36" fill="#141413" font-size="13" font-weight="700">Loss L</text>
+
+          <!-- IsoFLOP Curve -->
+          <path d="M 65 142 Q 192 26 320 148" fill="none" stroke="#141413" stroke-width="2.2" transform="scale(1,-1) translate(0,-220)" />
+
+          <!-- Chinchilla Optimal Vertical Line -->
+          <line x1="192" y1="30" x2="192" y2="196" stroke="#c2bfb6" stroke-width="1.5" stroke-dasharray="4 3" />
+          <text x="192" y="44" text-anchor="middle" fill="#141413" font-size="13" font-weight="700">Chinchilla Min (53B)</text>
+
+          <!-- Active Regime Point -->
+          <circle id="chin-active-dot" cx="192" cy="136" r="7" fill="#fef2f2" stroke="#991b1b" stroke-width="2.5" />
+          <text id="chin-active-lbl" x="192" y="160" text-anchor="middle" fill="#991b1b" font-size="13" font-weight="700">Chinchilla (D/N = 20)</text>
+
+          <!-- X-axis tick labels -->
+          <text x="78" y="210" text-anchor="middle" fill="#141413" font-size="13" font-weight="600">8B</text>
+          <text x="192" y="210" text-anchor="middle" fill="#141413" font-size="13" font-weight="600">53B</text>
+          <text x="308" y="210" text-anchor="middle" fill="#141413" font-size="13" font-weight="600">175B</text>
+        </svg>
+      </div>
+
+      <!-- Right: Live Allocation & Inference Cost Readouts -->
+      <div style="display: flex; flex-direction: column; gap: 0.75rem; justify-content: center;">
+        <div class="llm-sim-card">
+          <div class="llm-sim-card-head">
+            <span>Model Parameters ({{ transform.ToMath `N` $m }}) &amp; Tokens ({{ transform.ToMath `D` $m }})</span>
+            <span class="llm-focus-pill" id="chin-nd-pill">N = 53B, D = 1.1T</span>
+          </div>
+          <div class="llm-sim-card-body" style="padding: 0.65rem 1rem;" id="chin-nd-desc">
+            Balanced scaling where finite-capacity error {{ transform.ToMath `A/N^\alpha` $m }} and finite-data error {{ transform.ToMath `B/D^\beta` $m }} are equalized.
+          </div>
+        </div>
+
+        <div class="llm-sim-card">
+          <div class="llm-sim-card-head">
+            <span>Predicted Cross-Entropy Loss {{ transform.ToMath `L(N, D)` $m }}</span>
+            <span class="llm-shape-pill" id="chin-loss-pill">1.942 nats</span>
+          </div>
+          <div class="llm-sim-card-body" style="padding: 0.65rem 1rem;">
+            Decomposes into {{ transform.ToMath `E = 1.690` $m }} + model error <strong id="chin-err-n">0.126</strong> + data error <strong id="chin-err-d">0.126</strong>.
+          </div>
+        </div>
+
+        <div class="llm-sim-card">
+          <div class="llm-sim-card-head">
+            <span>Serving VRAM (FP16) &amp; Decode Latency</span>
+            <span class="llm-focus-pill" id="chin-vram-pill">106 GB (2&times; H100)</span>
+          </div>
+          <div class="llm-sim-card-body" style="padding: 0.65rem 1rem;" id="chin-vram-desc">
+            Requires multi-GPU tensor parallelism to fit weights in HBM.
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Live Narration Caption -->
+  <div class="llm-motion-caption">
+    <span id="chin-caption-text"></span>
+    <span class="llm-focus-pill" id="chin-regime-badge">Regime 2 / 3</span>
+  </div>
+
+  <!-- Controls -->
+  <div class="llm-motion-controls">
+    <div class="llm-btn-group">
+      <button type="button" class="llm-btn-step" id="chin-btn-0">1. GPT-3 Under-Trained (175B / 300B)</button>
+      <button type="button" class="llm-btn-play" id="chin-btn-1">2. Chinchilla Optimal (53B / 1.1T)</button>
+      <button type="button" class="llm-btn-step" id="chin-btn-2">3. LLaMA-3 Over-Trained (8B / 7.1T)</button>
+    </div>
+
+    <div class="llm-scrubber-group">
+      <span class="llm-scrubber-label">Allocation:</span>
+      <input type="range" id="chin-scrubber" class="llm-scrubber" min="0" max="2" step="1" value="1">
+    </div>
+  </div>
+</div>
+
+<script>
+(function() {
+  const regimes = [
+    {
+      ratio: '1.7 : 1',
+      cx: 308,
+      cy: 84,
+      lbl: 'GPT-3 (D/N = 1.7)',
+      ndPill: 'N = 175B, D = 320B',
+      ndDesc: '<strong>Parameter-Heavy / Token-Starved:</strong> Massive 175B parameter matrix trained on only 320B tokens.',
+      lossPill: '2.048 nats',
+      errN: '0.084',
+      errD: '0.274',
+      vramPill: '350 GB (5× H100)',
+      vramDesc: 'Extremely expensive to serve: streaming 350 GB from HBM per generated token.',
+      badge: 'Regime 1 / 3 (Token-Starved)',
+      caption: '<strong>Regime 1 (GPT-3 175B Era):</strong> Allocating compute overwhelmingly to parameters N starves the model of tokens D, inflating data estimation error (0.274 nats) and requiring 5× H100 GPUs for inference.'
+    },
+    {
+      ratio: '20 : 1',
+      cx: 192,
+      cy: 136,
+      lbl: 'Chinchilla (D/N = 20)',
+      ndPill: 'N = 53B, D = 1.1T',
+      ndDesc: '<strong>Chinchilla Compute-Optimal:</strong> Equalizes marginal loss derivatives ∂L/∂N and ∂L/∂D.',
+      lossPill: '1.942 nats (Min)',
+      errN: '0.126',
+      errD: '0.126',
+      vramPill: '106 GB (2× H100)',
+      vramDesc: 'Achieves the lowest possible pre-training loss for 3.4×10²³ FLOPs.',
+      badge: 'Regime 2 / 3 (Chinchilla Optimal)',
+      caption: '<strong>Regime 2 (Chinchilla 20:1 Law):</strong> Shrinking parameters from 175B to 53B and increasing tokens 3.4× to 1.1T reaches the global minimum loss (1.942 nats) for the exact same training FLOP budget.'
+    },
+    {
+      ratio: '885 : 1',
+      cx: 78,
+      cy: 92,
+      lbl: 'LLaMA-3 Style (D/N = 885)',
+      ndPill: 'N = 8B, D = 7.1T',
+      ndDesc: '<strong>Inference-Aware Over-Training:</strong> Concentrates 7.1T high-quality tokens into a compact 8B model.',
+      lossPill: '1.988 nats',
+      errN: '0.238',
+      errD: '0.060',
+      vramPill: '16 GB (1× Consumer GPU)',
+      vramDesc: 'Fits on a single 16 GB GPU with 6.6× faster token generation throughput.',
+      badge: 'Regime 3 / 3 (Inference-Optimal)',
+      caption: '<strong>Regime 3 (Modern Over-Training — LLaMA 3 / Qwen):</strong> Accepting a slight training FLOP penalty to train an 8B model on 7.1T+ tokens slashes inference VRAM from 106 GB to 16 GB.'
+    }
+  ];
+
+  const ratioVal = document.getElementById('chin-ratio-val');
+  const dot = document.getElementById('chin-active-dot');
+  const lbl = document.getElementById('chin-active-lbl');
+  const ndPill = document.getElementById('chin-nd-pill');
+  const ndDesc = document.getElementById('chin-nd-desc');
+  const lossPill = document.getElementById('chin-loss-pill');
+  const errN = document.getElementById('chin-err-n');
+  const errD = document.getElementById('chin-err-d');
+  const vramPill = document.getElementById('chin-vram-pill');
+  const vramDesc = document.getElementById('chin-vram-desc');
+  const captionEl = document.getElementById('chin-caption-text');
+  const badgeEl = document.getElementById('chin-regime-badge');
+  const scrubber = document.getElementById('chin-scrubber');
+  const btns = [
+    document.getElementById('chin-btn-0'),
+    document.getElementById('chin-btn-1'),
+    document.getElementById('chin-btn-2')
+  ];
+
+  function renderRegime(idx) {
+    const r = regimes[idx];
+    scrubber.value = idx;
+    ratioVal.textContent = r.ratio;
+    dot.setAttribute('cx', r.cx);
+    dot.setAttribute('cy', r.cy);
+    lbl.setAttribute('x', r.cx);
+    lbl.setAttribute('y', r.cy + 24);
+    lbl.textContent = r.lbl;
+    ndPill.textContent = r.ndPill;
+    ndDesc.innerHTML = r.ndDesc;
+    lossPill.textContent = r.lossPill;
+    errN.textContent = r.errN;
+    errD.textContent = r.errD;
+    vramPill.textContent = r.vramPill;
+    vramDesc.textContent = r.vramDesc;
+    captionEl.innerHTML = r.caption;
+    badgeEl.textContent = r.badge;
+
+    btns.forEach(function(b, i) {
+      b.className = (i === idx) ? 'llm-btn-play' : 'llm-btn-step';
+    });
+  }
+
+  btns.forEach(function(b, i) {
+    b.addEventListener('click', function() { renderRegime(i); });
+  });
+  scrubber.addEventListener('input', function() {
+    renderRegime(parseInt(scrubber.value, 10));
+  });
+
+  renderRegime(1);
+})();
+</script>

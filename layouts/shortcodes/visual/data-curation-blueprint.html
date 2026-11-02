@@ -1,0 +1,113 @@
+{{- $m := dict "output" "html" "displayMode" false -}}
+{{- $.Page.Store.Set "hasMath" true -}}
+
+<!-- 1. Scaling Law & Data Curation Notation Table -->
+<div class="llm-table-wrap not-prose">
+  <table class="llm-notation-table">
+    <thead>
+      <tr>
+        <th style="width: 26%;">Symbol / Quantity</th>
+        <th style="width: 24%;">Scaling / Domain</th>
+        <th style="width: 50%;">Physical &amp; Statistical Meaning</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>{{ transform.ToMath `C \approx 6 N D` $m }}</td>
+        <td><span class="llm-shape-pill">{{ transform.ToMath `\text{FLOPs}` $m }}</span></td>
+        <td><strong>Dense Pre-Training Compute Budget:</strong> Total floating-point operations to train a dense Transformer of {{ transform.ToMath `N` $m }} non-embedding parameters over {{ transform.ToMath `D` $m }} tokens ({{ transform.ToMath `2ND` $m }} forward + {{ transform.ToMath `4ND` $m }} backward).</td>
+      </tr>
+      <tr>
+        <td>{{ transform.ToMath `L(N, D) = E + \frac{A}{N^\alpha} + \frac{B}{D^\beta}` $m }}</td>
+        <td><span class="llm-shape-pill">{{ transform.ToMath `\text{nats / token}` $m }}</span></td>
+        <td><strong>Chinchilla Parametric Loss Law:</strong> Decomposes cross-entropy test loss into irreducible natural text entropy {{ transform.ToMath `E \approx 1.69` $m }}, finite-capacity approximation error {{ transform.ToMath `A/N^\alpha` $m }}, and finite-sample estimation error {{ transform.ToMath `B/D^\beta` $m }}.</td>
+      </tr>
+      <tr>
+        <td>{{ transform.ToMath `N_{\mathrm{opt}} \propto C^{0.5},\; D_{\mathrm{opt}} \propto C^{0.5}` $m }}</td>
+        <td><span class="llm-focus-pill">{{ transform.ToMath `D / N \approx 20` $m }}</span></td>
+        <td><strong>Compute-Optimal Allocation (Hoffmann et al. 2022):</strong> Because {{ transform.ToMath `\alpha \approx \beta \approx 0.34` $m }}, model parameters {{ transform.ToMath `N` $m }} and training tokens {{ transform.ToMath `D` $m }} must scale equally (~20 tokens per parameter for training-optimal loss).</td>
+      </tr>
+      <tr>
+        <td>{{ transform.ToMath `J(S_1, S_2) = \frac{|S_1 \cap S_2|}{|S_1 \cup S_2|}` $m }}</td>
+        <td><span class="llm-shape-pill">{{ transform.ToMath `[0, 1]` $m }}</span></td>
+        <td><strong>Jaccard n-Gram Similarity:</strong> Overlap fraction between two documents' 5-gram shingle sets, estimated in {{ transform.ToMath `\mathcal{O}(1)` $m }} time via MinHash signatures and Locality-Sensitive Hashing (LSH).</td>
+      </tr>
+      <tr>
+        <td>{{ transform.ToMath `P_{\mathrm{keep}}(d_A, d_B) = 1 - (1 - s^r)^b` $m }}</td>
+        <td><span class="llm-shape-pill">{{ transform.ToMath `b \text{ bands} \times r \text{ rows}` $m }}</span></td>
+        <td><strong>LSH Collision S-Curve:</strong> Probability that two documents with Jaccard similarity {{ transform.ToMath `s` $m }} collide in at least one of {{ transform.ToMath `b` $m }} hash bands of {{ transform.ToMath `r` $m }} rows each, with threshold {{ transform.ToMath `\tau \approx (1/b)^{1/r}` $m }}.</td>
+      </tr>
+    </tbody>
+  </table>
+</div>
+
+<!-- 2. Multi-Stage Web Corpus Curation Funnel Schematic -->
+<div class="llm-figure not-prose">
+  <div class="llm-figure-head">
+    <h3 class="llm-figure-title">Frontier Pre-Training Data Curation Funnel (FineWeb / LLaMA 3 Scale: 100T &rarr; 15T Tokens)</h3>
+  </div>
+  <div class="llm-figure-body">
+    <svg viewBox="0 0 700 185" width="100%" style="max-width: 700px; height: auto; display: block;" xmlns="http://www.w3.org/2000/svg">
+      <!-- Stage 1: Raw CommonCrawl -->
+      <g transform="translate(14, 24)">
+        <rect x="0" y="0" width="144" height="136" rx="5" fill="#f5f4f0" stroke="#141413" stroke-width="2" />
+        <text x="72" y="28" text-anchor="middle" fill="#141413" font-size="14" font-weight="700">1. Raw Crawl</text>
+        <line x1="14" y1="38" x2="130" y2="38" stroke="#c2bfb6" stroke-width="1.5" />
+        <text x="72" y="64" text-anchor="middle" fill="#141413" font-size="14" font-weight="700">~100T Tokens</text>
+        <text x="72" y="90" text-anchor="middle" fill="#141413" font-size="13" font-weight="600">HTML Boilerplate</text>
+        <text x="72" y="114" text-anchor="middle" fill="#141413" font-size="13" font-weight="600">trafilatura Extract</text>
+      </g>
+
+      <!-- Arrow 1 -->
+      <g transform="translate(158, 76)">
+        <line x1="0" y1="16" x2="26" y2="16" stroke="#141413" stroke-width="2" />
+        <polygon points="26,11 34,16 26,21" fill="#141413" />
+      </g>
+
+      <!-- Stage 2: Heuristic & Language Filter -->
+      <g transform="translate(192, 34)">
+        <rect x="0" y="0" width="144" height="116" rx="5" fill="#ffffff" stroke="#141413" stroke-width="2" />
+        <text x="72" y="26" text-anchor="middle" fill="#141413" font-size="14" font-weight="700">2. Heuristics</text>
+        <line x1="14" y1="36" x2="130" y2="36" stroke="#c2bfb6" stroke-width="1.5" />
+        <text x="72" y="60" text-anchor="middle" fill="#141413" font-size="14" font-weight="700">~48T Tokens</text>
+        <text x="72" y="84" text-anchor="middle" fill="#141413" font-size="13" font-weight="600">fastText LangID</text>
+        <text x="72" y="104" text-anchor="middle" fill="#141413" font-size="13" font-weight="600">C4 / Gopher Rules</text>
+      </g>
+
+      <!-- Arrow 2 -->
+      <g transform="translate(336, 76)">
+        <line x1="0" y1="16" x2="26" y2="16" stroke="#991b1b" stroke-width="2.2" />
+        <polygon points="26,11 34,16 26,21" fill="#991b1b" />
+      </g>
+
+      <!-- Stage 3: MinHash LSH Deduplication (Highlighted Critical Bottleneck) -->
+      <g transform="translate(370, 24)">
+        <rect x="0" y="0" width="154" height="136" rx="5" fill="#fef2f2" stroke="#991b1b" stroke-width="2.2" />
+        <text x="77" y="28" text-anchor="middle" fill="#991b1b" font-size="14" font-weight="700">3. MinHash LSH</text>
+        <line x1="14" y1="38" x2="140" y2="38" stroke="#991b1b" stroke-width="1.5" />
+        <text x="77" y="64" text-anchor="middle" fill="#991b1b" font-size="14" font-weight="700">~22T Tokens</text>
+        <text x="77" y="90" text-anchor="middle" fill="#141413" font-size="13" font-weight="700">5-Gram Shingles</text>
+        <text x="77" y="114" text-anchor="middle" fill="#991b1b" font-size="13" font-weight="700">Drops 54% Clones</text>
+      </g>
+
+      <!-- Arrow 3 -->
+      <g transform="translate(524, 76)">
+        <line x1="0" y1="16" x2="26" y2="16" stroke="#141413" stroke-width="2" />
+        <polygon points="26,11 34,16 26,21" fill="#141413" />
+      </g>
+
+      <!-- Stage 4: Model Classifier & Domain Annealing -->
+      <g transform="translate(558, 34)">
+        <rect x="0" y="0" width="128" height="116" rx="5" fill="#ffffff" stroke="#141413" stroke-width="2" />
+        <text x="64" y="26" text-anchor="middle" fill="#141413" font-size="14" font-weight="700">4. Classifier</text>
+        <line x1="12" y1="36" x2="116" y2="36" stroke="#c2bfb6" stroke-width="1.5" />
+        <text x="64" y="60" text-anchor="middle" fill="#991b1b" font-size="14" font-weight="700">15T Tokens</text>
+        <text x="64" y="84" text-anchor="middle" fill="#141413" font-size="13" font-weight="600">Quality Scorer</text>
+        <text x="64" y="104" text-anchor="middle" fill="#141413" font-size="13" font-weight="600">Code / Math Mix</text>
+      </g>
+    </svg>
+  </div>
+  <div class="llm-figure-caption">
+    <strong>Figure 1 (The 85% Rejection Funnel):</strong> Out of ~100 trillion raw scraped web tokens, over 85% are discarded. MinHash LSH fuzzy deduplication ({{ transform.ToMath `b = 20, r = 5` $m }}, highlighted in carmine) removes SEO spam and syndicated clones that otherwise trigger double-descent memorization spikes.
+  </div>
+</div>

@@ -1,0 +1,259 @@
+{{- $m := dict "output" "html" "displayMode" false -}}
+{{- $.Page.Store.Set "hasMath" true -}}
+
+<div class="llm-motion-player not-prose" id="cl-sim-root">
+  <!-- Header -->
+  <div class="llm-motion-header">
+    <div>
+      <h3 class="llm-blueprint-title">Stability-Plasticity Pareto Frontier: EWC Regularization &amp; Experience Replay Simulator</h3>
+      <p class="llm-motion-goal">
+        Adjust Fisher regularization strength {{ transform.ToMath `\lambda` $m }} and experience replay buffer mix {{ transform.ToMath `\beta_{\mathrm{replay}}` $m }} to trace the trade-off between prior capability retention (Task A) and new domain plasticity (Task B).
+      </p>
+    </div>
+
+    <div class="llm-param-bar">
+      <div class="llm-param-item">
+        <span class="llm-param-label">Fisher Penalty (&lambda;):</span>
+        <span id="cl-ewc-val" class="llm-param-val">45</span>
+      </div>
+      <div class="llm-param-item" style="padding-left: 0.75rem; border-left: 1px solid #c2bfb6;">
+        <span class="llm-param-label">Replay Mix (&beta;<sub>replay</sub>):</span>
+        <span id="cl-replay-val" class="llm-param-val">5%</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Stage -->
+  <div class="llm-motion-stage" style="padding: 1rem;">
+    <svg id="cl-sim-svg" viewBox="0 0 780 280" width="100%" style="max-width: 100%; height: auto; display: block;" role="img" aria-label="Stability-Plasticity Pareto Trade-Off Simulator">
+      <!-- Background Plot Area -->
+      <rect x="65" y="24" width="445" height="206" fill="#ffffff" stroke="#c2bfb6" stroke-width="1" />
+
+      <!-- Horizontal Gridlines (40%, 55%, 70%, 85%, 100%) -->
+      <line x1="65" y1="230" x2="510" y2="230" stroke="#141413" stroke-width="1.5" />
+      <line x1="65" y1="178.5" x2="510" y2="178.5" stroke="#c2bfb6" stroke-width="1" stroke-dasharray="3,3" />
+      <line x1="65" y1="127" x2="510" y2="127" stroke="#c2bfb6" stroke-width="1" stroke-dasharray="3,3" />
+      <line x1="65" y1="75.5" x2="510" y2="75.5" stroke="#c2bfb6" stroke-width="1" stroke-dasharray="3,3" />
+      <line x1="65" y1="24" x2="510" y2="24" stroke="#c2bfb6" stroke-width="1" stroke-dasharray="3,3" />
+
+      <!-- Y-Axis Labels -->
+      <text x="56" y="234" text-anchor="end" font-family="JetBrains Mono, monospace" font-size="11" fill="#141413">40%</text>
+      <text x="56" y="182.5" text-anchor="end" font-family="JetBrains Mono, monospace" font-size="11" fill="#141413">55%</text>
+      <text x="56" y="131" text-anchor="end" font-family="JetBrains Mono, monospace" font-size="11" fill="#141413">70%</text>
+      <text x="56" y="79.5" text-anchor="end" font-family="JetBrains Mono, monospace" font-size="11" fill="#141413">85%</text>
+      <text x="56" y="28" text-anchor="end" font-family="JetBrains Mono, monospace" font-size="11" fill="#141413">100%</text>
+
+      <!-- X-Axis Labels (lambda = 0 to 150) -->
+      <text x="65" y="248" text-anchor="middle" font-family="JetBrains Mono, monospace" font-size="11" fill="#141413">0</text>
+      <text x="176" y="248" text-anchor="middle" font-family="JetBrains Mono, monospace" font-size="11" fill="#141413">37.5</text>
+      <text x="287.5" y="248" text-anchor="middle" font-family="JetBrains Mono, monospace" font-size="11" fill="#141413">75</text>
+      <text x="399" y="248" text-anchor="middle" font-family="JetBrains Mono, monospace" font-size="11" fill="#141413">112.5</text>
+      <text x="510" y="248" text-anchor="middle" font-family="JetBrains Mono, monospace" font-size="11" fill="#141413">150</text>
+      <text x="287.5" y="268" text-anchor="middle" font-family="Inter, sans-serif" font-size="12" font-weight="600" fill="#141413">Fisher Regularization Penalty (&#955;)</text>
+
+      <!-- Dynamic Curves -->
+      <polyline id="cl-curve-task-a" fill="none" stroke="#141413" stroke-width="2.25" points="" />
+      <polyline id="cl-curve-task-b" fill="none" stroke="#141413" stroke-width="2" stroke-dasharray="5,4" points="" />
+      <polyline id="cl-curve-joint" fill="none" stroke="#991b1b" stroke-width="2.75" points="" />
+
+      <!-- Active Operating Vertical Line & Marker -->
+      <line id="cl-active-line" x1="198" y1="24" x2="198" y2="230" stroke="#991b1b" stroke-width="1.5" stroke-dasharray="3,3" />
+      <circle id="cl-marker-a" cx="198" cy="100" r="4" fill="#141413" />
+      <circle id="cl-marker-b" cx="198" cy="100" r="4" fill="#141413" />
+      <circle id="cl-marker-joint" cx="198" cy="100" r="5.5" fill="#991b1b" />
+
+      <!-- Legend Box -->
+      <rect x="78" y="158" width="248" height="64" rx="3" fill="#f5f4f0" stroke="#c2bfb6" stroke-width="1" />
+      <line x1="90" y1="173" x2="116" y2="173" stroke="#141413" stroke-width="2.25" />
+      <text x="124" y="177" font-family="Inter, sans-serif" font-size="11" font-weight="600" fill="#141413">Prior Capability Retention (Task A)</text>
+      <line x1="90" y1="191" x2="116" y2="191" stroke="#141413" stroke-width="2" stroke-dasharray="4,3" />
+      <text x="124" y="195" font-family="Inter, sans-serif" font-size="11" font-weight="600" fill="#141413">New Domain Plasticity (Task B)</text>
+      <line x1="90" y1="209" x2="116" y2="209" stroke="#991b1b" stroke-width="2.75" />
+      <text x="124" y="213" font-family="Inter, sans-serif" font-size="11" font-weight="700" fill="#991b1b">Joint Continual Accuracy (Mean)</text>
+
+      <!-- Right Readout Panel -->
+      <rect x="530" y="24" width="234" height="206" rx="4" fill="#ffffff" stroke="#141413" stroke-width="1.5" />
+      <text x="647" y="48" text-anchor="middle" font-family="Inter, sans-serif" font-size="12.5" font-weight="700" fill="#141413">Stability-Plasticity Audit</text>
+      <line x1="546" y1="58" x2="748" y2="58" stroke="#c2bfb6" stroke-width="1" />
+
+      <text x="546" y="80" font-family="Inter, sans-serif" font-size="11.5" fill="#141413">Task A Retention:</text>
+      <text x="748" y="80" text-anchor="end" font-family="JetBrains Mono, monospace" font-size="12" font-weight="700" fill="#141413" id="cl-stat-a">87.0%</text>
+
+      <text x="546" y="104" font-family="Inter, sans-serif" font-size="11.5" fill="#141413">Task B Acquisition:</text>
+      <text x="748" y="104" text-anchor="end" font-family="JetBrains Mono, monospace" font-size="12" font-weight="700" fill="#141413" id="cl-stat-b">83.3%</text>
+
+      <text x="546" y="128" font-family="Inter, sans-serif" font-size="11.5" fill="#141413">Forgetting Drop (&#916;A):</text>
+      <text x="748" y="128" text-anchor="end" font-family="JetBrains Mono, monospace" font-size="12" font-weight="700" fill="#141413" id="cl-stat-drop">-5.0%</text>
+
+      <!-- Highlighted Joint Performance Box -->
+      <rect x="544" y="144" width="206" height="72" rx="3" fill="#fef2f2" stroke="#991b1b" stroke-width="1.5" />
+      <text x="554" y="164" font-family="Inter, sans-serif" font-size="11.5" font-weight="700" fill="#991b1b">Joint Mean Accuracy:</text>
+      <text x="740" y="164" text-anchor="end" font-family="JetBrains Mono, monospace" font-size="12.5" font-weight="700" fill="#991b1b" id="cl-stat-joint">85.1%</text>
+
+      <text x="554" y="186" font-family="Inter, sans-serif" font-size="11.5" fill="#991b1b">Optimal &#955;* Frontier:</text>
+      <text x="740" y="186" text-anchor="end" font-family="JetBrains Mono, monospace" font-size="12" font-weight="700" fill="#991b1b" id="cl-stat-opt-lam">&#955;* = 30</text>
+
+      <text x="647" y="206" text-anchor="middle" font-family="JetBrains Mono, monospace" font-size="10.5" fill="#991b1b" id="cl-stat-regime">Balanced Pareto Regime</text>
+    </svg>
+  </div>
+
+  <!-- Live Narration Caption -->
+  <div class="llm-motion-caption">
+    <span id="cl-sim-caption"></span>
+    <span class="llm-focus-pill" id="cl-sim-badge">Laplace Fisher Constraint</span>
+  </div>
+
+  <!-- Controls -->
+  <div class="llm-motion-controls">
+    <div class="llm-btn-group">
+      <button type="button" class="llm-btn-step" id="cl-preset-naive">1. Naive Fine-Tuning (&lambda; = 0, &beta; = 0%)</button>
+      <button type="button" class="llm-btn-play" id="cl-preset-pareto">2. Pareto Optimal (&lambda; = 45, &beta; = 5%)</button>
+      <button type="button" class="llm-btn-step" id="cl-preset-rigid">3. Over-Regularized (&lambda; = 140, &beta; = 0%)</button>
+    </div>
+
+    <div class="llm-scrubber-group">
+      <span class="llm-scrubber-label">Fisher &lambda;:</span>
+      <input type="range" id="cl-ewc-slider" class="llm-scrubber" min="0" max="150" step="5" value="45" />
+      <span class="llm-scrubber-label" style="margin-left: 0.5rem;">Replay &beta;:</span>
+      <input type="range" id="cl-replay-slider" class="llm-scrubber" min="0" max="20" step="1" value="5" />
+    </div>
+  </div>
+</div>
+
+<script>
+(function() {
+  var ewcSlider = document.getElementById('cl-ewc-slider');
+  var replaySlider = document.getElementById('cl-replay-slider');
+  var ewcVal = document.getElementById('cl-ewc-val');
+  var replayVal = document.getElementById('cl-replay-val');
+
+  var curveA = document.getElementById('cl-curve-task-a');
+  var curveB = document.getElementById('cl-curve-task-b');
+  var curveJoint = document.getElementById('cl-curve-joint');
+
+  var activeLine = document.getElementById('cl-active-line');
+  var markerA = document.getElementById('cl-marker-a');
+  var markerB = document.getElementById('cl-marker-b');
+  var markerJoint = document.getElementById('cl-marker-joint');
+
+  var statA = document.getElementById('cl-stat-a');
+  var statB = document.getElementById('cl-stat-b');
+  var statDrop = document.getElementById('cl-stat-drop');
+  var statJoint = document.getElementById('cl-stat-joint');
+  var statOptLam = document.getElementById('cl-stat-opt-lam');
+  var statRegime = document.getElementById('cl-stat-regime');
+  var caption = document.getElementById('cl-sim-caption');
+
+  var btnNaive = document.getElementById('cl-preset-naive');
+  var btnPareto = document.getElementById('cl-preset-pareto');
+  var btnRigid = document.getElementById('cl-preset-rigid');
+
+  function computeMetrics(lam, replayPct) {
+    var replayFactor = 1.0 - Math.exp(-replayPct / 6.0);
+    var floorA = 52.0 + 32.0 * replayFactor;
+    var accA = 92.0 - (92.0 - floorA) * Math.exp(-lam / 32.0);
+
+    var ceilingB = 94.0 - 0.12 * replayPct;
+    var accB = 54.0 + (ceilingB - 54.0) * Math.exp(-Math.pow(lam / 105.0, 1.45));
+
+    var joint = 0.5 * (accA + accB);
+    return { a: accA, b: accB, joint: joint };
+  }
+
+  function xCoord(lam) {
+    return 65 + (lam / 150.0) * 445;
+  }
+
+  function yCoord(accPct) {
+    var clamped = Math.max(40, Math.min(100, accPct));
+    return 230 - ((clamped - 40.0) / 60.0) * 206;
+  }
+
+  function updateSim() {
+    var lam = parseInt(ewcSlider.value, 10);
+    var replay = parseInt(replaySlider.value, 10);
+
+    ewcVal.textContent = lam;
+    replayVal.textContent = replay + '%';
+
+    var ptsA = [];
+    var ptsB = [];
+    var ptsJoint = [];
+    var bestLam = 0;
+    var bestJoint = -1;
+
+    for (var l = 0; l <= 150; l += 5) {
+      var m = computeMetrics(l, replay);
+      var x = xCoord(l).toFixed(1);
+      ptsA.push(x + ',' + yCoord(m.a).toFixed(1));
+      ptsB.push(x + ',' + yCoord(m.b).toFixed(1));
+      ptsJoint.push(x + ',' + yCoord(m.joint).toFixed(1));
+
+      if (m.joint > bestJoint) {
+        bestJoint = m.joint;
+        bestLam = l;
+      }
+    }
+
+    curveA.setAttribute('points', ptsA.join(' '));
+    curveB.setAttribute('points', ptsB.join(' '));
+    curveJoint.setAttribute('points', ptsJoint.join(' '));
+
+    var cur = computeMetrics(lam, replay);
+    var curX = xCoord(lam).toFixed(1);
+
+    activeLine.setAttribute('x1', curX);
+    activeLine.setAttribute('x2', curX);
+    markerA.setAttribute('cx', curX);
+    markerA.setAttribute('cy', yCoord(cur.a).toFixed(1));
+    markerB.setAttribute('cx', curX);
+    markerB.setAttribute('cy', yCoord(cur.b).toFixed(1));
+    markerJoint.setAttribute('cx', curX);
+    markerJoint.setAttribute('cy', yCoord(cur.joint).toFixed(1));
+
+    var drop = cur.a - 92.0;
+    statA.textContent = cur.a.toFixed(1) + '%';
+    statB.textContent = cur.b.toFixed(1) + '%';
+    statDrop.textContent = drop.toFixed(1) + '%';
+    statJoint.textContent = cur.joint.toFixed(1) + '%';
+    statOptLam.textContent = 'λ* = ' + bestLam;
+
+    if (cur.a < 75.0) {
+      statRegime.textContent = 'Catastrophic Forgetting';
+    } else if (cur.b < 76.0) {
+      statRegime.textContent = 'Rigid Intransigence';
+    } else {
+      statRegime.textContent = 'Balanced Pareto Regime';
+    }
+
+    btnNaive.className = (lam === 0 && replay === 0) ? 'llm-btn-play' : 'llm-btn-step';
+    btnPareto.className = (lam === 45 && replay === 5) ? 'llm-btn-play' : 'llm-btn-step';
+    btnRigid.className = (lam === 140 && replay === 0) ? 'llm-btn-play' : 'llm-btn-step';
+
+    caption.innerHTML = '<strong>Stability-Plasticity Equilibrium:</strong> At &lambda; = ' + lam + ' and &beta;<sub>replay</sub> = ' + replay + '%, Task A retention is ' + cur.a.toFixed(1) + '% (forgetting &Delta;A = ' + drop.toFixed(1) + '%) and Task B accuracy is ' + cur.b.toFixed(1) + '% (Joint Mean = ' + cur.joint.toFixed(1) + '%). Maximum joint performance occurs at &lambda;* = ' + bestLam + '.';
+  }
+
+  ewcSlider.addEventListener('input', updateSim);
+  replaySlider.addEventListener('input', updateSim);
+
+  btnNaive.addEventListener('click', function() {
+    ewcSlider.value = 0;
+    replaySlider.value = 0;
+    updateSim();
+  });
+
+  btnPareto.addEventListener('click', function() {
+    ewcSlider.value = 45;
+    replaySlider.value = 5;
+    updateSim();
+  });
+
+  btnRigid.addEventListener('click', function() {
+    ewcSlider.value = 140;
+    replaySlider.value = 0;
+    updateSim();
+  });
+
+  updateSim();
+})();
+</script>

@@ -1,0 +1,222 @@
+{{- $m := dict "output" "html" "displayMode" false -}}
+{{- $.Page.Store.Set "hasMath" true -}}
+
+<div class="llm-motion-player not-prose" id="roof-motion-root">
+  <!-- Header -->
+  <div class="llm-motion-header">
+    <div>
+      <h3 class="llm-blueprint-title">GPU Roofline &amp; Quantization Throughput Simulator (LLaMA-3 70B on H100 SXM)</h3>
+      <p class="llm-motion-goal">
+        Adjust the concurrent batch size {{ transform.ToMath `B` $m }} and weight precision (FP16 vs. INT8 vs. INT4 AWQ) to see where autoregressive decoding transitions from the HBM memory-bandwidth slope to the Tensor Core compute ceiling.
+      </p>
+    </div>
+
+    <div class="llm-param-bar">
+      <div class="llm-param-item">
+        <label for="roof-batch-slider" class="llm-param-label">Batch B:</label>
+        <input type="range" id="roof-batch-slider" min="1" max="512" step="1" value="8" style="width: 85px; accent-color: #991b1b; cursor: pointer;">
+        <span id="roof-batch-val" class="llm-param-val">8</span>
+      </div>
+      <div class="llm-param-item" style="padding-left: 0.75rem; border-left: 1px solid #c2bfb6;">
+        <span class="llm-param-label">Precision:</span>
+        <span id="roof-prec-val" class="llm-param-val">FP16 (16-bit)</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Stage -->
+  <div class="llm-motion-stage">
+    <div class="llm-sim-grid" style="align-items: stretch;">
+      <!-- Left: Log-Log Roofline Plot -->
+      <div class="llm-sim-card" style="align-items: center; justify-content: center; padding: 1rem;">
+        <svg id="roof-svg" viewBox="0 0 360 240" width="100%" style="max-width: 100%; height: auto; display: block;" xmlns="http://www.w3.org/2000/svg">
+          <rect x="2" y="2" width="356" height="236" rx="6" fill="#f5f4f0" stroke="#c2bfb6" stroke-width="1.5" />
+          <!-- Axes -->
+          <line x1="48" y1="196" x2="338" y2="196" stroke="#141413" stroke-width="1.5" />
+          <line x1="48" y1="24" x2="48" y2="196" stroke="#141413" stroke-width="1.5" />
+          <text x="193" y="224" text-anchor="middle" fill="#141413" font-size="13" font-weight="700">Arithmetic Intensity I (FLOPs / Byte, log scale)</text>
+          <text x="12" y="34" fill="#141413" font-size="13" font-weight="700">TFLOP/s</text>
+
+          <!-- Roofline Boundary: Memory Slope (48,186 -> 236,48) + Compute Flat Ceiling (236,48 -> 334,48) -->
+          <polyline points="48,186 236,48 334,48" fill="none" stroke="#141413" stroke-width="2.5" />
+
+          <!-- Ridge Point Vertical Line -->
+          <line x1="236" y1="48" x2="236" y2="196" stroke="#c2bfb6" stroke-width="1.5" stroke-dasharray="4 3" />
+          <text x="236" y="38" text-anchor="middle" fill="#141413" font-size="13" font-weight="700">Ridge (295 FLOPs/B)</text>
+
+          <!-- Zone Labels -->
+          <text x="120" y="92" fill="#141413" font-size="13" font-weight="700">HBM Bandwidth Slope</text>
+          <text x="285" y="66" text-anchor="middle" fill="#141413" font-size="13" font-weight="700">Compute Ceiling</text>
+
+          <!-- Active Operating Point -->
+          <circle id="roof-dot" cx="110" cy="140" r="7" fill="#fef2f2" stroke="#991b1b" stroke-width="2.5" />
+          <text id="roof-dot-lbl" x="110" y="164" text-anchor="middle" fill="#991b1b" font-size="13" font-weight="700">I = 8.0 FLOPs/B</text>
+        </svg>
+      </div>
+
+      <!-- Right: Hardware Readouts -->
+      <div style="display: flex; flex-direction: column; gap: 0.75rem; justify-content: center;">
+        <div class="llm-sim-card">
+          <div class="llm-sim-card-head">
+            <span>Model Weight Footprint in HBM</span>
+            <span class="llm-shape-pill" id="roof-read-mem">140.0 GB</span>
+          </div>
+          <div class="llm-sim-card-body" style="padding: 0.65rem 1rem;">
+            Every decode step streams the entire weight matrix across the {{ transform.ToMath `3.35\text{ TB/s}` $m }} HBM3 bus.
+          </div>
+        </div>
+
+        <div class="llm-sim-card">
+          <div class="llm-sim-card-head">
+            <span>Arithmetic Intensity {{ transform.ToMath `I` $m }} &amp; Compute Util</span>
+            <span class="llm-focus-pill" id="roof-read-int">8.0 FLOPs/B (2.7% Util)</span>
+          </div>
+          <div class="llm-sim-card-body" style="padding: 0.65rem 1rem;" id="roof-read-bottleneck">
+            <strong>Memory-Bandwidth Bound:</strong> Tensor Cores sit idle 97.3% of the time waiting on HBM weight reads.
+          </div>
+        </div>
+
+        <div class="llm-sim-card">
+          <div class="llm-sim-card-head">
+            <span>System Decode Throughput</span>
+            <span class="llm-focus-pill" id="roof-read-tps">191 tokens/sec</span>
+          </div>
+          <div class="llm-sim-card-body" style="padding: 0.65rem 1rem;">
+            Per-user speed: <strong id="roof-read-user">23.9 tok/s</strong> ({{ transform.ToMath `T_{\mathrm{step}}` $m }} = <strong id="roof-read-lat">41.8 ms</strong>).
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Live Narration Caption -->
+  <div class="llm-motion-caption">
+    <span id="roof-caption-text"></span>
+    <span class="llm-focus-pill" id="roof-regime-badge">Memory-Bound Decode</span>
+  </div>
+
+  <!-- Controls -->
+  <div class="llm-motion-controls">
+    <div class="llm-btn-group">
+      <button type="button" class="llm-btn-play" id="roof-prec-16">FP16 (2 Bytes/Param)</button>
+      <button type="button" class="llm-btn-step" id="roof-prec-8">FP8 / INT8 (1 Byte/Param)</button>
+      <button type="button" class="llm-btn-step" id="roof-prec-4">INT4 AWQ (0.5 Bytes/Param)</button>
+    </div>
+
+    <div class="llm-scrubber-group">
+      <span class="llm-scrubber-label">Batch B:</span>
+      <input type="range" id="roof-batch-scrubber" class="llm-scrubber" min="1" max="512" step="1" value="8">
+    </div>
+  </div>
+</div>
+
+<script>
+(function() {
+  const bSlider = document.getElementById('roof-batch-slider');
+  const bScrubber = document.getElementById('roof-batch-scrubber');
+  const bVal = document.getElementById('roof-batch-val');
+  const precVal = document.getElementById('roof-prec-val');
+
+  const dot = document.getElementById('roof-dot');
+  const dotLbl = document.getElementById('roof-dot-lbl');
+  const readMem = document.getElementById('roof-read-mem');
+  const readInt = document.getElementById('roof-read-int');
+  const readBot = document.getElementById('roof-read-bottleneck');
+  const readTps = document.getElementById('roof-read-tps');
+  const readUser = document.getElementById('roof-read-user');
+  const readLat = document.getElementById('roof-read-lat');
+  const captionEl = document.getElementById('roof-caption-text');
+  const badgeEl = document.getElementById('roof-regime-badge');
+
+  const btn16 = document.getElementById('roof-prec-16');
+  const btn8 = document.getElementById('roof-prec-8');
+  const btn4 = document.getElementById('roof-prec-4');
+
+  let bytesPerParam = 2.0; // FP16 default
+  let precLabel = 'FP16 (16-bit)';
+
+  function updateRoofline() {
+    const B = parseInt(bSlider.value, 10);
+    bVal.textContent = B;
+    precVal.textContent = precLabel;
+
+    // 70B parameters, H100 3350 GB/s HBM, 989 TFLOP/s peak
+    const weightGB = 70.0 * bytesPerParam;
+    const kvGB = B * 0.08; // ~80MB KV read per sequence at 2k context with GQA
+    const totalBytesGB = weightGB + kvGB;
+    const totalFlopsT = (2.0 * 70.0 * B) / 1000.0; // TFLOPs per step
+    const intensity = (totalFlopsT * 1000.0) / totalBytesGB; // FLOPs / Byte
+
+    const ridge = 295.0;
+    const utilPct = Math.min(100.0, (intensity / ridge) * 100.0);
+
+    // Step time = max(memory_time, compute_time)
+    const memTimeSec = totalBytesGB / 3350.0;
+    const compTimeSec = totalFlopsT / 989.0;
+    const stepTimeSec = Math.max(memTimeSec, compTimeSec);
+    const stepMs = stepTimeSec * 1000.0;
+    const userTokSec = 1.0 / stepTimeSec;
+    const sysTokSec = B * userTokSec;
+
+    // Map log10(intensity) from [0, 3.2] onto roofline polyline
+    const logI = Math.log10(Math.max(1.0, intensity));
+    const logRidge = Math.log10(ridge); // ~2.47
+    let cx, cy;
+    if (intensity <= ridge) {
+      const frac = Math.min(1.0, logI / logRidge);
+      cx = 48 + frac * (236 - 48);
+      cy = 186 - frac * (186 - 48);
+    } else {
+      const frac = Math.min(1.0, (logI - logRidge) / 0.8);
+      cx = 236 + frac * (330 - 236);
+      cy = 48;
+    }
+
+    dot.setAttribute('cx', cx.toFixed(1));
+    dot.setAttribute('cy', cy.toFixed(1));
+    dotLbl.setAttribute('x', Math.min(295, Math.max(95, cx)).toFixed(1));
+    dotLbl.setAttribute('y', (cy + 24).toFixed(1));
+    dotLbl.textContent = 'I = ' + intensity.toFixed(1) + ' FLOPs/B';
+
+    readMem.textContent = weightGB.toFixed(1) + ' GB';
+    readInt.textContent = intensity.toFixed(1) + ' FLOPs/B (' + utilPct.toFixed(1) + '% Util)';
+    readTps.textContent = Math.round(sysTokSec).toLocaleString() + ' tok/s';
+    readUser.textContent = userTokSec.toFixed(1) + ' tok/s';
+    readLat.textContent = stepMs.toFixed(1) + ' ms';
+
+    if (intensity < ridge) {
+      badgeEl.textContent = 'Memory-Bandwidth Bound';
+      readBot.innerHTML = '<strong>Memory-Bandwidth Bound:</strong> HBM bus is 100% saturated while Tensor Cores run at <strong>' + utilPct.toFixed(1) + '%</strong> capacity.';
+      captionEl.innerHTML = '<strong>Memory Wall Regime (I = ' + intensity.toFixed(1) + ' &lt; 295 FLOPs/Byte):</strong> Compressing weights from FP16 to INT4 AWQ cuts HBM traffic 4&times;, directly multiplying single-stream token speed.';
+    } else {
+      badgeEl.textContent = 'Compute-Bound Saturated';
+      readBot.innerHTML = '<strong>Compute-Bound Ceiling:</strong> Batch size is large enough to amortize weight reads and saturate Tensor Cores at 100%.';
+      captionEl.innerHTML = '<strong>Compute-Bound Regime (I = ' + intensity.toFixed(1) + ' &ge; 295 FLOPs/Byte):</strong> Tensor Cores are fully saturated; increasing batch size further increases per-token latency linearly.';
+    }
+  }
+
+  function setPrec(bytes, label, activeBtn) {
+    bytesPerParam = bytes;
+    precLabel = label;
+    [btn16, btn8, btn4].forEach(function(b) {
+      b.className = (b === activeBtn) ? 'llm-btn-play' : 'llm-btn-step';
+    });
+    updateRoofline();
+  }
+
+  btn16.addEventListener('click', function() { setPrec(2.0, 'FP16 (16-bit)', btn16); });
+  btn8.addEventListener('click', function() { setPrec(1.0, 'FP8 / INT8 (8-bit)', btn8); });
+  btn4.addEventListener('click', function() { setPrec(0.5, 'INT4 AWQ (4-bit)', btn4); });
+
+  bSlider.addEventListener('input', function() {
+    bScrubber.value = bSlider.value;
+    updateRoofline();
+  });
+  bScrubber.addEventListener('input', function() {
+    bSlider.value = bScrubber.value;
+    updateRoofline();
+  });
+
+  updateRoofline();
+})();
+</script>

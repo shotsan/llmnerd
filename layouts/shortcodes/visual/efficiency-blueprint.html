@@ -1,0 +1,104 @@
+{{- $m := dict "output" "html" "displayMode" false -}}
+{{- $.Page.Store.Set "hasMath" true -}}
+
+<!-- 1. Systems & Inference Efficiency Notation Table -->
+<div class="llm-table-wrap not-prose">
+  <table class="llm-notation-table">
+    <thead>
+      <tr>
+        <th style="width: 26%;">Symbol / Metric</th>
+        <th style="width: 25%;">Units / Domain</th>
+        <th style="width: 49%;">Hardware &amp; Algorithmic Role</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>{{ transform.ToMath `I = \frac{\text{FLOPs}}{\text{Bytes Transferred}}` $m }}</td>
+        <td><span class="llm-shape-pill">{{ transform.ToMath `\text{FLOPs / Byte}` $m }}</span></td>
+        <td><strong>Arithmetic Intensity:</strong> Ratio of floating-point operations to HBM memory traffic. On an NVIDIA H100 SXM ({{ transform.ToMath `989\text{ TFLOP/s}` $m }} FP16, {{ transform.ToMath `3.35\text{ TB/s}` $m }} HBM3), the ridge point is {{ transform.ToMath `I_{\mathrm{ridge}} \approx 295\text{ FLOPs/Byte}` $m }}.</td>
+      </tr>
+      <tr>
+        <td>{{ transform.ToMath `I_{\mathrm{decode}}(B) \approx B` $m }}</td>
+        <td><span class="llm-focus-pill">{{ transform.ToMath `B \ll 295` $m }}</span></td>
+        <td><strong>Autoregressive Decode Intensity:</strong> Because generating 1 token per request streams all {{ transform.ToMath `2N` $m }} weight bytes from HBM, small-batch decode achieves only {{ transform.ToMath `1\text{--}16\text{ FLOPs/Byte}` $m }} (&lt;5% GPU compute utilization).</td>
+      </tr>
+      <tr>
+        <td>{{ transform.ToMath `\mathbf{W}_q = \operatorname{clamp}(\lfloor \mathbf{W}/\Delta \rceil + z)` $m }}</td>
+        <td><span class="llm-shape-pill">{{ transform.ToMath `\text{INT4 / FP8}` $m }}</span></td>
+        <td><strong>Affine Group Quantization (GPTQ / AWQ):</strong> Compresses 16-bit weights into {{ transform.ToMath `b=4` $m }}-bit integers per group of 128 channels using scale {{ transform.ToMath `\Delta` $m }} and zero-point {{ transform.ToMath `z` $m }}, cutting HBM weight traffic by {{ transform.ToMath `4\times` $m }}.</td>
+      </tr>
+      <tr>
+        <td>{{ transform.ToMath `\alpha(x) = \min\!\left(1,\, \frac{p_{\mathrm{target}}(x)}{q_{\mathrm{draft}}(x)}\right)` $m }}</td>
+        <td><span class="llm-focus-pill">{{ transform.ToMath `p(x) = p_{\mathrm{target}}(x)` $m }}</span></td>
+        <td><strong>Speculative Decoding Acceptance Rule:</strong> Accepts K drafted tokens from a small draft model {{ transform.ToMath `q` $m }} in a single parallel target forward pass while guaranteeing the exact target distribution {{ transform.ToMath `p_{\mathrm{target}}(x)` $m }}.</td>
+      </tr>
+      <tr>
+        <td>{{ transform.ToMath `M_{\mathrm{ZeRO-3}} = \frac{16 \Psi}{N_{\mathrm{GPU}}}` $m }}</td>
+        <td><span class="llm-shape-pill">{{ transform.ToMath `\text{Bytes / GPU}` $m }}</span></td>
+        <td><strong>ZeRO-3 / FSDP Sharded Training State:</strong> Partitions FP16 parameters ({{ transform.ToMath `2\Psi` $m }}), gradients ({{ transform.ToMath `2\Psi` $m }}), and FP32 Adam states ({{ transform.ToMath `12\Psi` $m }}) across {{ transform.ToMath `N_{\mathrm{GPU}}` $m }} ranks.</td>
+      </tr>
+    </tbody>
+  </table>
+</div>
+
+<!-- 2. Speculative Decoding Tree & Parallel Verification Schematic -->
+<div class="llm-figure not-prose">
+  <div class="llm-figure-head">
+    <h3 class="llm-figure-title">Speculative Decoding Parallel Verification (K = 4 Draft Tokens Verified in 1 Target Pass)</h3>
+  </div>
+  <div class="llm-figure-body">
+    <svg viewBox="0 0 700 190" width="100%" style="max-width: 700px; height: auto; display: block;" xmlns="http://www.w3.org/2000/svg">
+      <!-- Top Row: Small Draft Model q(x) -->
+      <text x="16" y="22" fill="#141413" font-size="14" font-weight="700">1. Fast Draft Model q (1B Params) — Serial Speculation (K = 4 Steps, ~2 ms Total)</text>
+      <g transform="translate(16, 32)">
+        <rect x="0" y="0" width="136" height="44" rx="4" fill="#f5f4f0" stroke="#141413" stroke-width="1.5" />
+        <text x="68" y="27" text-anchor="middle" fill="#141413" font-size="13" font-weight="700">Draft 1: "return"</text>
+
+        <line x1="136" y1="22" x2="156" y2="22" stroke="#141413" stroke-width="1.8" />
+        <rect x="156" y="0" width="136" height="44" rx="4" fill="#f5f4f0" stroke="#141413" stroke-width="1.5" />
+        <text x="224" y="27" text-anchor="middle" fill="#141413" font-size="13" font-weight="700">Draft 2: "x"</text>
+
+        <line x1="292" y1="22" x2="312" y2="22" stroke="#141413" stroke-width="1.8" />
+        <rect x="312" y="0" width="136" height="44" rx="4" fill="#f5f4f0" stroke="#141413" stroke-width="1.5" />
+        <text x="380" y="27" text-anchor="middle" fill="#141413" font-size="13" font-weight="700">Draft 3: "+"</text>
+
+        <line x1="448" y1="22" x2="468" y2="22" stroke="#141413" stroke-width="1.8" />
+        <rect x="468" y="0" width="196" height="44" rx="4" fill="#fef2f2" stroke="#991b1b" stroke-width="2" />
+        <text x="566" y="27" text-anchor="middle" fill="#991b1b" font-size="13" font-weight="700">Draft 4: "2" (p/q = 0.15)</text>
+      </g>
+
+      <!-- Parallel Verification Arrows -->
+      <line x1="84" y1="78" x2="84" y2="112" stroke="#141413" stroke-width="1.8" />
+      <polygon points="80,110 84,118 88,110" fill="#141413" />
+      <line x1="240" y1="78" x2="240" y2="112" stroke="#141413" stroke-width="1.8" />
+      <polygon points="236,110 240,118 244,110" fill="#141413" />
+      <line x1="396" y1="78" x2="396" y2="112" stroke="#141413" stroke-width="1.8" />
+      <polygon points="392,110 396,118 400,110" fill="#141413" />
+      <line x1="582" y1="78" x2="582" y2="112" stroke="#991b1b" stroke-width="2" />
+      <polygon points="578,110 582,118 586,110" fill="#991b1b" />
+
+      <!-- Bottom Row: Target Model 1-Pass Parallel Verification -->
+      <text x="16" y="106" fill="#141413" font-size="14" font-weight="700">2. Target Model p (70B) — Single Parallel Forward Pass Verifies All 4 Tokens Simultaneously</text>
+      <g transform="translate(16, 120)">
+        <rect x="0" y="0" width="136" height="52" rx="4" fill="#ffffff" stroke="#141413" stroke-width="2" />
+        <text x="68" y="21" text-anchor="middle" fill="#141413" font-size="13" font-weight="700">Accept "return"</text>
+        <text x="68" y="41" text-anchor="middle" fill="#141413" font-size="13" font-weight="600">p/q = 1.05 &ge; 1</text>
+
+        <rect x="156" y="0" width="136" height="52" rx="4" fill="#ffffff" stroke="#141413" stroke-width="2" />
+        <text x="224" y="21" text-anchor="middle" fill="#141413" font-size="13" font-weight="700">Accept "x"</text>
+        <text x="224" y="41" text-anchor="middle" fill="#141413" font-size="13" font-weight="600">p/q = 0.96 &ge; u</text>
+
+        <rect x="312" y="0" width="136" height="52" rx="4" fill="#ffffff" stroke="#141413" stroke-width="2" />
+        <text x="380" y="21" text-anchor="middle" fill="#141413" font-size="13" font-weight="700">Accept "+"</text>
+        <text x="380" y="41" text-anchor="middle" fill="#141413" font-size="13" font-weight="600">p/q = 1.02 &ge; 1</text>
+
+        <rect x="468" y="0" width="196" height="52" rx="4" fill="#fef2f2" stroke="#991b1b" stroke-width="2" />
+        <text x="566" y="21" text-anchor="middle" fill="#991b1b" font-size="13" font-weight="700">Reject "2" &rarr; Resample "1"</text>
+        <text x="566" y="41" text-anchor="middle" fill="#991b1b" font-size="13" font-weight="700">Emits 4 Exact Tokens in 1 Pass</text>
+      </g>
+    </svg>
+  </div>
+  <div class="llm-figure-caption">
+    <strong>Figure 1:</strong> Verifying {{ transform.ToMath `K = 4` $m }} draft tokens in parallel costs the same HBM weight read as generating 1 token. Even when Draft 4 is rejected, the target model's logits at position 4 immediately yield a corrected token ("1") from {{ transform.ToMath `\operatorname{norm}(\max(0, p - q))` $m }}, producing 4 valid tokens in a single 70B pass.
+  </div>
+</div>
