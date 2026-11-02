@@ -1,0 +1,104 @@
+{{- $m := dict "output" "html" "displayMode" false -}}
+{{- $.Page.Store.Set "hasMath" true -}}
+
+<!-- 1. Next-Gen Systems & Extreme Compression Notation Table -->
+<div class="llm-table-wrap not-prose">
+  <table class="llm-notation-table">
+    <thead>
+      <tr>
+        <th style="width: 28%;">Compression / Routing Operator</th>
+        <th style="width: 24%;">Memory / Compute Gain</th>
+        <th style="width: 48%;">Architectural Role in Next-Gen LLMs</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>{{ transform.ToMath `\mathbf{c}_t^{KV} = \mathbf{W}^{DKV}\mathbf{h}_t \in \mathbb{R}^{d_c}` $m }}</td>
+        <td><span class="llm-focus-pill">{{ transform.ToMath `d_c \ll d_h n_h` $m }}</span></td>
+        <td><strong>Multi-Head Latent Attention (MLA, DeepSeek-V2/V3):</strong> Compresses all keys and values into a single low-rank latent vector {{ transform.ToMath `\mathbf{c}_t^{KV}` $m }} cached in HBM (93.3% KV cut).</td>
+      </tr>
+      <tr>
+        <td>{{ transform.ToMath `\widetilde{\mathbf{W}} = \operatorname{RoundClip}\!\left(\frac{\mathbf{W}}{\gamma + \epsilon}, -1, +1\right)` $m }}</td>
+        <td><span class="llm-focus-pill">{{ transform.ToMath `\widetilde{W}_{ij} \in \{-1, 0, +1\}` $m }}</span></td>
+        <td><strong>1.58-Bit Ternary Weights (BitNet b1.58):</strong> Replaces floating-point multiply-accumulates (MACs) with pure integer additions and subtractions.</td>
+      </tr>
+      <tr>
+        <td>{{ transform.ToMath `\mathbf{x}_l^{i+1} = \begin{cases} r_i \tilde{f}_l(\mathbf{x}_l^i) + \mathbf{x}_l^i & P_\beta \\ \mathbf{x}_l^i & \text{else} \end{cases}` $m }}</td>
+        <td><span class="llm-shape-pill">Top-{{ transform.ToMath `k` $m }} Routing</span></td>
+        <td><strong>Mixture-of-Depths (MoD, Raposo et al. 2024):</strong> Dynamically routes only the top-{{ transform.ToMath `k` $m }} salient tokens through Attention+MLP at layer {{ transform.ToMath `l` $m }}, bypassing the rest via residual identity.</td>
+      </tr>
+      <tr>
+        <td>{{ transform.ToMath `P_\theta^{(k)}(x_{t+k} \mid \mathbf{h}_t^{(L)}) = \operatorname{Softmax}(\mathbf{W}_{\mathrm{lm}} \mathbf{M}_k \mathbf{h}_t^{(L)})` $m }}</td>
+        <td><span class="llm-shape-pill">{{ transform.ToMath `2.5\times\text{--}3.2\times` $m }} Decode</span></td>
+        <td><strong>Multi-Token Prediction (MTP / Medusa):</strong> Predicts {{ transform.ToMath `K` $m }} future tokens simultaneously from parallel projection heads without an external draft model.</td>
+      </tr>
+    </tbody>
+  </table>
+</div>
+
+<!-- 2. Multi-Head Latent Attention (MLA) & BitNet b1.58 Ternary ALU Schematic -->
+<div class="llm-figure not-prose">
+  <div class="llm-figure-head">
+    <h3 class="llm-figure-title">Hardware-Co-Designed Breakthroughs: Multi-Head Latent Attention (MLA) &amp; 1.58-Bit Ternary MatMul</h3>
+  </div>
+  <div class="llm-figure-body">
+    <svg viewBox="0 0 840 256" width="100%" style="max-width: 840px; height: auto; display: block;" role="img" aria-label="Multi-Head Latent Attention MLA and BitNet b1.58 Ternary Arithmetic">
+      <defs>
+        <marker id="eff2-arrow" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+          <path d="M 0 1 L 10 5 L 0 9 z" fill="#141413" />
+        </marker>
+        <marker id="eff2-arrow-red" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+          <path d="M 0 1 L 10 5 L 0 9 z" fill="#991b1b" />
+        </marker>
+      </defs>
+
+      <rect x="2" y="2" width="836" height="252" rx="4" fill="#f5f4f0" stroke="#c2bfb6" stroke-width="1" />
+
+      <!-- Left Panel: Multi-Head Latent Attention (MLA) Low-Rank KV Compression -->
+      <rect x="18" y="18" width="406" height="220" rx="4" fill="#ffffff" stroke="#141413" stroke-width="1.5" />
+      <text x="221" y="42" text-anchor="middle" font-family="Inter, sans-serif" font-size="13" font-weight="700" fill="#141413">A. Multi-Head Latent Attention (MLA KV Folding)</text>
+
+      <!-- Hidden State h_t -->
+      <rect x="151" y="194" width="140" height="28" rx="3" fill="#f5f4f0" stroke="#141413" stroke-width="1.5" />
+      <text x="221" y="212" text-anchor="middle" font-family="JetBrains Mono, monospace" font-size="11.5" font-weight="700" fill="#141413">Hidden h<tspan baseline-shift="sub" font-size="8.5">t</tspan> &#8712; R<tspan baseline-shift="super" font-size="8.5">7168</tspan></text>
+
+      <line x1="221" y1="194" x2="221" y2="170" stroke="#991b1b" stroke-width="1.75" marker-end="url(#eff2-arrow-red)" />
+
+      <!-- Compressed Latent KV Vector c_t^KV (Highlighted) -->
+      <rect x="91" y="122" width="260" height="44" rx="4" fill="#fef2f2" stroke="#991b1b" stroke-width="2" />
+      <text x="221" y="141" text-anchor="middle" font-family="Inter, sans-serif" font-size="12" font-weight="700" fill="#991b1b">Cached Latent Vector c<tspan baseline-shift="sub" font-size="8.5">t</tspan><tspan baseline-shift="super" font-size="8.5">KV</tspan> = W<tspan baseline-shift="super" font-size="8.5">DKV</tspan>h<tspan baseline-shift="sub" font-size="8.5">t</tspan></text>
+      <text x="221" y="158" text-anchor="middle" font-family="JetBrains Mono, monospace" font-size="11" font-weight="700" fill="#991b1b">d<tspan baseline-shift="sub" font-size="8.5">c</tspan> = 512 (93.3% Smaller HBM KV Cache)</text>
+
+      <!-- Up-Projection Matrix Absorption Arrows -->
+      <line x1="165" y1="122" x2="115" y2="96" stroke="#141413" stroke-width="1.5" marker-end="url(#eff2-arrow)" />
+      <line x1="277" y1="122" x2="327" y2="96" stroke="#141413" stroke-width="1.5" marker-end="url(#eff2-arrow)" />
+
+      <rect x="36" y="56" width="168" height="36" rx="3" fill="#ffffff" stroke="#141413" stroke-width="1.25" />
+      <text x="120" y="72" text-anchor="middle" font-family="JetBrains Mono, monospace" font-size="10.5" font-weight="700" fill="#141413">Absorb W<tspan baseline-shift="super" font-size="8">UK</tspan> into W<tspan baseline-shift="super" font-size="8">Q</tspan></text>
+      <text x="120" y="86" text-anchor="middle" font-family="Inter, sans-serif" font-size="10" fill="#141413">q<tspan baseline-shift="sub" font-size="8">t</tspan><tspan baseline-shift="super" font-size="8">T</tspan> k<tspan baseline-shift="sub" font-size="8">j</tspan> = (W<tspan baseline-shift="super" font-size="8">UK,T</tspan> q<tspan baseline-shift="sub" font-size="8">t</tspan>)<tspan baseline-shift="super" font-size="8">T</tspan> c<tspan baseline-shift="sub" font-size="8">j</tspan><tspan baseline-shift="super" font-size="8">KV</tspan></text>
+
+      <rect x="238" y="56" width="168" height="36" rx="3" fill="#ffffff" stroke="#141413" stroke-width="1.25" />
+      <text x="322" y="72" text-anchor="middle" font-family="JetBrains Mono, monospace" font-size="10.5" font-weight="700" fill="#141413">Absorb W<tspan baseline-shift="super" font-size="8">UV</tspan> into W<tspan baseline-shift="super" font-size="8">O</tspan></text>
+      <text x="322" y="86" text-anchor="middle" font-family="Inter, sans-serif" font-size="10" fill="#141413">Zero Decompression in HBM</text>
+
+      <!-- Right Panel: BitNet b1.58 Ternary Adder-Only Arithmetic -->
+      <rect x="438" y="18" width="384" height="220" rx="4" fill="#ffffff" stroke="#141413" stroke-width="1.5" />
+      <text x="630" y="42" text-anchor="middle" font-family="Inter, sans-serif" font-size="13" font-weight="700" fill="#141413">B. BitNet b1.58 Ternary Adder-Only Matrix Core</text>
+
+      <!-- Standard FP16 MAC Box -->
+      <rect x="456" y="58" width="348" height="68" rx="3" fill="#f5f4f0" stroke="#141413" stroke-width="1.25" />
+      <text x="630" y="78" text-anchor="middle" font-family="Inter, sans-serif" font-size="12" font-weight="700" fill="#141413">Standard FP16 Multiply-Accumulate (MAC)</text>
+      <text x="630" y="97" text-anchor="middle" font-family="JetBrains Mono, monospace" font-size="11" fill="#141413">y<tspan baseline-shift="sub" font-size="8.5">i</tspan> = &#931;<tspan baseline-shift="sub" font-size="8.5">j</tspan> W<tspan baseline-shift="sub" font-size="8.5">ij</tspan><tspan baseline-shift="super" font-size="8.5">(FP16)</tspan> &times; x<tspan baseline-shift="sub" font-size="8.5">j</tspan><tspan baseline-shift="super" font-size="8.5">(FP16)</tspan></text>
+      <text x="630" y="115" text-anchor="middle" font-family="Inter, sans-serif" font-size="11" fill="#141413">Multiplier Energy: ~1.10 pJ per op (16 bits/weight)</text>
+
+      <!-- BitNet Ternary Accumulator Box (Highlighted) -->
+      <rect x="456" y="142" width="348" height="80" rx="4" fill="#fef2f2" stroke="#991b1b" stroke-width="2" />
+      <text x="630" y="164" text-anchor="middle" font-family="Inter, sans-serif" font-size="12" font-weight="700" fill="#991b1b">BitNet b1.58 Ternary Weight W&#771;<tspan baseline-shift="sub" font-size="8.5">ij</tspan> &#8712; {-1, 0, +1}</text>
+      <text x="630" y="185" text-anchor="middle" font-family="JetBrains Mono, monospace" font-size="11.5" font-weight="700" fill="#991b1b">y<tspan baseline-shift="sub" font-size="8.5">i</tspan> = &#931;<tspan baseline-shift="sub" font-size="8.5">W=+1</tspan> x<tspan baseline-shift="sub" font-size="8.5">j</tspan> &minus; &#931;<tspan baseline-shift="sub" font-size="8.5">W=-1</tspan> x<tspan baseline-shift="sub" font-size="8.5">j</tspan> (Zero Multipliers)</text>
+      <text x="630" y="207" text-anchor="middle" font-family="Inter, sans-serif" font-size="11" font-weight="700" fill="#141413">INT8 Adder Energy: ~0.03 pJ (36&times; Lower Compute Energy)</text>
+    </svg>
+  </div>
+  <div class="llm-figure-caption">
+    <strong>Figure 1 (Attention &amp; Matrix Co-Design):</strong> (A) Multi-Head Latent Attention (MLA) projects {{ transform.ToMath `\mathbf{h}_t` $m }} into a 512-dimensional latent vector {{ transform.ToMath `\mathbf{c}_t^{KV}` $m }} and folds the up-projection matrices {{ transform.ToMath `\mathbf{W}^{UK}, \mathbf{W}^{UV}` $m }} directly into {{ transform.ToMath `\mathbf{W}^Q` $m }} and {{ transform.ToMath `\mathbf{W}^O` $m }} during inference. (B) BitNet b1.58 quantizes weights to ternary values {{ transform.ToMath `\{-1, 0, +1\}` $m }} from scratch, replacing floating-point multipliers with pure integer adders.
+  </div>
+</div>

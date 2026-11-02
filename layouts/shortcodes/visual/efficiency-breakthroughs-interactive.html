@@ -1,0 +1,200 @@
+{{- $m := dict "output" "html" "displayMode" false -}}
+{{- $.Page.Store.Set "hasMath" true -}}
+
+<div class="llm-motion-player not-prose" id="mla-sim-root">
+  <!-- Header -->
+  <div class="llm-motion-header">
+    <div>
+      <h3 class="llm-blueprint-title">Attention KV-Cache Evolution: MHA vs. GQA-8 vs. Multi-Head Latent Attention (MLA)</h3>
+      <p class="llm-motion-goal">
+        Compare per-token KV-cache bytes and total memory across a 60-layer frontier model ({{ transform.ToMath `n_h = 128,\; d_h = 128` $m }}) as sequence length {{ transform.ToMath `T` $m }} and MLA latent dimension {{ transform.ToMath `d_c` $m }} vary.
+      </p>
+    </div>
+
+    <div class="llm-param-bar">
+      <div class="llm-param-item">
+        <span class="llm-param-label">Context (T):</span>
+        <span id="mla-ctx-val" class="llm-param-val">64K Tokens</span>
+      </div>
+      <div class="llm-param-item" style="padding-left: 0.75rem; border-left: 1px solid #c2bfb6;">
+        <span class="llm-param-label">MLA Latent (d<sub>c</sub>):</span>
+        <span id="mla-dc-val" class="llm-param-val">512 ( + 64 RoPE)</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Stage -->
+  <div class="llm-motion-stage" style="padding: 1rem;">
+    <svg id="mla-sim-svg" viewBox="0 0 780 270" width="100%" style="max-width: 100%; height: auto; display: block;" role="img" aria-label="MHA vs GQA vs MLA KV Cache Comparison Simulator">
+      <!-- Left Plot: Horizontal Bar Comparison of KV Cache Footprint -->
+      <rect x="18" y="18" width="492" height="234" rx="4" fill="#ffffff" stroke="#c2bfb6" stroke-width="1" />
+      <text x="264" y="42" text-anchor="middle" font-family="Inter, sans-serif" font-size="13" font-weight="700" fill="#141413">Total 60-Layer KV-Cache Memory in HBM (FP16)</text>
+
+      <!-- Bar 1: Standard MHA (128 KV Heads) -->
+      <text x="34" y="76" font-family="Inter, sans-serif" font-size="12" font-weight="700" fill="#141413">1. Standard MHA (128 KV Heads — 2 n<tspan baseline-shift="sub" font-size="8.5">h</tspan> d<tspan baseline-shift="sub" font-size="8.5">h</tspan> elts/token)</text>
+      <rect id="mla-bar-mha" x="34" y="84" width="380" height="26" rx="3" fill="#f5f4f0" stroke="#141413" stroke-width="1.5" />
+      <text id="mla-lbl-mha" x="424" y="101" font-family="JetBrains Mono, monospace" font-size="12" font-weight="700" fill="#141413">251.7 GB</text>
+
+      <!-- Bar 2: Grouped-Query Attention GQA-8 (8 KV Heads) -->
+      <text x="34" y="138" font-family="Inter, sans-serif" font-size="12" font-weight="700" fill="#141413">2. Grouped-Query GQA-8 (8 KV Heads — 2 n<tspan baseline-shift="sub" font-size="8.5">kv</tspan> d<tspan baseline-shift="sub" font-size="8.5">h</tspan> elts/token)</text>
+      <rect id="mla-bar-gqa" x="34" y="146" width="84" height="26" rx="3" fill="#ffffff" stroke="#141413" stroke-width="1.5" />
+      <text id="mla-lbl-gqa" x="128" y="163" font-family="JetBrains Mono, monospace" font-size="12" font-weight="700" fill="#141413">15.7 GB</text>
+
+      <!-- Bar 3: Multi-Head Latent Attention (MLA, Highlighted) -->
+      <text x="34" y="200" font-family="Inter, sans-serif" font-size="12" font-weight="700" fill="#991b1b">3. Multi-Head Latent Attention — MLA (d<tspan baseline-shift="sub" font-size="8.5">c</tspan> + d<tspan baseline-shift="sub" font-size="8.5">R</tspan> elts/token)</text>
+      <rect id="mla-bar-mla" x="34" y="208" width="24" height="26" rx="3" fill="#fef2f2" stroke="#991b1b" stroke-width="2" />
+      <text id="mla-lbl-mla" x="68" y="225" font-family="JetBrains Mono, monospace" font-size="12" font-weight="700" fill="#991b1b">4.42 GB</text>
+
+      <!-- Right Readout Panel -->
+      <rect x="528" y="18" width="234" height="234" rx="4" fill="#ffffff" stroke="#141413" stroke-width="1.5" />
+      <text x="645" y="42" text-anchor="middle" font-family="Inter, sans-serif" font-size="12.5" font-weight="700" fill="#141413">Per-Token KV Audit</text>
+      <line x1="544" y1="52" x2="746" y2="52" stroke="#c2bfb6" stroke-width="1" />
+
+      <text x="544" y="76" font-family="Inter, sans-serif" font-size="11.5" fill="#141413">MHA Elements / Layer:</text>
+      <text x="746" y="76" text-anchor="end" font-family="JetBrains Mono, monospace" font-size="12" font-weight="700" fill="#141413">32,768</text>
+
+      <text x="544" y="100" font-family="Inter, sans-serif" font-size="11.5" fill="#141413">GQA-8 Elements / Layer:</text>
+      <text x="746" y="100" text-anchor="end" font-family="JetBrains Mono, monospace" font-size="12" font-weight="700" fill="#141413">2,048</text>
+
+      <text x="544" y="124" font-family="Inter, sans-serif" font-size="11.5" fill="#141413">MLA Elements / Layer:</text>
+      <text x="746" y="124" text-anchor="end" font-family="JetBrains Mono, monospace" font-size="12" font-weight="700" fill="#991b1b" id="mla-stat-elts">576</text>
+
+      <!-- Highlighted Compression Box -->
+      <rect x="542" y="142" width="206" height="94" rx="3" fill="#fef2f2" stroke="#991b1b" stroke-width="1.5" />
+      <text x="552" y="164" font-family="Inter, sans-serif" font-size="11.5" font-weight="700" fill="#991b1b">vs. MHA:</text>
+      <text x="738" y="164" text-anchor="end" font-family="JetBrains Mono, monospace" font-size="12" font-weight="700" fill="#991b1b" id="mla-stat-vs-mha">56.9&times; Smaller</text>
+
+      <text x="552" y="188" font-family="Inter, sans-serif" font-size="11.5" fill="#991b1b">vs. GQA-8:</text>
+      <text x="738" y="188" text-anchor="end" font-family="JetBrains Mono, monospace" font-size="12" font-weight="700" fill="#991b1b" id="mla-stat-vs-gqa">3.56&times; Smaller</text>
+
+      <text x="645" y="218" text-anchor="middle" font-family="JetBrains Mono, monospace" font-size="10.5" fill="#991b1b" id="mla-stat-verdict">Equivalent to 2.25 KV Heads</text>
+    </svg>
+  </div>
+
+  <!-- Live Narration Caption -->
+  <div class="llm-motion-caption">
+    <span id="mla-sim-caption"></span>
+    <span class="llm-focus-pill" id="mla-sim-badge">Matrix Absorption W<sup>UK</sup> &rarr; W<sup>Q</sup></span>
+  </div>
+
+  <!-- Controls -->
+  <div class="llm-motion-controls">
+    <div class="llm-btn-group">
+      <button type="button" class="llm-btn-step" id="mla-preset-32k">1. 32K Context (d<sub>c</sub> = 512)</button>
+      <button type="button" class="llm-btn-play" id="mla-preset-64k">2. DeepSeek-V3 64K (d<sub>c</sub> = 512)</button>
+      <button type="button" class="llm-btn-step" id="mla-preset-128k">3. Long 128K (d<sub>c</sub> = 256)</button>
+    </div>
+
+    <div class="llm-scrubber-group">
+      <span class="llm-scrubber-label">Context T:</span>
+      <input type="range" id="mla-ctx-slider" class="llm-scrubber" min="16" max="128" step="16" value="64" />
+      <span class="llm-scrubber-label" style="margin-left: 0.5rem;">Latent d<sub>c</sub>:</span>
+      <input type="range" id="mla-dc-slider" class="llm-scrubber" min="256" max="1024" step="256" value="512" />
+    </div>
+  </div>
+</div>
+
+<script>
+(function() {
+  var ctxSlider = document.getElementById('mla-ctx-slider');
+  var dcSlider = document.getElementById('mla-dc-slider');
+  var ctxVal = document.getElementById('mla-ctx-val');
+  var dcVal = document.getElementById('mla-dc-val');
+
+  var barMha = document.getElementById('mla-bar-mha');
+  var lblMha = document.getElementById('mla-lbl-mha');
+  var barGqa = document.getElementById('mla-bar-gqa');
+  var lblGqa = document.getElementById('mla-lbl-gqa');
+  var barMla = document.getElementById('mla-bar-mla');
+  var lblMla = document.getElementById('mla-lbl-mla');
+
+  var statElts = document.getElementById('mla-stat-elts');
+  var statVsMha = document.getElementById('mla-stat-vs-mha');
+  var statVsGqa = document.getElementById('mla-stat-vs-gqa');
+  var statVerdict = document.getElementById('mla-stat-verdict');
+  var caption = document.getElementById('mla-sim-caption');
+
+  var btn32k = document.getElementById('mla-preset-32k');
+  var btn64k = document.getElementById('mla-preset-64k');
+  var btn128k = document.getElementById('mla-preset-128k');
+
+  var layers = 60;
+  var dR = 64; // decoupled RoPE key dim
+
+  function computeGB(tK, eltsPerLayer) {
+    // tK * 1024 tokens * 60 layers * eltsPerLayer * 2 bytes (FP16) / 1e9
+    return (tK * 1024 * layers * eltsPerLayer * 2.0) / 1e9;
+  }
+
+  function updateSim() {
+    var tK = parseInt(ctxSlider.value, 10);
+    var dc = parseInt(dcSlider.value, 10);
+
+    ctxVal.textContent = tK + 'K Tokens';
+    dcVal.textContent = dc + ' (+ 64 RoPE)';
+
+    var eltsMha = 32768; // 2 * 128 * 128
+    var eltsGqa = 2048;  // 2 * 8 * 128
+    var eltsMla = dc + dR;
+
+    var gbMha = computeGB(tK, eltsMha);
+    var gbGqa = computeGB(tK, eltsGqa);
+    var gbMla = computeGB(tK, eltsMla);
+
+    // Scale horizontal bars relative to current MHA max (width 380px)
+    var wMha = 380;
+    var wGqa = Math.max(14, (gbGqa / gbMha) * 380);
+    var wMla = Math.max(8, (gbMla / gbMha) * 380);
+
+    barMha.setAttribute('width', wMha);
+    lblMha.setAttribute('x', 34 + wMha + 10);
+    lblMha.textContent = gbMha.toFixed(1) + ' GB';
+
+    barGqa.setAttribute('width', wGqa.toFixed(1));
+    lblGqa.setAttribute('x', (34 + wGqa + 10).toFixed(1));
+    lblGqa.textContent = gbGqa.toFixed(2) + ' GB';
+
+    barMla.setAttribute('width', wMla.toFixed(1));
+    lblMla.setAttribute('x', (34 + wMla + 10).toFixed(1));
+    lblMla.textContent = gbMla.toFixed(2) + ' GB';
+
+    var ratioMha = eltsMha / eltsMla;
+    var ratioGqa = eltsGqa / eltsMla;
+    var equivHeads = (eltsMla / 256.0).toFixed(2);
+
+    statElts.textContent = eltsMla.toLocaleString();
+    statVsMha.textContent = ratioMha.toFixed(1) + '× Smaller';
+    statVsGqa.textContent = ratioGqa.toFixed(2) + '× Smaller';
+    statVerdict.textContent = 'Equivalent to ' + equivHeads + ' KV Heads';
+
+    btn32k.className = (tK === 32 && dc === 512) ? 'llm-btn-play' : 'llm-btn-step';
+    btn64k.className = (tK === 64 && dc === 512) ? 'llm-btn-play' : 'llm-btn-step';
+    btn128k.className = (tK === 128 && dc === 256) ? 'llm-btn-play' : 'llm-btn-step';
+
+    caption.innerHTML = '<strong>Low-Rank KV Compression:</strong> At T = ' + tK + 'K tokens across 60 layers, Standard MHA requires ' + gbMha.toFixed(1) + ' GB and GQA-8 requires ' + gbGqa.toFixed(2) + ' GB. MLA caches only d<sub>c</sub> + d<sub>R</sub> = ' + eltsMla + ' FP16 values per token (' + gbMla.toFixed(2) + ' GB total, ' + ratioGqa.toFixed(2) + '× smaller than GQA-8) while retaining full 128-head expressivity.';
+  }
+
+  ctxSlider.addEventListener('input', updateSim);
+  dcSlider.addEventListener('input', updateSim);
+
+  btn32k.addEventListener('click', function() {
+    ctxSlider.value = 32;
+    dcSlider.value = 512;
+    updateSim();
+  });
+
+  btn64k.addEventListener('click', function() {
+    ctxSlider.value = 64;
+    dcSlider.value = 512;
+    updateSim();
+  });
+
+  btn128k.addEventListener('click', function() {
+    ctxSlider.value = 128;
+    dcSlider.value = 256;
+    updateSim();
+  });
+
+  updateSim();
+})();
+</script>

@@ -1,0 +1,226 @@
+{{- $m := dict "output" "html" "displayMode" false -}}
+{{- $.Page.Store.Set "hasMath" true -}}
+
+<div class="llm-motion-player not-prose" id="mm-sim-root">
+  <!-- Header -->
+  <div class="llm-motion-header">
+    <div>
+      <h3 class="llm-blueprint-title">Visual Token Budget &amp; 2D Pixel-Shuffle Compression Calculator</h3>
+      <p class="llm-motion-goal">
+        Adjust input image resolution {{ transform.ToMath `H \times W` $m }} and 2D pixel-shuffle downsampling factor {{ transform.ToMath `s \in \{1, 2, 4\}` $m }} (with patch size {{ transform.ToMath `P = 14` $m }}) to see how visual token counts impact LLM prefill attention FLOPs.
+      </p>
+    </div>
+
+    <div class="llm-param-bar">
+      <div class="llm-param-item">
+        <span class="llm-param-label">Resolution:</span>
+        <span id="mm-res-val" class="llm-param-val">896 &times; 896 px</span>
+      </div>
+      <div class="llm-param-item" style="padding-left: 0.75rem; border-left: 1px solid #c2bfb6;">
+        <span class="llm-param-label">Pixel-Shuffle (s&times;s):</span>
+        <span id="mm-shuf-val" class="llm-param-val">2 &times; 2 (4&times; Merge)</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Stage -->
+  <div class="llm-motion-stage" style="padding: 1rem;">
+    <svg id="mm-sim-svg" viewBox="0 0 780 270" width="100%" style="max-width: 100%; height: auto; display: block;" role="img" aria-label="Visual Token Budget and Pixel Shuffle Simulator">
+      <rect x="16" y="16" width="240" height="238" rx="4" fill="#f5f4f0" stroke="#c2bfb6" stroke-width="1" />
+      <text x="136" y="38" text-anchor="middle" font-family="Inter, sans-serif" font-size="12.5" font-weight="700" fill="#141413">2D Spatial Patch Grid</text>
+
+      <!-- Visual Patch Grid Container -->
+      <rect x="46" y="52" width="180" height="180" fill="#ffffff" stroke="#141413" stroke-width="1.5" />
+      <g id="mm-grid-lines"></g>
+      <!-- Highlighted Merged Super-Patch -->
+      <rect id="mm-super-patch" x="46" y="52" width="45" height="45" fill="#fef2f2" stroke="#991b1b" stroke-width="2" />
+      <text x="136" y="246" text-anchor="middle" font-family="JetBrains Mono, monospace" font-size="11" font-weight="700" fill="#991b1b" id="mm-grid-caption">64&times;64 Raw &rarr; 32&times;32 Merged</text>
+
+      <!-- Middle Bar Chart: Raw ViT Patches vs Compressed LLM Tokens -->
+      <rect x="272" y="16" width="244" height="238" rx="4" fill="#ffffff" stroke="#c2bfb6" stroke-width="1" />
+      <text x="394" y="38" text-anchor="middle" font-family="Inter, sans-serif" font-size="12.5" font-weight="700" fill="#141413">Sequence Token Count</text>
+
+      <line x1="300" y1="216" x2="490" y2="216" stroke="#141413" stroke-width="1.5" />
+
+      <!-- Raw ViT Bar -->
+      <rect id="mm-bar-raw" x="324" y="80" width="54" height="136" fill="#f5f4f0" stroke="#141413" stroke-width="1.5" />
+      <text id="mm-lbl-raw" x="351" y="72" text-anchor="middle" font-family="JetBrains Mono, monospace" font-size="11.5" font-weight="700" fill="#141413">4,096</text>
+      <text x="351" y="234" text-anchor="middle" font-family="Inter, sans-serif" font-size="11" font-weight="600" fill="#141413">Raw ViT</text>
+
+      <!-- Merged LLM Bar -->
+      <rect id="mm-bar-merged" x="412" y="182" width="54" height="34" fill="#fef2f2" stroke="#991b1b" stroke-width="2" />
+      <text id="mm-lbl-merged" x="439" y="174" text-anchor="middle" font-family="JetBrains Mono, monospace" font-size="11.5" font-weight="700" fill="#991b1b">1,024</text>
+      <text x="439" y="234" text-anchor="middle" font-family="Inter, sans-serif" font-size="11" font-weight="700" fill="#991b1b">LLM Input</text>
+
+      <!-- Right Readout Panel -->
+      <rect x="532" y="16" width="232" height="238" rx="4" fill="#ffffff" stroke="#141413" stroke-width="1.5" />
+      <text x="648" y="40" text-anchor="middle" font-family="Inter, sans-serif" font-size="12.5" font-weight="700" fill="#141413">Multimodal Prefill Audit</text>
+      <line x1="548" y1="50" x2="748" y2="50" stroke="#c2bfb6" stroke-width="1" />
+
+      <text x="548" y="74" font-family="Inter, sans-serif" font-size="11.5" fill="#141413">Raw ViT Patches (P=14):</text>
+      <text x="748" y="74" text-anchor="end" font-family="JetBrains Mono, monospace" font-size="12" font-weight="700" fill="#141413" id="mm-stat-raw">4,096</text>
+
+      <text x="548" y="98" font-family="Inter, sans-serif" font-size="11.5" fill="#141413">Channel Concat Dim:</text>
+      <text x="748" y="98" text-anchor="end" font-family="JetBrains Mono, monospace" font-size="12" font-weight="700" fill="#141413" id="mm-stat-dim">4 &times; d_v</text>
+
+      <text x="548" y="122" font-family="Inter, sans-serif" font-size="11.5" fill="#141413">Equivalent Text Words:</text>
+      <text x="748" y="122" text-anchor="end" font-family="JetBrains Mono, monospace" font-size="12" font-weight="700" fill="#141413" id="mm-stat-words">~770 words</text>
+
+      <!-- Highlighted Savings Box -->
+      <rect x="546" y="142" width="204" height="96" rx="3" fill="#fef2f2" stroke="#991b1b" stroke-width="1.5" />
+      <text x="556" y="164" font-family="Inter, sans-serif" font-size="11.5" font-weight="700" fill="#991b1b">LLM Visual Tokens:</text>
+      <text x="740" y="164" text-anchor="end" font-family="JetBrains Mono, monospace" font-size="12.5" font-weight="700" fill="#991b1b" id="mm-stat-merged">1,024</text>
+
+      <text x="556" y="188" font-family="Inter, sans-serif" font-size="11.5" fill="#991b1b">FLOP Speedup:</text>
+      <text x="740" y="188" text-anchor="end" font-family="JetBrains Mono, monospace" font-size="12" font-weight="700" fill="#991b1b" id="mm-stat-flops">16&times; Faster</text>
+
+      <text x="648" y="218" text-anchor="middle" font-family="JetBrains Mono, monospace" font-size="10.5" fill="#991b1b" id="mm-stat-verdict">Optimal OCR / DocVQA Balance</text>
+    </svg>
+  </div>
+
+  <!-- Live Narration Caption -->
+  <div class="llm-motion-caption">
+    <span id="mm-sim-caption"></span>
+    <span class="llm-focus-pill" id="mm-sim-badge">O(N² / s⁴) Attention Savings</span>
+  </div>
+
+  <!-- Controls -->
+  <div class="llm-motion-controls">
+    <div class="llm-btn-group">
+      <button type="button" class="llm-btn-step" id="mm-preset-std">1. Standard 448px (s = 1, No Merge)</button>
+      <button type="button" class="llm-btn-play" id="mm-preset-hd">2. HD 896px (s = 2, InternVL / Qwen2-VL)</button>
+      <button type="button" class="llm-btn-step" id="mm-preset-uhd">3. Ultra-HD 1344px (s = 4, Video Frame)</button>
+    </div>
+
+    <div class="llm-scrubber-group">
+      <span class="llm-scrubber-label">Res (px):</span>
+      <input type="range" id="mm-res-slider" class="llm-scrubber" min="1" max="3" step="1" value="2" />
+      <span class="llm-scrubber-label" style="margin-left: 0.5rem;">Shuffle s:</span>
+      <input type="range" id="mm-shuf-slider" class="llm-scrubber" min="1" max="3" step="1" value="2" />
+    </div>
+  </div>
+</div>
+
+<script>
+(function() {
+  var resSlider = document.getElementById('mm-res-slider');
+  var shufSlider = document.getElementById('mm-shuf-slider');
+  var resVal = document.getElementById('mm-res-val');
+  var shufVal = document.getElementById('mm-shuf-val');
+
+  var gridLines = document.getElementById('mm-grid-lines');
+  var superPatch = document.getElementById('mm-super-patch');
+  var gridCaption = document.getElementById('mm-grid-caption');
+
+  var barRaw = document.getElementById('mm-bar-raw');
+  var lblRaw = document.getElementById('mm-lbl-raw');
+  var barMerged = document.getElementById('mm-bar-merged');
+  var lblMerged = document.getElementById('mm-lbl-merged');
+
+  var statRaw = document.getElementById('mm-stat-raw');
+  var statDim = document.getElementById('mm-stat-dim');
+  var statWords = document.getElementById('mm-stat-words');
+  var statMerged = document.getElementById('mm-stat-merged');
+  var statFlops = document.getElementById('mm-stat-flops');
+  var statVerdict = document.getElementById('mm-stat-verdict');
+  var caption = document.getElementById('mm-sim-caption');
+
+  var btnStd = document.getElementById('mm-preset-std');
+  var btnHd = document.getElementById('mm-preset-hd');
+  var btnUhd = document.getElementById('mm-preset-uhd');
+
+  var resMap = { 1: 448, 2: 896, 3: 1344 };
+  var shufMap = { 1: 1, 2: 2, 3: 4 };
+
+  function updateSim() {
+    var rIdx = parseInt(resSlider.value, 10);
+    var sIdx = parseInt(shufSlider.value, 10);
+    var px = resMap[rIdx];
+    var s = shufMap[sIdx];
+
+    var gridSide = px / 14; // 32, 64, 96
+    var rawTokens = gridSide * gridSide; // 1024, 4096, 9216
+    var mergedSide = gridSide / s;
+    var mergedTokens = Math.round(rawTokens / (s * s));
+    var flopReduction = Math.pow(s, 4);
+
+    resVal.textContent = px + ' × ' + px + ' px';
+    shufVal.textContent = s + ' × ' + s + ' (' + (s * s) + '× Merge)';
+
+    // Draw representative 8x8 visual grid inside the 180x180 box
+    var linesHtml = '';
+    var cells = 8;
+    var step = 180 / cells;
+    for (var i = 1; i < cells; i++) {
+      var pos = (46 + i * step).toFixed(1);
+      var posY = (52 + i * step).toFixed(1);
+      linesHtml += '<line x1="' + pos + '" y1="52" x2="' + pos + '" y2="232" stroke="#c2bfb6" stroke-width="1" />';
+      linesHtml += '<line x1="46" y1="' + posY + '" x2="226" y2="' + posY + '" stroke="#c2bfb6" stroke-width="1" />';
+    }
+    gridLines.innerHTML = linesHtml;
+
+    var superSize = step * s;
+    superPatch.setAttribute('width', superSize.toFixed(1));
+    superPatch.setAttribute('height', superSize.toFixed(1));
+    gridCaption.textContent = gridSide + '×' + gridSide + ' Raw → ' + mergedSide + '×' + mergedSide + ' Merged';
+
+    // Scale bars (max 9216 tokens -> 150px height)
+    var maxTok = 9216.0;
+    var hRaw = Math.max(12, (rawTokens / maxTok) * 148);
+    var hMerged = Math.max(8, (mergedTokens / maxTok) * 148);
+
+    barRaw.setAttribute('y', (216 - hRaw).toFixed(1));
+    barRaw.setAttribute('height', hRaw.toFixed(1));
+    lblRaw.setAttribute('y', (208 - hRaw).toFixed(1));
+    lblRaw.textContent = rawTokens.toLocaleString();
+
+    barMerged.setAttribute('y', (216 - hMerged).toFixed(1));
+    barMerged.setAttribute('height', hMerged.toFixed(1));
+    lblMerged.setAttribute('y', (208 - hMerged).toFixed(1));
+    lblMerged.textContent = mergedTokens.toLocaleString();
+
+    statRaw.textContent = rawTokens.toLocaleString();
+    statDim.textContent = (s * s) + ' × d_v';
+    statWords.textContent = '~' + Math.round(mergedTokens * 0.75).toLocaleString() + ' words';
+    statMerged.textContent = mergedTokens.toLocaleString();
+    statFlops.textContent = flopReduction + '× Faster';
+
+    if (mergedTokens > 2500) {
+      statVerdict.textContent = 'High Prefill Latency Warning';
+    } else if (s === 4 && px === 448) {
+      statVerdict.textContent = 'Aggressive Compression (64 tok)';
+    } else {
+      statVerdict.textContent = 'Optimal OCR / DocVQA Balance';
+    }
+
+    btnStd.className = (rIdx === 1 && sIdx === 1) ? 'llm-btn-play' : 'llm-btn-step';
+    btnHd.className = (rIdx === 2 && sIdx === 2) ? 'llm-btn-play' : 'llm-btn-step';
+    btnUhd.className = (rIdx === 3 && sIdx === 3) ? 'llm-btn-play' : 'llm-btn-step';
+
+    caption.innerHTML = '<strong>Spatial-to-Channel Compression:</strong> An ' + px + '×' + px + ' image yields ' + rawTokens.toLocaleString() + ' raw 14×14 ViT patches. Applying a ' + s + '×' + s + ' pixel-shuffle merges ' + (s * s) + ' adjacent patches into 1 token, cutting LLM sequence length to ' + mergedTokens.toLocaleString() + ' tokens and reducing quadratic self-attention prefill FLOPs by ' + flopReduction + '×.';
+  }
+
+  resSlider.addEventListener('input', updateSim);
+  shufSlider.addEventListener('input', updateSim);
+
+  btnStd.addEventListener('click', function() {
+    resSlider.value = 1;
+    shufSlider.value = 1;
+    updateSim();
+  });
+
+  btnHd.addEventListener('click', function() {
+    resSlider.value = 2;
+    shufSlider.value = 2;
+    updateSim();
+  });
+
+  btnUhd.addEventListener('click', function() {
+    resSlider.value = 3;
+    shufSlider.value = 3;
+    updateSim();
+  });
+
+  updateSim();
+})();
+</script>

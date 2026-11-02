@@ -1,0 +1,117 @@
+{{- $m := dict "output" "html" "displayMode" false -}}
+{{- $.Page.Store.Set "hasMath" true -}}
+
+<!-- 1. Test-Time Compute & Reasoning Scaling Notation Table -->
+<div class="llm-table-wrap not-prose">
+  <table class="llm-notation-table">
+    <thead>
+      <tr>
+        <th style="width: 28%;">Reasoning / Search Operator</th>
+        <th style="width: 24%;">Verification Granularity</th>
+        <th style="width: 48%;">Role in Test-Time Compute Scaling</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>{{ transform.ToMath `P_\theta(y \mid x) = \sum_{z \in \mathcal{Z}} P_\theta(y \mid z, x) P_\theta(z \mid x)` $m }}</td>
+        <td><span class="llm-shape-pill">{{ transform.ToMath `z = (s_1, \dots, s_H)` $m }}</span></td>
+        <td><strong>Latent Chain-of-Thought Marginalization:</strong> Expands intermediate reasoning steps {{ transform.ToMath `z` $m }} before emitting final answer {{ transform.ToMath `y` $m }}, trading serial token FLOPs for circuit depth.</td>
+      </tr>
+      <tr>
+        <td>{{ transform.ToMath `\mathcal{R}_{\mathrm{PRM}}(x, z_{1:H}) = \prod_{h=1}^{H} P_\phi(\text{valid}_h \mid x, z_{\le h})` $m }}</td>
+        <td><span class="llm-focus-pill">Stepwise PRM</span></td>
+        <td><strong>Process Reward Model (PRM, Lightman et al. 2023):</strong> Scores every deduction step {{ transform.ToMath `s_h` $m }} individually, localizing the exact step where a logical fallacy occurs.</td>
+      </tr>
+      <tr>
+        <td>{{ transform.ToMath `\operatorname{PUCT}(s, a) = Q(s, a) + c_{\mathrm{puct}} \pi_\theta(a \mid s)\frac{\sqrt{N(s)}}{1 + N(s, a)}` $m }}</td>
+        <td><span class="llm-shape-pill">{{ transform.ToMath `N(s) = \sum_b N(s, b)` $m }}</span></td>
+        <td><strong>Predictor Upper Confidence Bound for Trees:</strong> Balances empirical rollout value {{ transform.ToMath `Q(s,a)` $m }} against policy prior {{ transform.ToMath `\pi_\theta(a \mid s)` $m }} during tree search over reasoning steps.</td>
+      </tr>
+      <tr>
+        <td>{{ transform.ToMath `\hat{A}_{i,t} = \frac{R(x, y_i) - \mu_{\mathcal{G}}}{\sigma_{\mathcal{G}}}` $m }}</td>
+        <td><span class="llm-focus-pill">Verifiable RLVR</span></td>
+        <td><strong>Reinforcement Learning with Verifiable Rewards (RLVR):</strong> Optimizes long CoT policies directly against deterministic math/compiler verifiers without human step labels.</td>
+      </tr>
+    </tbody>
+  </table>
+</div>
+
+<!-- 2. PRM-Guided Tree Search & RLVR Self-Verification Schematic -->
+<div class="llm-figure not-prose">
+  <div class="llm-figure-head">
+    <h3 class="llm-figure-title">Test-Time Compute Topologies: PRM-Guided Tree Search vs. RLVR Autonomous Self-Correction</h3>
+  </div>
+  <div class="llm-figure-body">
+    <svg viewBox="0 0 840 256" width="100%" style="max-width: 840px; height: auto; display: block;" role="img" aria-label="PRM Tree Search and RLVR Self-Correction Topologies">
+      <defs>
+        <marker id="reas-arrow" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+          <path d="M 0 1 L 10 5 L 0 9 z" fill="#141413" />
+        </marker>
+        <marker id="reas-arrow-red" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+          <path d="M 0 1 L 10 5 L 0 9 z" fill="#991b1b" />
+        </marker>
+      </defs>
+
+      <rect x="2" y="2" width="836" height="252" rx="4" fill="#f5f4f0" stroke="#c2bfb6" stroke-width="1" />
+
+      <!-- Left Panel: PRM-Guided Beam / MCTS Tree Search -->
+      <rect x="18" y="18" width="396" height="220" rx="4" fill="#ffffff" stroke="#141413" stroke-width="1.5" />
+      <text x="216" y="42" text-anchor="middle" font-family="Inter, sans-serif" font-size="13" font-weight="700" fill="#141413">A. PRM-Guided Stepwise Tree Search</text>
+
+      <!-- Root Prompt -->
+      <rect x="156" y="56" width="120" height="28" rx="3" fill="#f5f4f0" stroke="#141413" stroke-width="1.5" />
+      <text x="216" y="74" text-anchor="middle" font-family="JetBrains Mono, monospace" font-size="11" font-weight="700" fill="#141413">Problem Prompt x</text>
+
+      <!-- Level 1 Branches -->
+      <line x1="186" y1="84" x2="118" y2="112" stroke="#991b1b" stroke-width="1.75" marker-end="url(#reas-arrow-red)" />
+      <line x1="246" y1="84" x2="314" y2="112" stroke="#141413" stroke-width="1.5" marker-end="url(#reas-arrow)" />
+
+      <!-- Left Node (Valid Step 1, Highlighted) -->
+      <rect x="44" y="116" width="148" height="36" rx="3" fill="#fef2f2" stroke="#991b1b" stroke-width="1.75" />
+      <text x="118" y="132" text-anchor="middle" font-family="JetBrains Mono, monospace" font-size="11" font-weight="700" fill="#991b1b">Step s<tspan baseline-shift="sub" font-size="8.5">1</tspan><tspan baseline-shift="super" font-size="8.5">(a)</tspan>: PRM = 0.94</text>
+      <text x="118" y="146" text-anchor="middle" font-family="Inter, sans-serif" font-size="10.5" fill="#141413">Expand Subtree (High Q)</text>
+
+      <!-- Right Node (Flawed Step 1, Pruned) -->
+      <rect x="240" y="116" width="148" height="36" rx="3" fill="#f5f4f0" stroke="#c2bfb6" stroke-width="1.5" stroke-dasharray="4,3" />
+      <text x="314" y="132" text-anchor="middle" font-family="JetBrains Mono, monospace" font-size="11" font-weight="600" fill="#141413">Step s<tspan baseline-shift="sub" font-size="8.5">1</tspan><tspan baseline-shift="super" font-size="8.5">(b)</tspan>: PRM = 0.12</text>
+      <text x="314" y="146" text-anchor="middle" font-family="Inter, sans-serif" font-size="10.5" font-weight="700" fill="#991b1b">Pruned Early (Sign Error)</text>
+
+      <!-- Level 2 Branches from Valid Node -->
+      <line x1="92" y1="152" x2="78" y2="180" stroke="#141413" stroke-width="1.5" marker-end="url(#reas-arrow)" />
+      <line x1="144" y1="152" x2="188" y2="180" stroke="#991b1b" stroke-width="1.75" marker-end="url(#reas-arrow-red)" />
+
+      <rect x="32" y="184" width="96" height="36" rx="3" fill="#f5f4f0" stroke="#141413" stroke-width="1.25" />
+      <text x="80" y="200" text-anchor="middle" font-family="JetBrains Mono, monospace" font-size="10.5" fill="#141413">s<tspan baseline-shift="sub" font-size="8">2</tspan><tspan baseline-shift="super" font-size="8">(a)</tspan>: 0.41</text>
+      <text x="80" y="213" text-anchor="middle" font-family="Inter, sans-serif" font-size="10" fill="#141413">Backtrack</text>
+
+      <rect x="142" y="184" width="152" height="36" rx="3" fill="#fef2f2" stroke="#991b1b" stroke-width="2" />
+      <text x="218" y="200" text-anchor="middle" font-family="JetBrains Mono, monospace" font-size="11" font-weight="700" fill="#991b1b">s<tspan baseline-shift="sub" font-size="8">2</tspan><tspan baseline-shift="super" font-size="8">(b)</tspan>: PRM = 0.97 &rarr; y*</text>
+      <text x="218" y="213" text-anchor="middle" font-family="Inter, sans-serif" font-size="10.5" font-weight="700" fill="#991b1b">Verified Proof Leaf</text>
+
+      <!-- Right Panel: RLVR Linearized In-Context Search (DeepSeek-R1 / o1) -->
+      <rect x="426" y="18" width="396" height="220" rx="4" fill="#ffffff" stroke="#141413" stroke-width="1.5" />
+      <text x="624" y="42" text-anchor="middle" font-family="Inter, sans-serif" font-size="13" font-weight="700" fill="#141413">B. RLVR Linearized Self-Reflection Trace</text>
+
+      <!-- Step 1: Initial Hypothesis -->
+      <rect x="448" y="56" width="352" height="34" rx="3" fill="#f5f4f0" stroke="#141413" stroke-width="1.25" />
+      <text x="624" y="77" text-anchor="middle" font-family="JetBrains Mono, monospace" font-size="11" fill="#141413">&lt;think&gt; Try substitution u = x<tspan baseline-shift="super" font-size="8.5">2</tspan> + 1 &rarr; du = 2x dx...</text>
+
+      <line x1="624" y1="90" x2="624" y2="106" stroke="#991b1b" stroke-width="1.75" marker-end="url(#reas-arrow-red)" />
+
+      <!-- Step 2: Autonomous Verification & Backtracking Token -->
+      <rect x="448" y="110" width="352" height="46" rx="3" fill="#fef2f2" stroke="#991b1b" stroke-width="2" />
+      <text x="624" y="129" text-anchor="middle" font-family="Inter, sans-serif" font-size="11.5" font-weight="700" fill="#991b1b">Emergent Self-Verification &amp; Backtracking</text>
+      <text x="624" y="146" text-anchor="middle" font-family="JetBrains Mono, monospace" font-size="11" font-weight="700" fill="#991b1b">"Wait — boundary at x=0 violates domain! Re-evaluating..."</text>
+
+      <line x1="624" y1="156" x2="624" y2="172" stroke="#141413" stroke-width="1.75" marker-end="url(#reas-arrow)" />
+
+      <!-- Step 3: Corrected Derivation & Verifier Reward -->
+      <rect x="448" y="176" width="352" height="44" rx="3" fill="#ffffff" stroke="#141413" stroke-width="1.5" />
+      <text x="624" y="195" text-anchor="middle" font-family="JetBrains Mono, monospace" font-size="11" font-weight="700" fill="#141413">Switch to trigonometric substitution &lt;/think&gt; &rarr; y*</text>
+      <text x="624" y="211" text-anchor="middle" font-family="Inter, sans-serif" font-size="11" font-weight="700" fill="#991b1b">Deterministic Verifier Reward R(x, y*) = +1.0</text>
+    </svg>
+  </div>
+  <div class="llm-figure-caption">
+    <strong>Figure 1 (External vs. Internalized Search):</strong> (A) Process Reward Models (PRMs) guide explicit MCTS/beam search by pruning flawed intermediate branches early. (B) Models trained via Reinforcement Learning with Verifiable Rewards (RLVR, e.g., DeepSeek-R1) internalize tree search into a single autoregressive reasoning stream, spontaneously learning to verify hypotheses and backtrack inside {{ transform.ToMath `\text{<think>}` $m }} blocks.
+  </div>
+</div>

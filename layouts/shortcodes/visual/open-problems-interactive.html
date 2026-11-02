@@ -1,0 +1,241 @@
+{{- $m := dict "output" "html" "displayMode" false -}}
+{{- $.Page.Store.Set "hasMath" true -}}
+
+<div class="llm-motion-player not-prose" id="sae-sim-root">
+  <!-- Header -->
+  <div class="llm-motion-header">
+    <div>
+      <h3 class="llm-blueprint-title">Superposition Geometry &amp; Sparse Autoencoder (SAE) Pareto Frontier Simulator</h3>
+      <p class="llm-motion-goal">
+        Adjust the SAE {{ transform.ToMath `L_1` $m }} sparsity penalty {{ transform.ToMath `\lambda` $m }} and feature density {{ transform.ToMath `S = 1 - p(\text{active})` $m }} to explore how overcomplete dictionary learning trades off active feature count {{ transform.ToMath `L_0 = \|\mathbf{f}\|_0` $m }} against reconstruction fidelity ({{ transform.ToMath `R^2` $m }}).
+      </p>
+    </div>
+
+    <div class="llm-param-bar">
+      <div class="llm-param-item">
+        <span class="llm-param-label">Sparsity Penalty (&lambda;):</span>
+        <span id="sae-lam-val" class="llm-param-val">3.0 &times; 10<sup>-3</sup></span>
+      </div>
+      <div class="llm-param-item" style="padding-left: 0.75rem; border-left: 1px solid #c2bfb6;">
+        <span class="llm-param-label">Dictionary Expansion:</span>
+        <span id="sae-exp-val" class="llm-param-val">16&times; (M = 65,536)</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Stage -->
+  <div class="llm-motion-stage" style="padding: 1rem;">
+    <svg id="sae-sim-svg" viewBox="0 0 780 270" width="100%" style="max-width: 100%; height: auto; display: block;" role="img" aria-label="Superposition Polygon and SAE Sparsity Fidelity Trade-Off Simulator">
+      <!-- Left Panel: 2D Toy Model of Superposition (M features packed in R^2) -->
+      <rect x="18" y="18" width="236" height="234" rx="4" fill="#f5f4f0" stroke="#c2bfb6" stroke-width="1" />
+      <text x="136" y="40" text-anchor="middle" font-family="Inter, sans-serif" font-size="12.5" font-weight="700" fill="#141413">Toy Superposition in R<tspan baseline-shift="super" font-size="8.5">2</tspan></text>
+
+      <!-- Unit Circle in R^2 -->
+      <circle cx="136" cy="136" r="74" fill="#ffffff" stroke="#c2bfb6" stroke-width="1.25" stroke-dasharray="3,3" />
+      <line x1="52" y1="136" x2="220" y2="136" stroke="#c2bfb6" stroke-width="1" />
+      <line x1="136" y1="52" x2="136" y2="220" stroke="#c2bfb6" stroke-width="1" />
+
+      <g id="sae-rays-group"></g>
+      <circle cx="136" cy="136" r="3.5" fill="#141413" />
+      <text x="136" y="238" text-anchor="middle" font-family="JetBrains Mono, monospace" font-size="11" font-weight="700" fill="#991b1b" id="sae-poly-lbl">Pentagon (5 Features in 2D)</text>
+
+      <!-- Center Plot: SAE L0 Sparsity vs Explained Variance R^2 Curve -->
+      <rect x="270" y="18" width="244" height="234" rx="4" fill="#ffffff" stroke="#c2bfb6" stroke-width="1" />
+      <text x="392" y="40" text-anchor="middle" font-family="Inter, sans-serif" font-size="12.5" font-weight="700" fill="#141413">SAE Pareto Frontier (L<tspan baseline-shift="sub" font-size="8.5">0</tspan> vs. R<tspan baseline-shift="super" font-size="8.5">2</tspan>)</text>
+
+      <!-- Axes -->
+      <line x1="306" y1="214" x2="496" y2="214" stroke="#141413" stroke-width="1.5" />
+      <line x1="306" y1="58" x2="306" y2="214" stroke="#141413" stroke-width="1.5" />
+
+      <!-- Y-axis ticks (R^2: 60% to 100%) -->
+      <text x="300" y="218" text-anchor="end" font-family="JetBrains Mono, monospace" font-size="10" fill="#141413">60%</text>
+      <text x="300" y="140" text-anchor="end" font-family="JetBrains Mono, monospace" font-size="10" fill="#141413">80%</text>
+      <text x="300" y="62" text-anchor="end" font-family="JetBrains Mono, monospace" font-size="10" fill="#141413">100%</text>
+
+      <!-- X-axis ticks (L0 active features: 8 to 256) -->
+      <text x="316" y="228" text-anchor="middle" font-family="JetBrains Mono, monospace" font-size="10" fill="#141413">L₀=8</text>
+      <text x="398" y="228" text-anchor="middle" font-family="JetBrains Mono, monospace" font-size="10" fill="#141413">L₀=48</text>
+      <text x="482" y="228" text-anchor="middle" font-family="JetBrains Mono, monospace" font-size="10" fill="#141413">L₀=256</text>
+      <text x="398" y="244" text-anchor="middle" font-family="Inter, sans-serif" font-size="11" font-weight="600" fill="#141413">Active Features per Token (L₀)</text>
+
+      <!-- Pareto Curve -->
+      <polyline id="sae-pareto-curve" fill="none" stroke="#141413" stroke-width="2.25" points="" />
+      <circle id="sae-active-dot" cx="380" cy="100" r="6" fill="#fef2f2" stroke="#991b1b" stroke-width="2.5" />
+
+      <!-- Right Readout Panel -->
+      <rect x="530" y="18" width="234" height="234" rx="4" fill="#ffffff" stroke="#141413" stroke-width="1.5" />
+      <text x="647" y="42" text-anchor="middle" font-family="Inter, sans-serif" font-size="12.5" font-weight="700" fill="#141413">Disentanglement Audit</text>
+      <line x1="546" y1="52" x2="748" y2="52" stroke="#c2bfb6" stroke-width="1" />
+
+      <text x="546" y="76" font-family="Inter, sans-serif" font-size="11.5" fill="#141413">Active Features (L₀):</text>
+      <text x="748" y="76" text-anchor="end" font-family="JetBrains Mono, monospace" font-size="12" font-weight="700" fill="#141413" id="sae-stat-l0">34 / token</text>
+
+      <text x="546" y="100" font-family="Inter, sans-serif" font-size="11.5" fill="#141413">Reconstruction R²:</text>
+      <text x="748" y="100" text-anchor="end" font-family="JetBrains Mono, monospace" font-size="12" font-weight="700" fill="#141413" id="sae-stat-r2">89.4%</text>
+
+      <text x="546" y="124" font-family="Inter, sans-serif" font-size="11.5" fill="#141413">Max Pairwise |wᵢᵀwⱼ|:</text>
+      <text x="748" y="124" text-anchor="end" font-family="JetBrains Mono, monospace" font-size="12" font-weight="700" fill="#141413" id="sae-stat-dot">0.309</text>
+
+      <!-- Highlighted Monosemanticity Box -->
+      <rect x="544" y="142" width="206" height="94" rx="3" fill="#fef2f2" stroke="#991b1b" stroke-width="1.5" />
+      <text x="554" y="164" font-family="Inter, sans-serif" font-size="11.5" font-weight="700" fill="#991b1b">Monosemantic Score:</text>
+      <text x="740" y="164" text-anchor="end" font-family="JetBrains Mono, monospace" font-size="12.5" font-weight="700" fill="#991b1b" id="sae-stat-mono">91.2%</text>
+
+      <text x="554" y="188" font-family="Inter, sans-serif" font-size="11.5" fill="#991b1b">CE Loss Recovered:</text>
+      <text x="740" y="188" text-anchor="end" font-family="JetBrains Mono, monospace" font-size="12" font-weight="700" fill="#991b1b" id="sae-stat-ce">96.8%</text>
+
+      <text x="647" y="218" text-anchor="middle" font-family="JetBrains Mono, monospace" font-size="10.5" fill="#991b1b" id="sae-stat-verdict">Clean Feature Separation</text>
+    </svg>
+  </div>
+
+  <!-- Live Narration Caption -->
+  <div class="llm-motion-caption">
+    <span id="sae-sim-caption"></span>
+    <span class="llm-focus-pill" id="sae-sim-badge">Antipodal / Polygon Packing</span>
+  </div>
+
+  <!-- Controls -->
+  <div class="llm-motion-controls">
+    <div class="llm-btn-group">
+      <button type="button" class="llm-btn-step" id="sae-preset-dense">1. Dense Features (2 Orthogonal, &lambda; = 1)</button>
+      <button type="button" class="llm-btn-play" id="sae-preset-gold">2. Golden Pareto (5 Pentagon, &lambda; = 3)</button>
+      <button type="button" class="llm-btn-step" id="sae-preset-ultra">3. Ultra-Sparse (8 Octagon, &lambda; = 5)</button>
+    </div>
+
+    <div class="llm-scrubber-group">
+      <span class="llm-scrubber-label">Penalty &lambda;:</span>
+      <input type="range" id="sae-lam-slider" class="llm-scrubber" min="1" max="5" step="1" value="3" />
+      <span class="llm-scrubber-label" style="margin-left: 0.5rem;">2D Rays M:</span>
+      <input type="range" id="sae-rays-slider" class="llm-scrubber" min="2" max="8" step="1" value="5" />
+    </div>
+  </div>
+</div>
+
+<script>
+(function() {
+  var lamSlider = document.getElementById('sae-lam-slider');
+  var raysSlider = document.getElementById('sae-rays-slider');
+  var lamVal = document.getElementById('sae-lam-val');
+  var expVal = document.getElementById('sae-exp-val');
+
+  var raysGroup = document.getElementById('sae-rays-group');
+  var polyLbl = document.getElementById('sae-poly-lbl');
+  var paretoCurve = document.getElementById('sae-pareto-curve');
+  var activeDot = document.getElementById('sae-active-dot');
+
+  var statL0 = document.getElementById('sae-stat-l0');
+  var statR2 = document.getElementById('sae-stat-r2');
+  var statDot = document.getElementById('sae-stat-dot');
+  var statMono = document.getElementById('sae-stat-mono');
+  var statCe = document.getElementById('sae-stat-ce');
+  var statVerdict = document.getElementById('sae-stat-verdict');
+  var caption = document.getElementById('sae-sim-caption');
+
+  var btnDense = document.getElementById('sae-preset-dense');
+  var btnGold = document.getElementById('sae-preset-gold');
+  var btnUltra = document.getElementById('sae-preset-ultra');
+
+  var polyNames = {
+    2: 'Orthogonal Basis (2 in 2D)',
+    3: 'Mercedes-Benz Triad (3 in 2D)',
+    4: 'Antipodal Cross (4 in 2D)',
+    5: 'Regular Pentagon (5 in 2D)',
+    6: 'Regular Hexagon (6 in 2D)',
+    7: 'Regular Heptagon (7 in 2D)',
+    8: 'Regular Octagon (8 in 2D)'
+  };
+
+  var l0Table = { 1: 180, 2: 78, 3: 34, 4: 16, 5: 8 };
+  var r2Table = { 1: 97.2, 2: 93.8, 3: 89.4, 4: 81.2, 5: 69.5 };
+  var monoTable = { 1: 64.0, 2: 81.5, 3: 91.2, 4: 94.6, 5: 95.8 };
+  var ceTable = { 1: 99.1, 2: 98.2, 3: 96.8, 4: 91.4, 5: 82.0 };
+  var xTable = { 1: 468, 2: 422, 3: 382, 4: 346, 5: 316 };
+
+  function yR2(r2) {
+    // Map [60, 100] -> [214, 58]
+    return 214 - ((r2 - 60.0) / 40.0) * 156;
+  }
+
+  function updateSim() {
+    var lam = parseInt(lamSlider.value, 10);
+    var mRays = parseInt(raysSlider.value, 10);
+
+    lamVal.textContent = lam + '.0 × 10⁻³';
+    expVal.textContent = (mRays * 3) + '× (Toy 2D: ' + mRays + ' Rays)';
+
+    // Draw M almost-orthogonal feature vectors in 2D circle (cx=136, cy=136, r=74)
+    var html = '';
+    var polyPts = [];
+    for (var i = 0; i < mRays; i++) {
+      var angle = (mRays === 2) ? (i * Math.PI / 2.0) : ((2.0 * Math.PI * i) / mRays - Math.PI / 2.0);
+      var x2 = 136 + 74 * Math.cos(angle);
+      var y2 = 136 + 74 * Math.sin(angle);
+      polyPts.push(x2.toFixed(1) + ',' + y2.toFixed(1));
+      var color = (i === 0) ? '#991b1b' : '#141413';
+      var width = (i === 0) ? '2.25' : '1.5';
+      html += '<line x1="136" y1="136" x2="' + x2.toFixed(1) + '" y2="' + y2.toFixed(1) + '" stroke="' + color + '" stroke-width="' + width + '" />';
+      html += '<circle cx="' + x2.toFixed(1) + '" cy="' + y2.toFixed(1) + '" r="3.5" fill="' + color + '" />';
+    }
+    if (mRays >= 3) {
+      html = '<polygon points="' + polyPts.join(' ') + '" fill="#fef2f2" fill-opacity="0.45" stroke="#991b1b" stroke-width="1" stroke-dasharray="3,2" />' + html;
+    }
+    raysGroup.innerHTML = html;
+    polyLbl.textContent = polyNames[mRays];
+
+    // Draw Pareto curve
+    var curvePts = [];
+    for (var k = 5; k >= 1; k--) {
+      curvePts.push(xTable[k] + ',' + yR2(r2Table[k]).toFixed(1));
+    }
+    paretoCurve.setAttribute('points', curvePts.join(' '));
+
+    activeDot.setAttribute('cx', xTable[lam]);
+    activeDot.setAttribute('cy', yR2(r2Table[lam]).toFixed(1));
+
+    var maxCos = (mRays === 2) ? 0.0 : Math.abs(Math.cos((2.0 * Math.PI) / mRays));
+
+    statL0.textContent = l0Table[lam] + ' / token';
+    statR2.textContent = r2Table[lam].toFixed(1) + '%';
+    statDot.textContent = maxCos.toFixed(3);
+    statMono.textContent = monoTable[lam].toFixed(1) + '%';
+    statCe.textContent = ceTable[lam].toFixed(1) + '%';
+
+    if (lam === 1) {
+      statVerdict.textContent = 'Under-Sparse (Polysemantic)';
+    } else if (lam === 5) {
+      statVerdict.textContent = 'Dead Features / High Recon Loss';
+    } else {
+      statVerdict.textContent = 'Clean Feature Separation';
+    }
+
+    btnDense.className = (lam === 1 && mRays === 2) ? 'llm-btn-play' : 'llm-btn-step';
+    btnGold.className = (lam === 3 && mRays === 5) ? 'llm-btn-play' : 'llm-btn-step';
+    btnUltra.className = (lam === 5 && mRays === 8) ? 'llm-btn-play' : 'llm-btn-step';
+
+    caption.innerHTML = '<strong>Superposition &amp; SAE Trade-Off:</strong> Packing M = ' + mRays + ' features into R² introduces pairwise interference |wᵢᵀwⱼ| = ' + maxCos.toFixed(3) + '. At L₁ penalty λ = ' + lam + '×10⁻³, the SAE activates L₀ = ' + l0Table[lam] + ' features per token, explaining ' + r2Table[lam].toFixed(1) + '% of activation variance and recovering ' + ceTable[lam].toFixed(1) + '% of downstream LLM loss.';
+  }
+
+  lamSlider.addEventListener('input', updateSim);
+  raysSlider.addEventListener('input', updateSim);
+
+  btnDense.addEventListener('click', function() {
+    lamSlider.value = 1;
+    raysSlider.value = 2;
+    updateSim();
+  });
+
+  btnGold.addEventListener('click', function() {
+    lamSlider.value = 3;
+    raysSlider.value = 5;
+    updateSim();
+  });
+
+  btnUltra.addEventListener('click', function() {
+    lamSlider.value = 5;
+    raysSlider.value = 8;
+    updateSim();
+  });
+
+  updateSim();
+})();
+</script>

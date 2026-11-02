@@ -37,24 +37,24 @@ layout: hextra-home
   {{< hextra/feature-card
     link="/foundations"
     title="Foundations"
-    subtitle="Core concepts: Tokenization, Attention, Positional Encoding, Embeddings"
+    subtitle="Core concepts: Tokenization, Attention, Positional Encoding, Embeddings, and Transformer Internals"
     class="hx-aspect-auto md:hx-aspect-[1.1/1] max-md:hx-min-h-[240px]"
-    style="background: radial-gradient(ellipse at 50% 80%,rgba(194,97,254,0.4),hsla(0,0%,100%,0));"
+    style="background: radial-gradient(ellipse at 50% 80%,rgba(153,27,27,0.14),hsla(0,0%,100%,0));"
   >}}
 
   {{< hextra/feature-card
     link="/challenges"
     title="Challenges"
-    subtitle="Training, Scaling, Alignment, Efficiency, and Evaluation"
+    subtitle="Data Scaling Laws, Post-Training Alignment, Systems Efficiency, Evaluation Rigor, and Long-Context Limits"
     class="hx-aspect-auto md:hx-aspect-[1.1/1] max-md:hx-min-h-[240px]"
-    style="background: radial-gradient(ellipse at 50% 80%,rgba(253,187,45,0.4),hsla(0,0%,100%,0));"
+    style="background: radial-gradient(ellipse at 50% 80%,rgba(153,27,27,0.14),hsla(0,0%,100%,0));"
   >}}
 
   {{< hextra/feature-card
     link="/future"
     title="Future"
-    subtitle="Emerging research, new architectures, and open problems"
+    subtitle="Sub-Quadratic SSMs, Test-Time Compute Scaling, Native Multimodality, 1.58-Bit Compression, and Interpretability"
     class="hx-aspect-auto md:hx-aspect-[1.1/1] max-md:hx-min-h-[240px]"
-    style="background: radial-gradient(ellipse at 50% 80%,rgba(131,58,180,0.4),hsla(0,0%,100%,0));"
+    style="background: radial-gradient(ellipse at 50% 80%,rgba(153,27,27,0.14),hsla(0,0%,100%,0));"
   >}}
 {{< /hextra/feature-grid >}}

@@ -1,0 +1,107 @@
+{{- $m := dict "output" "html" "displayMode" false -}}
+{{- $.Page.Store.Set "hasMath" true -}}
+
+<!-- 1. Multimodal Architecture & Tokenization Notation Table -->
+<div class="llm-table-wrap not-prose">
+  <table class="llm-notation-table">
+    <thead>
+      <tr>
+        <th style="width: 28%;">Multimodal Operator</th>
+        <th style="width: 24%;">Tensor / Sequence Mapping</th>
+        <th style="width: 48%;">Architectural Role in Unified Models</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>{{ transform.ToMath `N_{\mathrm{patches}} = \left(\frac{H}{P}\right)\!\left(\frac{W}{P}\right)` $m }}</td>
+        <td><span class="llm-shape-pill">{{ transform.ToMath `\mathbb{R}^{H \times W \times C} \to \mathbb{R}^{N \times d_v}` $m }}</span></td>
+        <td><strong>2D ViT Patchification:</strong> Splits an image of resolution {{ transform.ToMath `H \times W` $m }} into non-overlapping {{ transform.ToMath `P \times P` $m }} patches (e.g., {{ transform.ToMath `P=14` $m }}) projected into visual embeddings.</td>
+      </tr>
+      <tr>
+        <td>{{ transform.ToMath `\mathcal{L}_{\mathrm{SigLIP}} = -\frac{1}{B}\sum_{i,j}\log \sigma\!\left(y_{ij}(t \mathbf{u}_i^\top \mathbf{v}_j + b)\right)` $m }}</td>
+        <td><span class="llm-shape-pill">{{ transform.ToMath `y_{ij} \in \{-1, +1\}` $m }}</span></td>
+        <td><strong>Sigmoid Contrastive Alignment (Zhai et al. 2023):</strong> Replaces global batch softmax with pairwise binary logistic loss, scaling cleanly to small or massive batch sizes.</td>
+      </tr>
+      <tr>
+        <td>{{ transform.ToMath `\operatorname{PixelShuffle}_s(\mathbf{Z}) \in \mathbb{R}^{(N / s^2) \times (s^2 d_v)}` $m }}</td>
+        <td><span class="llm-focus-pill">{{ transform.ToMath `s^2\times` $m }} Token Cut</span></td>
+        <td><strong>2D Spatial Downsampling (InternVL / Qwen2-VL):</strong> Concatenates {{ transform.ToMath `s \times s` $m }} adjacent visual patches into the channel dimension, cutting LLM sequence length by {{ transform.ToMath `4\times\text{--}16\times` $m }}.</td>
+      </tr>
+      <tr>
+        <td>{{ transform.ToMath `\mathcal{L}_{\mathrm{Transfusion}} = \mathcal{L}_{\mathrm{CE}}(\text{text}) + \lambda \mathcal{L}_{\mathrm{DDPM}}(\text{image})` $m }}</td>
+        <td><span class="llm-focus-pill">AR + Diffusion</span></td>
+        <td><strong>Unified Autoregressive-Diffusion (Transfusion):</strong> Trains a single Transformer with causal next-token loss on text and bidirectional flow/diffusion loss on continuous image patches.</td>
+      </tr>
+    </tbody>
+  </table>
+</div>
+
+<!-- 2. Late-Fusion Adapter vs Early-Fusion Any-to-Any Architecture Schematic -->
+<div class="llm-figure not-prose">
+  <div class="llm-figure-head">
+    <h3 class="llm-figure-title">Multimodal Unification: Late-Fusion Vision Adapter vs. Native Early-Fusion (Transfusion / Chameleon)</h3>
+  </div>
+  <div class="llm-figure-body">
+    <svg viewBox="0 0 840 256" width="100%" style="max-width: 840px; height: auto; display: block;" role="img" aria-label="Late-Fusion Vision Adapter versus Native Early-Fusion Multimodal Transformer">
+      <defs>
+        <marker id="mm-arrow" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+          <path d="M 0 1 L 10 5 L 0 9 z" fill="#141413" />
+        </marker>
+        <marker id="mm-arrow-red" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+          <path d="M 0 1 L 10 5 L 0 9 z" fill="#991b1b" />
+        </marker>
+      </defs>
+
+      <rect x="2" y="2" width="836" height="252" rx="4" fill="#f5f4f0" stroke="#c2bfb6" stroke-width="1" />
+
+      <!-- Top Row: Paradigm 1 - Late-Fusion / Visual Adapter (LLaVA / InternVL / Qwen2-VL) -->
+      <rect x="18" y="18" width="804" height="102" rx="4" fill="#ffffff" stroke="#141413" stroke-width="1.5" />
+      <text x="36" y="40" font-family="Inter, sans-serif" font-size="13" font-weight="700" fill="#141413">1. Late-Fusion Connector Pipeline (Frozen SigLIP ViT + 2&times;2 Pixel-Shuffle + Pretrained LLM)</text>
+
+      <!-- Box 1: Image -->
+      <rect x="36" y="52" width="146" height="54" rx="3" fill="#f5f4f0" stroke="#141413" stroke-width="1.25" />
+      <text x="109" y="74" text-anchor="middle" font-family="Inter, sans-serif" font-size="12" font-weight="700" fill="#141413">Image 448&times;448</text>
+      <text x="109" y="94" text-anchor="middle" font-family="JetBrains Mono, monospace" font-size="11" fill="#141413">1024 Patches (P=14)</text>
+
+      <line x1="182" y1="79" x2="216" y2="79" stroke="#141413" stroke-width="1.5" marker-end="url(#mm-arrow)" />
+
+      <!-- Box 2: SigLIP ViT + Pixel Shuffle -->
+      <rect x="224" y="52" width="212" height="54" rx="3" fill="#ffffff" stroke="#141413" stroke-width="1.5" />
+      <text x="330" y="74" text-anchor="middle" font-family="Inter, sans-serif" font-size="12" font-weight="700" fill="#141413">SigLIP ViT + 2&times;2 Shuffle</text>
+      <text x="330" y="94" text-anchor="middle" font-family="JetBrains Mono, monospace" font-size="11" font-weight="700" fill="#991b1b">1024 &rarr; 256 Visual Tokens</text>
+
+      <line x1="436" y1="79" x2="470" y2="79" stroke="#141413" stroke-width="1.5" marker-end="url(#mm-arrow)" />
+
+      <!-- Box 3: MLP Projector + LLM -->
+      <rect x="478" y="52" width="324" height="54" rx="3" fill="#f5f4f0" stroke="#141413" stroke-width="1.5" />
+      <text x="640" y="74" text-anchor="middle" font-family="Inter, sans-serif" font-size="12" font-weight="700" fill="#141413">MLP Projector W<tspan baseline-shift="sub" font-size="8.5">p</tspan> &rarr; Causal LLM Backbone</text>
+      <text x="640" y="94" text-anchor="middle" font-family="JetBrains Mono, monospace" font-size="11" fill="#141413">Text-Only Output (Cannot Generate Images/Audio)</text>
+
+      <!-- Bottom Row: Paradigm 2 - Native Early-Fusion Unified Backbone (Transfusion / Chameleon / GPT-4o) -->
+      <rect x="18" y="134" width="804" height="104" rx="4" fill="#fef2f2" stroke="#991b1b" stroke-width="2" />
+      <text x="36" y="156" font-family="Inter, sans-serif" font-size="13" font-weight="700" fill="#991b1b">2. Native Early-Fusion Any-to-Any Backbone (Chameleon VQ-Tokens / Transfusion Hybrid AR-Diffusion)</text>
+
+      <!-- Interleaved Input Stream -->
+      <rect x="36" y="168" width="218" height="54" rx="3" fill="#ffffff" stroke="#991b1b" stroke-width="1.5" />
+      <text x="145" y="190" text-anchor="middle" font-family="Inter, sans-serif" font-size="12" font-weight="700" fill="#141413">Interleaved Modal Stream</text>
+      <text x="145" y="210" text-anchor="middle" font-family="JetBrains Mono, monospace" font-size="11" font-weight="700" fill="#991b1b">[Text, &lt;BOI&gt;, Patch<tspan baseline-shift="sub" font-size="8.5">1:N</tspan>, Audio]</text>
+
+      <line x1="254" y1="195" x2="288" y2="195" stroke="#991b1b" stroke-width="1.75" marker-end="url(#mm-arrow-red)" />
+
+      <!-- Unified Transformer with QK-Norm & Hybrid Masking -->
+      <rect x="296" y="168" width="248" height="54" rx="3" fill="#ffffff" stroke="#991b1b" stroke-width="1.75" />
+      <text x="420" y="190" text-anchor="middle" font-family="Inter, sans-serif" font-size="12" font-weight="700" fill="#991b1b">Unified Transformer (QK-Norm)</text>
+      <text x="420" y="210" text-anchor="middle" font-family="JetBrains Mono, monospace" font-size="11" fill="#141413">Causal on Text + Bidir on Image</text>
+
+      <line x1="544" y1="195" x2="578" y2="195" stroke="#991b1b" stroke-width="1.75" marker-end="url(#mm-arrow-red)" />
+
+      <!-- Any-to-Any Output Heads -->
+      <rect x="586" y="168" width="216" height="54" rx="3" fill="#ffffff" stroke="#141413" stroke-width="1.5" />
+      <text x="694" y="190" text-anchor="middle" font-family="Inter, sans-serif" font-size="12" font-weight="700" fill="#141413">Any-to-Any Synthesis</text>
+      <text x="694" y="210" text-anchor="middle" font-family="JetBrains Mono, monospace" font-size="11" font-weight="700" fill="#991b1b">L<tspan baseline-shift="sub" font-size="8.5">CE</tspan>(Text) + &#955;L<tspan baseline-shift="sub" font-size="8.5">Flow</tspan>(Image/Audio)</text>
+    </svg>
+  </div>
+  <div class="llm-figure-caption">
+    <strong>Figure 1 (Adapter vs. Native Multimodality):</strong> (1) Late-fusion models bolt a frozen vision encoder onto a text LLM via a 2D pixel-shuffle projector, enabling visual understanding but no native image/audio generation. (2) Early-fusion architectures (Chameleon, Transfusion) ingest interleaved text, image, and audio tokens into a single Transformer from layer 1, using QK-LayerNorm to prevent cross-modal logit explosion.
+  </div>
+</div>

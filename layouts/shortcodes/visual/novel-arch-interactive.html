@@ -1,0 +1,254 @@
+{{- $m := dict "output" "html" "displayMode" false -}}
+{{- $.Page.Store.Set "hasMath" true -}}
+
+<div class="llm-motion-player not-prose" id="ssm-sim-root">
+  <!-- Header -->
+  <div class="llm-motion-header">
+    <div>
+      <h3 class="llm-blueprint-title">Long-Context Scaling Wall: Dense Transformer vs. Hybrid Jamba vs. Pure Mamba-2</h3>
+      <p class="llm-motion-goal">
+        Sweep sequence length {{ transform.ToMath `T` $m }} from {{ transform.ToMath `4\text{K}` $m }} to {{ transform.ToMath `512\text{K}` $m }} tokens and adjust the Hybrid Attention-to-SSM layer ratio to compare KV/state memory footprint and prefill FLOP scaling.
+      </p>
+    </div>
+
+    <div class="llm-param-bar">
+      <div class="llm-param-item">
+        <span class="llm-param-label">Context (T):</span>
+        <span id="ssm-ctx-val" class="llm-param-val">128K</span>
+      </div>
+      <div class="llm-param-item" style="padding-left: 0.75rem; border-left: 1px solid #c2bfb6;">
+        <span class="llm-param-label">Hybrid Attn Ratio:</span>
+        <span id="ssm-ratio-val" class="llm-param-val">1 : 8 (12.5%)</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Stage -->
+  <div class="llm-motion-stage" style="padding: 1rem;">
+    <svg id="ssm-sim-svg" viewBox="0 0 780 280" width="100%" style="max-width: 100%; height: auto; display: block;" role="img" aria-label="Long-Context State Memory Scaling Simulator">
+      <!-- Background Plot Area -->
+      <rect x="65" y="24" width="445" height="206" fill="#ffffff" stroke="#c2bfb6" stroke-width="1" />
+
+      <!-- Horizontal Gridlines (0 GB, 40 GB, 80 GB, 120 GB, 160 GB) -->
+      <line x1="65" y1="230" x2="510" y2="230" stroke="#141413" stroke-width="1.5" />
+      <line x1="65" y1="178.5" x2="510" y2="178.5" stroke="#c2bfb6" stroke-width="1" stroke-dasharray="3,3" />
+      <line x1="65" y1="127" x2="510" y2="127" stroke="#c2bfb6" stroke-width="1" stroke-dasharray="3,3" />
+      <line x1="65" y1="75.5" x2="510" y2="75.5" stroke="#c2bfb6" stroke-width="1" stroke-dasharray="3,3" />
+      <line x1="65" y1="24" x2="510" y2="24" stroke="#c2bfb6" stroke-width="1" stroke-dasharray="3,3" />
+
+      <!-- Y-Axis Labels -->
+      <text x="56" y="234" text-anchor="end" font-family="JetBrains Mono, monospace" font-size="11" fill="#141413">0 GB</text>
+      <text x="56" y="182.5" text-anchor="end" font-family="JetBrains Mono, monospace" font-size="11" fill="#141413">40 GB</text>
+      <text x="56" y="131" text-anchor="end" font-family="JetBrains Mono, monospace" font-size="11" fill="#141413">80 GB</text>
+      <text x="56" y="79.5" text-anchor="end" font-family="JetBrains Mono, monospace" font-size="11" fill="#141413">120 GB</text>
+      <text x="56" y="28" text-anchor="end" font-family="JetBrains Mono, monospace" font-size="11" fill="#141413">160 GB</text>
+
+      <!-- X-Axis Labels (T = 4K to 512K) -->
+      <text x="65" y="248" text-anchor="middle" font-family="JetBrains Mono, monospace" font-size="11" fill="#141413">4K</text>
+      <text x="176" y="248" text-anchor="middle" font-family="JetBrains Mono, monospace" font-size="11" fill="#141413">128K</text>
+      <text x="287.5" y="248" text-anchor="middle" font-family="JetBrains Mono, monospace" font-size="11" fill="#141413">256K</text>
+      <text x="399" y="248" text-anchor="middle" font-family="JetBrains Mono, monospace" font-size="11" fill="#141413">384K</text>
+      <text x="510" y="248" text-anchor="middle" font-family="JetBrains Mono, monospace" font-size="11" fill="#141413">512K</text>
+      <text x="287.5" y="268" text-anchor="middle" font-family="Inter, sans-serif" font-size="12" font-weight="600" fill="#141413">Sequence Context Length T (Tokens)</text>
+
+      <!-- Dynamic Curves -->
+      <!-- Full Attention KV Cache (Dashed Primary Ink) -->
+      <polyline id="ssm-curve-attn" fill="none" stroke="#141413" stroke-width="2" stroke-dasharray="5,4" points="" />
+      <!-- Hybrid Jamba KV+SSM State (Solid Crimson Highlight) -->
+      <polyline id="ssm-curve-hybrid" fill="none" stroke="#991b1b" stroke-width="2.75" points="" />
+      <!-- Pure Mamba-2 O(1) State (Solid Primary Ink Flat Line) -->
+      <polyline id="ssm-curve-mamba" fill="none" stroke="#141413" stroke-width="2.25" points="65,229.5 510,229.5" />
+
+      <!-- Active Context Vertical Line & Markers -->
+      <line id="ssm-active-line" x1="176" y1="24" x2="176" y2="230" stroke="#991b1b" stroke-width="1.5" stroke-dasharray="3,3" />
+      <circle id="ssm-marker-attn" cx="176" cy="178" r="4" fill="#141413" />
+      <circle id="ssm-marker-hybrid" cx="176" cy="223" r="5.5" fill="#991b1b" />
+      <circle id="ssm-marker-mamba" cx="176" cy="229.5" r="4" fill="#141413" />
+
+      <!-- Legend Box -->
+      <rect x="78" y="34" width="256" height="64" rx="3" fill="#f5f4f0" stroke="#c2bfb6" stroke-width="1" />
+      <line x1="90" y1="49" x2="116" y2="49" stroke="#141413" stroke-width="2" stroke-dasharray="4,3" />
+      <text x="124" y="53" font-family="Inter, sans-serif" font-size="11" font-weight="600" fill="#141413">Dense Transformer (64 Attn Layers)</text>
+      <line x1="90" y1="67" x2="116" y2="67" stroke="#991b1b" stroke-width="2.75" />
+      <text x="124" y="71" font-family="Inter, sans-serif" font-size="11" font-weight="700" fill="#991b1b">Hybrid Jamba (Attn + Mamba-2)</text>
+      <line x1="90" y1="85" x2="116" y2="85" stroke="#141413" stroke-width="2.25" />
+      <text x="124" y="89" font-family="Inter, sans-serif" font-size="11" font-weight="600" fill="#141413">Pure Mamba-2 (Constant O(1) State)</text>
+
+      <!-- Right Readout Panel -->
+      <rect x="530" y="24" width="234" height="206" rx="4" fill="#ffffff" stroke="#141413" stroke-width="1.5" />
+      <text x="647" y="48" text-anchor="middle" font-family="Inter, sans-serif" font-size="12.5" font-weight="700" fill="#141413">State &amp; KV Audit (64 Layers)</text>
+      <line x1="546" y1="58" x2="748" y2="58" stroke="#c2bfb6" stroke-width="1" />
+
+      <text x="546" y="80" font-family="Inter, sans-serif" font-size="11.5" fill="#141413">Dense Attn KV Cache:</text>
+      <text x="748" y="80" text-anchor="end" font-family="JetBrains Mono, monospace" font-size="12" font-weight="700" fill="#141413" id="ssm-stat-attn">42.9 GB</text>
+
+      <text x="546" y="104" font-family="Inter, sans-serif" font-size="11.5" fill="#141413">Pure Mamba-2 State:</text>
+      <text x="748" y="104" text-anchor="end" font-family="JetBrains Mono, monospace" font-size="12" font-weight="700" fill="#141413" id="ssm-stat-mamba">0.13 GB</text>
+
+      <text x="546" y="128" font-family="Inter, sans-serif" font-size="11.5" fill="#141413">In-Context Recall:</text>
+      <text x="748" y="128" text-anchor="end" font-family="JetBrains Mono, monospace" font-size="12" font-weight="700" fill="#141413" id="ssm-stat-recall">99.2%</text>
+
+      <!-- Highlighted Hybrid Box -->
+      <rect x="544" y="144" width="206" height="72" rx="3" fill="#fef2f2" stroke="#991b1b" stroke-width="1.5" />
+      <text x="554" y="164" font-family="Inter, sans-serif" font-size="11.5" font-weight="700" fill="#991b1b">Hybrid State Memory:</text>
+      <text x="740" y="164" text-anchor="end" font-family="JetBrains Mono, monospace" font-size="12.5" font-weight="700" fill="#991b1b" id="ssm-stat-hybrid">5.48 GB</text>
+
+      <text x="554" y="186" font-family="Inter, sans-serif" font-size="11.5" fill="#991b1b">KV Reduction:</text>
+      <text x="740" y="186" text-anchor="end" font-family="JetBrains Mono, monospace" font-size="12" font-weight="700" fill="#991b1b" id="ssm-stat-save">8.0&times; Smaller</text>
+
+      <text x="647" y="206" text-anchor="middle" font-family="JetBrains Mono, monospace" font-size="10.5" fill="#991b1b" id="ssm-stat-verdict">Fits Single 80GB H100</text>
+    </svg>
+  </div>
+
+  <!-- Live Narration Caption -->
+  <div class="llm-motion-caption">
+    <span id="ssm-sim-caption"></span>
+    <span class="llm-focus-pill" id="ssm-sim-badge">1:8 Jamba Topology</span>
+  </div>
+
+  <!-- Controls -->
+  <div class="llm-motion-controls">
+    <div class="llm-btn-group">
+      <button type="button" class="llm-btn-step" id="ssm-preset-pure">1. Pure Mamba-2 (0% Attn)</button>
+      <button type="button" class="llm-btn-play" id="ssm-preset-jamba">2. Hybrid 1:8 (12.5% Attn)</button>
+      <button type="button" class="llm-btn-step" id="ssm-preset-dense">3. Dense Transformer (100% Attn)</button>
+    </div>
+
+    <div class="llm-scrubber-group">
+      <span class="llm-scrubber-label">Context T:</span>
+      <input type="range" id="ssm-ctx-slider" class="llm-scrubber" min="16" max="512" step="16" value="128" />
+      <span class="llm-scrubber-label" style="margin-left: 0.5rem;">Attn Layers:</span>
+      <input type="range" id="ssm-layers-slider" class="llm-scrubber" min="0" max="64" step="8" value="8" />
+    </div>
+  </div>
+</div>
+
+<script>
+(function() {
+  var ctxSlider = document.getElementById('ssm-ctx-slider');
+  var layersSlider = document.getElementById('ssm-layers-slider');
+  var ctxVal = document.getElementById('ssm-ctx-val');
+  var ratioVal = document.getElementById('ssm-ratio-val');
+
+  var curveAttn = document.getElementById('ssm-curve-attn');
+  var curveHybrid = document.getElementById('ssm-curve-hybrid');
+  var activeLine = document.getElementById('ssm-active-line');
+  var markerAttn = document.getElementById('ssm-marker-attn');
+  var markerHybrid = document.getElementById('ssm-marker-hybrid');
+  var markerMamba = document.getElementById('ssm-marker-mamba');
+
+  var statAttn = document.getElementById('ssm-stat-attn');
+  var statMamba = document.getElementById('ssm-stat-mamba');
+  var statRecall = document.getElementById('ssm-stat-recall');
+  var statHybrid = document.getElementById('ssm-stat-hybrid');
+  var statSave = document.getElementById('ssm-stat-save');
+  var statVerdict = document.getElementById('ssm-stat-verdict');
+  var caption = document.getElementById('ssm-sim-caption');
+
+  var btnPure = document.getElementById('ssm-preset-pure');
+  var btnJamba = document.getElementById('ssm-preset-jamba');
+  var btnDense = document.getElementById('ssm-preset-dense');
+
+  // 64 total layers, d_model=4096, GQA 8 KV heads * 128 dim * 2 (K,V) * 2 bytes (FP16) = 4096 bytes/token/layer
+  // Over 64 layers: 262,144 bytes/token = 0.262144 MB/token -> at 512K tokens = 134.2 GB
+  function attnGB(tK, numAttnLayers) {
+    return (tK * 1024 * numAttnLayers * 4096) / 1e9;
+  }
+
+  // Mamba-2 state per layer: expansion E=2 * d=4096 * N=128 * 2 bytes = 2.097 MB/layer -> 0.134 GB for 64 layers
+  function mambaGB(numSsmLayers) {
+    return (numSsmLayers * 2.097152) / 1000.0;
+  }
+
+  function xCoord(tK) {
+    return 65 + (tK / 512.0) * 445;
+  }
+
+  function yCoord(gb) {
+    var clamped = Math.max(0, Math.min(160, gb));
+    return 230 - (clamped / 160.0) * 206;
+  }
+
+  function updateSim() {
+    var tK = parseInt(ctxSlider.value, 10);
+    var lAttn = parseInt(layersSlider.value, 10);
+    var lSsm = 64 - lAttn;
+
+    ctxVal.textContent = tK + 'K';
+    var pct = ((lAttn / 64.0) * 100).toFixed(1);
+    ratioVal.textContent = lAttn + '/64 (' + pct + '%)';
+
+    var ptsAttn = [];
+    var ptsHybrid = [];
+
+    for (var tk = 4; tk <= 512; tk += 28) {
+      var x = xCoord(tk).toFixed(1);
+      var gbFull = attnGB(tk, 64);
+      var gbHyb = attnGB(tk, lAttn) + mambaGB(lSsm);
+      ptsAttn.push(x + ',' + yCoord(gbFull).toFixed(1));
+      ptsHybrid.push(x + ',' + yCoord(gbHyb).toFixed(1));
+    }
+
+    curveAttn.setAttribute('points', ptsAttn.join(' '));
+    curveHybrid.setAttribute('points', ptsHybrid.join(' '));
+
+    var curFull = attnGB(tK, 64);
+    var curMamba = mambaGB(64);
+    var curHyb = attnGB(tK, lAttn) + mambaGB(lSsm);
+    var curX = xCoord(tK).toFixed(1);
+
+    activeLine.setAttribute('x1', curX);
+    activeLine.setAttribute('x2', curX);
+    markerAttn.setAttribute('cx', curX);
+    markerAttn.setAttribute('cy', yCoord(curFull).toFixed(1));
+    markerHybrid.setAttribute('cx', curX);
+    markerHybrid.setAttribute('cy', yCoord(curHyb).toFixed(1));
+    markerMamba.setAttribute('cx', curX);
+
+    statAttn.textContent = curFull.toFixed(1) + ' GB';
+    statMamba.textContent = curMamba.toFixed(2) + ' GB';
+    statHybrid.textContent = curHyb.toFixed(2) + ' GB';
+
+    var ratioSave = curFull / Math.max(0.05, curHyb);
+    statSave.textContent = ratioSave.toFixed(1) + '× Smaller';
+
+    // Exact needle-in-a-haystack recall depends on having at least 4-8 attention layers
+    var recall = (lAttn === 0) ? Math.max(68.0, 96.0 - 0.055 * tK) : Math.min(99.8, 98.4 + 0.1 * lAttn - 0.002 * tK);
+    statRecall.textContent = recall.toFixed(1) + '%';
+
+    if (curHyb > 64.0) {
+      statVerdict.textContent = 'Exceeds Single H100 HBM';
+    } else if (lAttn === 0 && tK >= 128) {
+      statVerdict.textContent = 'Fixed RAM /Copy Bottleneck';
+    } else {
+      statVerdict.textContent = 'Fits Single 80GB H100';
+    }
+
+    btnPure.className = (lAttn === 0) ? 'llm-btn-play' : 'llm-btn-step';
+    btnJamba.className = (lAttn === 8) ? 'llm-btn-play' : 'llm-btn-step';
+    btnDense.className = (lAttn === 64) ? 'llm-btn-play' : 'llm-btn-step';
+
+    caption.innerHTML = '<strong>State Memory Scaling:</strong> At T = ' + tK + 'K tokens, a 64-layer GQA Transformer requires ' + curFull.toFixed(1) + ' GB of KV cache alone. Interleaving ' + lAttn + ' Attention layers with ' + lSsm + ' Mamba-2 layers slashes state memory to ' + curHyb.toFixed(2) + ' GB (' + ratioSave.toFixed(1) + '× reduction) while preserving ' + recall.toFixed(1) + '% associative needle recall.';
+  }
+
+  ctxSlider.addEventListener('input', updateSim);
+  layersSlider.addEventListener('input', updateSim);
+
+  btnPure.addEventListener('click', function() {
+    layersSlider.value = 0;
+    updateSim();
+  });
+
+  btnJamba.addEventListener('click', function() {
+    layersSlider.value = 8;
+    updateSim();
+  });
+
+  btnDense.addEventListener('click', function() {
+    layersSlider.value = 64;
+    updateSim();
+  });
+
+  updateSim();
+})();
+</script>
